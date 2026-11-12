@@ -3,7 +3,7 @@
 // repo but are not published. Run: node scripts/build.mjs
 import { cpSync, rmSync, mkdirSync } from "node:fs";
 
-const PUBLIC = ["index.html", "_headers", "RESOURCES.md", "lessons", "reference", "assets", "code"];
+const PUBLIC = ["index.html", "404.html", "_headers", "RESOURCES.md", "lessons", "reference", "assets", "code"];
 const SKIP = ["assets/originals"];
 
 rmSync("dist", { recursive: true, force: true });

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>0007 — The harness wraps the loop</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:ital,wght@0,450;0,650;1,450&family=Source+Serif+4:ital,wght@0,450;0,600;1,450&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/lesson.css">
+  <link rel="stylesheet" href="../assets/diagram.css">
+</head>
+<body>
+  <header class="mast">
+    <a href="../index.html">← All lessons</a>
+    <span>Lesson 0007</span>
+  </header>
+  <article>
+    <p class="kicker">Harnesses</p>
+    <h1>The box around the loop</h1>
+    <p class="lede">Lesson 0006 gave you an agent: a <em>while-loop</em> where the model picks the next tool. A <strong>harness</strong> is not a second model. It is the software you wrap around that loop so the program is allowed to run in the real world.</p>
+
+    <div class="callout scope">
+      <p><strong>What this is.</strong> The runtime around the agent you write: who may run a slip, what happens when the kitchen times out, when the loop must stop, and whether the plan is visible. LangChain’s core agent is “an LLM, running in a loop, calling tools.” The harness is everything you add around that sentence. <cite><a href="https://www.langchain.com/blog/deep-agents-vs-langchain-vs-langgraph">Deep Agents vs LangChain vs LangGraph</a></cite></p>
+      <p><strong>What this is not.</strong> Skills, compaction, sub-agents, graphs. A fat harness also does those — they wait. Tonight is four jobs. Not a ChatGPT menu item named “Harness.”</p>
+    </div>
+
+    <ol class="remember four">
+      <li><strong>1 · Allow</strong><span>May this slip run? Sandbox, or a human stamp.</span></li>
+      <li><strong>2 · Run</strong><span>Execute. On failure, paste the error. Retry.</span></li>
+      <li><strong>3 · Stop</strong><span>Done, MAX steps, timeout, or pause for a person.</span></li>
+      <li><strong>4 · Show</strong><span>The plan is visible. Do not hide the loop.</span></li>
+    </ol>
+    <p class="caption">Allow · run · stop · show. The inner loop from 0006 does not change.</p>
+
+    <h2>The loop is small. The product is the box.</h2>
+    <p>Anthropic: an agent is typically just an LLM using tools in a loop — and you still need stopping conditions, sandboxed testing, and a pause for a human at checkpoints. 12-factor agents says the important gap is <em>between</em> the model writing a slip and your code running it. <cite><a href="https://www.anthropic.com/engineering/building-effective-agents">Building effective agents</a> · <a href="https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-08-own-your-control-flow.md">Factor 8 · Own your control flow</a></cite></p>
+
+    <figure class="art">
+      <img class="lesson-art" src="../assets/harness-around-the-loop.webp" alt="A teal box labeled HARNESS around the agent loop. Four gates on the box: Allow, Show, Stop, Run. Caption: The loop is the agent. The box is what you ship.">
+      <p class="caption">Same loop as <a href="0006-you-draw-the-path.html">lesson 0006</a>. Architecture tonight = what wraps it.</p>
+    </figure>
+
+    <figure class="worked">
+      <p class="worked-head">The two programs · pseudocode</p>
+      <div class="worked-body">
+<pre class="pseudo"># NAKED LOOP — lesson 0006, nothing around it
+while steps &lt; MAX:
+    action = llm(messages, tools)
+    if action is text:
+        return action
+    result = run(action)          # slip → till
+    messages.append(result)
+
+# SAME LOOP, INSIDE A HARNESS
+while steps &lt; MAX:                # STOP is your rule
+    action = llm(messages, tools)
+    show(action)                  # SHOW the plan
+    if action is text:
+        return action
+    if not allow(action):         # ALLOW: sandbox / stamp
+        messages.append("denied")
+        continue
+    result = run_with_retry(action)  # RUN: errors become paste
+    messages.append(result)</pre>
+      </div>
+      <p class="worked-note"><strong>What this shows.</strong> You are still writing the program. The four extra lines are the harness. Frameworks (Claude Agent SDK, Deep Agents, LangGraph) are catalogues of those lines — useful once you can name the jobs without the catalogue.</p>
+    </figure>
+
+    <figure class="art">
+      <img class="lesson-art" src="../assets/naked-loop-vs-stamp.webp" alt="Left: a refund() ticket flies straight into an open cash drawer. Right: a cook at the pass holds ALLOW and DENY stamps. Caption: Own the gap between the slip and the till.">
+      <p class="caption">Kitchen only to make the gap concrete. The load-bearing picture is the box and the two programs.</p>
+    </figure>
+
+    <h2>Skill: name which job fired</h2>
+    <p>Same agent loop. Four wrappers. On <strong>Allow</strong>, the loop waits for your stamp — that click is the harness, not the model.</p>
+
+    <div class="lab" data-harness-lab>
+      <h3>Same loop, four harnesses</h3>
+      <div class="btn-row">
+        <button type="button" data-scene="naked">Naked</button>
+        <button type="button" data-scene="allow">Allow</button>
+        <button type="button" data-scene="retry">Retry</button>
+        <button type="button" data-scene="stop">Stop</button>
+      </div>
+      <p class="kind" data-kind></p>
+      <div class="harness-box">
+        <span class="label">Harness</span>
+        <figure class="pipeline" aria-label="Four harness jobs.">
+          <div class="pipeline-step"><strong>Allow</strong><span>stamp</span></div>
+          <div class="pipeline-arrow"><i class="token-dot" aria-hidden="true"></i></div>
+          <div class="pipeline-step"><strong>Run</strong><span>retry</span></div>
+          <div class="pipeline-arrow"><i class="token-dot" aria-hidden="true"></i></div>
+          <div class="pipeline-step"><strong>Stop</strong><span>MAX</span></div>
+          <div class="pipeline-arrow"><i class="token-dot" aria-hidden="true"></i></div>
+          <div class="pipeline-step"><strong>Show</strong><span>visible plan</span></div>
+        </figure>
+      </div>
+      <div class="chat ticket-q" data-harness-chat></div>
+      <div class="btn-row" data-stamp-row hidden>
+        <button type="button" data-stamp="yes">Stamp ALLOW</button>
+        <button type="button" data-stamp="no">Stamp DENY</button>
+      </div>
+      <p class="cost-line" data-cost></p>
+      <p class="hint" data-harness-note></p>
+    </div>
+
+    <h2>You have been sitting in one</h2>
+    <p>ChatGPT, Claude, Cursor, Claude Code: you talk to an <em>agent loop</em> someone else already wrapped. File permissions, the stop button, “run this terminal command?”, retries when a tool fails — that wrapper is the harness. Lesson 0006 asked whether Cursor is an agent or a harness. Both: an agent inside a harness. At work you will write (or pick) the wrapper, not just the <code>while</code>.</p>
+
+    <figure class="art">
+      <img class="lesson-art" src="../assets/someone-elses-harness.webp" alt="A diner eating pizza at a counter. Behind glass, a ticket wheel loops and a cook stamps tickets under a MAX board. Plaque: someone else built this.">
+      <p class="caption">Using a product is not the same as shipping the box.</p>
+    </figure>
+
+    <h2>Buy a harness, or write the four lines</h2>
+    <p>LangChain sells the split as layers: a <em>runtime</em> (durable execution, pause/resume), a thin loop, and an opinionated harness on top. Anthropic’s advice still stands: start with the API; if you use a framework, know what it is wrapping. Deep Agents’ extra furniture — filesystem, skills, sub-agents, memory — is a fat harness. We will unpack those pieces later. <cite>Same LangChain essay · Anthropic, “When and how to use frameworks.”</cite></p>
+
+    <div class="compare">
+      <div class="compare-card">
+        <h3>Write the four lines when</h3>
+        <p>You need a stamp on one tool, a MAX, and a visible plan. A few dozen lines of your own loop is enough.</p>
+      </div>
+      <div class="compare-card">
+        <h3>Pick a packaged harness when</h3>
+        <p>You already know which jobs you are buying, and you can still see the calls. Do not import a box you cannot name.</p>
+      </div>
+    </div>
+
+    <p class="sidenote">Anthropic’s three agent principles, now that you have a harness to hang them on: keep the design simple; show the plan (Show); invest in the tool interface the model sees (Allow + the slips from <a href="0005-the-model-writes-a-slip.html">lesson 0005</a>). Compaction and skills are how a harness spends the window — next lessons, not tonight.</p>
+
+    <h2>Check</h2>
+    <form class="quiz" data-quiz data-answers="bacb"
+          data-success="The loop is the agent. The harness is Allow · Run · Stop · Show around it. Cursor is an agent inside a harness."
+          data-retry="Read the two programs in the grey box, then the four jobs at the top.">
+      <fieldset>
+        <legend>1. A harness is</legend>
+        <label><input type="radio" name="q1" value="a"> a bigger language model</label>
+        <label><input type="radio" name="q1" value="b"> runtime around the loop</label>
+        <label><input type="radio" name="q1" value="c"> a vendor product name</label>
+      </fieldset>
+      <fieldset>
+        <legend>2. MAX steps is enforced by</legend>
+        <label><input type="radio" name="q2" value="a"> the harness stop rule</label>
+        <label><input type="radio" name="q2" value="b"> the model's own judgment</label>
+        <label><input type="radio" name="q2" value="c"> temperature set to zero</label>
+      </fieldset>
+      <fieldset>
+        <legend>3. Between slip and run, you can</legend>
+        <label><input type="radio" name="q3" value="a"> train a new model</label>
+        <label><input type="radio" name="q3" value="b"> grow the token window</label>
+        <label><input type="radio" name="q3" value="c"> ask a human first</label>
+      </fieldset>
+      <fieldset>
+        <legend>4. Cursor and Claude Code are</legend>
+        <label><input type="radio" name="q4" value="a"> just a language model</label>
+        <label><input type="radio" name="q4" value="b"> agent plus a harness</label>
+        <label><input type="radio" name="q4" value="c"> workflow with no loop</label>
+      </fieldset>
+      <button type="submit">Check</button>
+      <p class="feedback" data-feedback></p>
+    </form>
+
+    <div class="callout">
+      <p><strong>Primary source.</strong> The loop-vs-harness split in <a href="https://www.langchain.com/blog/deep-agents-vs-langchain-vs-langgraph">Deep Agents vs LangChain vs LangGraph</a>. Then the stopping conditions, sandbox, and “show the plan” in <a href="https://www.anthropic.com/engineering/building-effective-agents">Building effective agents</a> (the three principles at the end). For the stamp between slip and run: <a href="https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-08-own-your-control-flow.md">Factor 8</a>.</p>
+      <p>Card: <a href="../reference/harnesses.html">the harness</a>. Last architecture: <a href="../reference/workflows.html">workflow vs agent</a>.</p>
+    </div>
+
+    <footer class="lesson-foot">
+      <p>If “is LangGraph a harness or a runtime?” is still fuzzy, replay the lab above and reread the <a href="../reference/harnesses.html">harness cheat sheet</a>. Next: <a href="0008-load-the-chapter.html">skills</a> — load the chapter only when the task needs it, instead of stuffing the window up front.</p>
+    </footer>
+  </article>
+  <script src="../assets/harness-lab.js"></script>
+  <script src="../assets/quiz.js"></script>
+  <script src="../assets/course-data.js"></script>
+  <script src="../assets/progress.js"></script>
+</body>
+</html>

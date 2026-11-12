@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>0006 — Two architectures</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:ital,wght@0,450;0,650;1,450&family=Source+Serif+4:ital,wght@0,450;0,600;1,450&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/lesson.css">
+  <link rel="stylesheet" href="../assets/diagram.css">
+</head>
+<body>
+  <header class="mast">
+    <a href="../index.html">← All lessons</a>
+    <span>Lesson 0006</span>
+  </header>
+  <article>
+    <p class="kicker">Architecture</p>
+    <h1>Two ways to build the program</h1>
+    <p class="lede">This lesson is not a ChatGPT feature, and it is not a product named “agent workflow.” It is the first real <strong>design choice</strong> you make when you write software that calls an LLM: does <em>your code</em> already know the steps, or is your code a <em>loop</em> that lets the model pick the next tool?</p>
+
+    <div class="callout scope">
+      <p><strong>What this is.</strong> Architecture for an app <em>you</em> ship — an invoice bot, a support bot, a coding agent at work. You are writing the program. The model is a function you call (lesson 0003). Tools are slips your code runs (lesson 0005).</p>
+      <p><strong>What this is not.</strong> Training a model. A vendor menu item. “Agent workflow” as one mashed-together name — Anthropic keeps the two words apart on purpose. The runtime around the loop is the <em>harness</em> — <a href="0007-the-harness-wraps-the-loop.html">lesson 0007</a>.</p>
+    </div>
+
+    <ol class="remember">
+      <li><strong>1 · One call</strong><span>Your program: messages in, text out. Often enough.</span></li>
+      <li><strong>2 · Workflow</strong><span>Your program already lists the steps. Control flow is in source.</span></li>
+      <li><strong>3 · Agent</strong><span>Your program is a while-loop. The model chooses the next tool until stop.</span></li>
+    </ol>
+    <p class="caption">“Building your own agent” means writing that loop (later: wrapping it in a harness). A workflow is also something you build — it is just more prescribed.</p>
+
+    <h2>Who owns control flow?</h2>
+    <p>Anthropic’s definitions, used as the field’s split: a <strong>workflow</strong> orchestrates LLMs and tools through <em>predefined code paths</em>. An <strong>agent</strong> is a system where the LLM <em>dynamically directs</em> its own process and tool use. They call the pair <em>agentic systems</em>. <cite><a href="https://www.anthropic.com/engineering/building-effective-agents">Building effective agents</a></cite></p>
+
+    <figure class="art">
+      <img class="lesson-art" src="../assets/architecture-control-flow.webp" alt="Two flowcharts. Left workflow: your code owns a straight path of LLM and tool steps. Right agent: your code is a loop; the model chooses tool or final text; stop if done or max steps. Caption: The model is a function you call.">
+      <p class="caption">Same tools as lesson 0005. Architecture = who decides the <em>next</em> call.</p>
+    </figure>
+
+    <figure class="worked">
+      <p class="worked-head">The two programs · pseudocode</p>
+      <div class="worked-body">
+<pre class="pseudo"># WORKFLOW — you already know the steps
+a = llm("extract the order fields")
+b = check_oven()                  # your code always does this next
+c = llm("write the ticket", a, b)
+return c
+
+# AGENT — you do not know the steps
+while steps &lt; MAX:
+    action = llm(messages, tools) # model: tool call or final text?
+    if action is text:
+        return action             # stop
+    result = run(action)          # your code still runs the tool
+    messages.append(result)       # paste back into RAM, loop</pre>
+      </div>
+      <p class="worked-note"><strong>What this shows.</strong> In both programs <em>you</em> are the author. In a workflow the <code>if/then</code> is in your source. In an agent the <code>if/then</code> of “which tool next?” is inside the model; your source is the loop, the tool runner, and the stop. That is the whole architectural difference.</p>
+    </figure>
+
+    <h2>The muddy phrase “agent workflow”</h2>
+    <p>People say it. Treat it as marketing fog. In this course:</p>
+    <ul>
+      <li><strong>Workflow</strong> = predefined path in <em>your</em> code.</li>
+      <li><strong>Agent</strong> = model-directed loop in <em>your</em> code.</li>
+      <li>ChatGPT / Claude as a user: you are talking to an agentic product <em>someone else</em> already built. This lesson is the program on the other side of the API.</li>
+    </ul>
+
+    <h2>Same idea, one kitchen example</h2>
+    <p>If the flowchart is clear, you can skim this. It is only to make the two programs concrete.</p>
+
+    <figure class="worked">
+      <p class="worked-head">Workflow · path known before the user arrives</p>
+      <div class="worked-body">
+        <div class="chat">
+          <div class="bubble user"><small>user</small>One Margherita, as usual.</div>
+          <div class="bubble tool"><small>your code · always step 1</small><pre>check_oven()</pre></div>
+          <div class="bubble tool"><small>your code · always step 2</small><pre>stretch_dough()</pre></div>
+          <div class="bubble tool"><small>your code · always step 3</small><pre>top({ "tomato": true, "basil": true })</pre></div>
+          <div class="bubble tool"><small>your code · always step 4</small><pre>bake({ "seconds": 90 })</pre></div>
+          <div class="bubble assistant"><small>return</small>Margherita up.</div>
+        </div>
+      </div>
+      <p class="worked-note"><strong>What this shows.</strong> Invoice pipelines, “always retrieve then answer,” onboarding checklists: the sequence does not change. The model may fill a step; it does not get to invent a new step.</p>
+    </figure>
+
+    <figure class="worked">
+      <p class="worked-head">Agent · path unknown until the model chooses</p>
+      <div class="worked-body">
+        <div class="chat">
+          <div class="bubble user"><small>user</small>Use up tonight’s walnuts. I trust you.</div>
+          <div class="bubble tool"><small>model chose tool 1</small><pre>count_stock({ "item": "walnut" })</pre></div>
+          <div class="bubble result"><small>your code ran it</small><pre>{ "handfuls": 3 }</pre></div>
+          <div class="bubble tool"><small>model chose tool 2</small><pre>check_oven()</pre></div>
+          <div class="bubble result"><small>your code ran it</small><pre>{ "temp_c": 240 }</pre></div>
+          <div class="bubble tool"><small>model chose tool 3</small><pre>make_pizza({ "name": "walnut crumb" })</pre></div>
+          <div class="bubble assistant"><small>model returned text · your loop stops</small>Walnut crumb special is up.</div>
+        </div>
+      </div>
+      <p class="worked-note"><strong>What this shows.</strong> Open support tickets, “fix this repo,” research: you cannot list the tools in order ahead of time. You still run every tool. You still set <code>MAX</code>. Anthropic: that loop is an agent. It costs more turns; a bad tool call can poison the next one.</p>
+    </figure>
+
+    <figure class="art">
+      <img class="lesson-art" src="../assets/workflow-vs-agent.webp" alt="Kitchen metaphor of the same split: a straight four-station line versus a chef at a ticket wheel.">
+      <p class="caption">Metaphor only. The load-bearing picture is the flowchart and the two programs above.</p>
+    </figure>
+
+    <h2>Skill: name the architecture</h2>
+    <p>Three requests into the same kitchen app. Watch whether your program is one call, a fixed sequence, or a loop.</p>
+
+    <div class="lab" data-flow-lab>
+      <h3>Same app, three architectures</h3>
+      <div class="btn-row">
+        <button type="button" data-order="menu">One call</button>
+        <button type="button" data-order="usual">Workflow (fixed path)</button>
+        <button type="button" data-order="walnuts">Agent (model loop)</button>
+      </div>
+      <p class="kind" data-kind></p>
+      <figure class="pipeline" data-path aria-label="Control flow for this architecture."></figure>
+      <div class="chat ticket-q" data-flow-chat></div>
+      <p class="cost-line" data-cost></p>
+      <p class="hint" data-flow-note></p>
+    </div>
+
+    <h2>Which one to write</h2>
+    <p>Anthropic’s rule is not “build an agent.” It is: start with the simplest program that works, and add a loop only when a fixed path cannot name the steps. For many apps that is still one LLM call plus retrieval. Workflows buy predictability. Agents buy flexibility and spend latency and money. <cite>Same essay, “When (and when not) to use agents.”</cite></p>
+
+    <div class="compare three">
+      <div class="compare-card">
+        <h3>Write one call when</h3>
+        <p>The answer is in the script, or a RAG paste is enough. No tools in a loop.</p>
+      </div>
+      <div class="compare-card">
+        <h3>Write a workflow when</h3>
+        <p>You can list the steps today: extract → lookup → draft. Same path every run.</p>
+      </div>
+      <div class="compare-card">
+        <h3>Write an agent when</h3>
+        <p>You cannot hardcode the steps, and you will accept extra calls plus a stop condition.</p>
+      </div>
+    </div>
+
+    <figure class="art">
+      <img class="lesson-art" src="../assets/start-simple-toast.webp" alt="One toaster versus a full brigade making toast — do not wrap a one-call job in an agent loop.">
+      <p class="caption">An agent is a loop you must operate. Do not wrap a one-call job in that loop.</p>
+    </figure>
+
+    <figure class="art">
+      <img class="lesson-art" src="../assets/climb-the-rungs.webp" alt="Three rungs: one call, workflow, agent. Climb only if the rung below fails.">
+      <p class="caption">Mission skill: defend this choice in a design review.</p>
+    </figure>
+
+    <h2>If you chose a workflow</h2>
+    <p>Anthropic names five common <em>shapes</em> of predefined path. They are still workflows — you drew them. An agent is what you write when even these shapes cannot name the steps in advance.</p>
+    <ul class="shapes">
+      <li><strong>Chaining</strong> Call 1 output becomes call 2 input (outline, then draft).</li>
+      <li><strong>Routing</strong> Classify, then send to a specialist prompt or model.</li>
+      <li><strong>Parallel</strong> Independent calls at once; or several votes, then merge.</li>
+      <li><strong>Orchestrator</strong> One LLM splits work; worker LLMs do pieces; you stitch.</li>
+      <li><strong>Evaluator</strong> Generate, critique, revise — a loop, but the critic step is in your path.</li>
+    </ul>
+    <p class="sidenote">Do not memorise implementations tonight. The load-bearing fact: those five still have control flow in your code. Frameworks (LangChain, Agent SDKs) can hide whether you wrote a path or a loop — Anthropic’s advice is to see the calls first.</p>
+
+    <h2>Check</h2>
+    <form class="quiz" data-quiz data-answers="bbbc"
+          data-success="You are writing the program. Workflow = your path. Agent = your loop, model picks the next tool. Start on the lowest rung that works."
+          data-retry="Read ‘What this is’ at the top, then the two programs in the grey box.">
+      <fieldset>
+        <legend>1. This lesson is about</legend>
+        <label><input type="radio" name="q1" value="a"> a ChatGPT feature named Agent Workflow</label>
+        <label><input type="radio" name="q1" value="b"> which architecture your app uses</label>
+        <label><input type="radio" name="q1" value="c"> training a new model</label>
+      </fieldset>
+      <fieldset>
+        <legend>2. In a workflow, the next step is chosen by</legend>
+        <label><input type="radio" name="q2" value="a"> the model, freely</label>
+        <label><input type="radio" name="q2" value="b"> your code’s path</label>
+        <label><input type="radio" name="q2" value="c"> temperature</label>
+      </fieldset>
+      <fieldset>
+        <legend>3. “Building an agent” means you write</legend>
+        <label><input type="radio" name="q3" value="a"> a new foundation model</label>
+        <label><input type="radio" name="q3" value="b"> a loop: call model, maybe run a tool, repeat until stop</label>
+        <label><input type="radio" name="q3" value="c"> a longer system prompt only</label>
+      </fieldset>
+      <fieldset>
+        <legend>4. Anthropic’s first move is</legend>
+        <label><input type="radio" name="q4" value="a"> ship an agent loop</label>
+        <label><input type="radio" name="q4" value="b"> pick a framework</label>
+        <label><input type="radio" name="q4" value="c"> the simplest program that works</label>
+      </fieldset>
+      <button type="submit">Check</button>
+      <p class="feedback" data-feedback></p>
+    </form>
+
+    <div class="callout">
+      <p><strong>Primary source.</strong> The two definitions plus “When (and when not) to use agents” in <a href="https://www.anthropic.com/engineering/building-effective-agents">Building effective agents</a>. Skim the five workflow names. The three principles at the end (simplicity, show the plan, tool interface) hang on the harness — <a href="0007-the-harness-wraps-the-loop.html">lesson 0007</a>.</p>
+      <p>Card: <a href="../reference/workflows.html">two architectures</a>.</p>
+    </div>
+
+    <footer class="lesson-foot">
+      <p>If “is routing an agent?” is still fuzzy, replay the lab above and reread the <a href="../reference/workflows.html">two architectures cheat sheet</a>. Next: <a href="0007-the-harness-wraps-the-loop.html">the harness</a> — allow, run, stop, show around that loop. Cursor is both: an agent inside a harness.</p>
+    </footer>
+  </article>
+  <script src="../assets/flow-lab.js"></script>
+  <script src="../assets/quiz.js"></script>
+  <script src="../assets/course-data.js"></script>
+  <script src="../assets/progress.js"></script>
+</body>
+</html>

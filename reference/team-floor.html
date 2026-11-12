@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Team floor — cheat sheet</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:ital,wght@0,450;0,650;1,450&family=Source+Serif+4:ital,wght@0,450;0,600;1,450&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/lesson.css">
+  <link rel="stylesheet" href="../assets/diagram.css">
+</head>
+<body>
+  <header class="mast">
+    <a href="../index.html">← All lessons</a>
+    <span>Reference</span>
+  </header>
+  <article>
+    <p class="kicker">Cheat sheet</p>
+    <h1>Team floor</h1>
+    <p class="lede">From <a href="../lessons/0015-write-the-floor-once.html">lesson 0015</a>. Ops was the product assistant. Dev is one repo floor for humans and agents.</p>
+
+    <ol class="remember">
+      <li><strong>Guide</strong><span>AGENTS.md / CLAUDE.md / rules. In git. Both read it.</span></li>
+      <li><strong>Guard</strong><span>Hooks, CI, CODEOWNERS, merge stamp. Can block.</span></li>
+      <li><strong>Job</strong><span>Project skills and sub-agents in git. Either may call.</span></li>
+    </ol>
+
+    <h2>Not</h2>
+    <ul>
+      <li>Not a Slack wiki plus a private prompt. That is two floors.</li>
+      <li>To ship that floor to another laptop: a plugin crate. <a href="plugins.html">Plugins card</a>.</li>
+      <li>Not “the agent merges.” A human still stamps. <a href="harnesses.html">Harness card</a>.</li>
+      <li>Not redefining skills or sub-agents — only who owns the files. <a href="skills.html">Skills</a> · <a href="sub-agents.html">Sub-agents</a>.</li>
+      <li>CI grades the branch. Product evals grade the assistant. <a href="evals.html">Evals card</a>.</li>
+    </ul>
+    <p>Anthropic: CLAUDE.md is the new-teammate brief; a hook when it must fire. Cursor: commit rules and <code>.cursor/agents/</code>.</p>
+  </article>
+  <script src="../assets/course-data.js"></script>
+  <script src="../assets/progress.js"></script>
+</body>
+</html>

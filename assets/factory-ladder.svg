@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1010 560" font-family="'Source Sans 3','Segoe UI',system-ui,sans-serif">
+  <rect width="1010" height="560" fill="#f7f1e5"/>
+  <text x="48" y="52" font-size="15" letter-spacing="2.4" fill="#9a3412" font-weight="650">FIVE LEVELS · WHO READS THE DIFF?</text>
+  <text x="48" y="80" font-size="15" fill="#44403c">After Dan Shapiro, January 2026. Each step up removes a human check.</text>
+
+  <g font-size="13" letter-spacing="1.4" fill="#44403c" font-weight="650">
+    <text x="130" y="124">LEVEL</text>
+    <text x="400" y="124">YOUR JOB</text>
+    <text x="690" y="124">WHO READS THE DIFF</text>
+  </g>
+  <line x1="48" y1="134" x2="912" y2="134" stroke="#d6cbb6"/>
+
+  <!-- rows, top = level 5 -->
+  <g>
+    <rect x="48" y="146" width="864" height="58" rx="5" fill="#1d4e4a"/>
+    <text x="72" y="182" font-size="24" font-weight="650" fill="#f7f1e5">5</text>
+    <text x="130" y="182" font-size="18" font-weight="650" fill="#f7f1e5">Dark software factory</text>
+    <text x="400" y="182" font-size="16" fill="#f7f1e5">Specs in, software out</text>
+    <text x="690" y="182" font-size="16" font-weight="650" fill="#f7f1e5">No human</text>
+
+    <rect x="48" y="212" width="864" height="58" rx="5" fill="#efe6d4" stroke="#1d4e4a" stroke-width="1.6"/>
+    <text x="72" y="248" font-size="24" font-weight="650" fill="#1d4e4a">4</text>
+    <text x="130" y="248" font-size="18" font-weight="650" fill="#1c1917">Engineering team</text>
+    <text x="400" y="248" font-size="16" fill="#44403c">Specs and plans; agents do the work</text>
+    <text x="690" y="248" font-size="16" fill="#1c1917">You, sometimes</text>
+
+    <rect x="48" y="278" width="864" height="58" rx="5" fill="#efe6d4" stroke="#d6cbb6"/>
+    <text x="72" y="314" font-size="24" font-weight="650" fill="#9a3412">3</text>
+    <text x="130" y="314" font-size="18" font-weight="650" fill="#1c1917">Developer</text>
+    <text x="400" y="314" font-size="16" fill="#44403c">Full-time reviewer of agent code</text>
+    <text x="690" y="314" font-size="16" fill="#1c1917">You, every line</text>
+
+    <rect x="48" y="344" width="864" height="58" rx="5" fill="#efe6d4" stroke="#d6cbb6"/>
+    <text x="72" y="380" font-size="24" font-weight="650" fill="#9a3412">2</text>
+    <text x="130" y="380" font-size="18" font-weight="650" fill="#1c1917">Junior developer</text>
+    <text x="400" y="380" font-size="16" fill="#44403c">Pair with the model</text>
+    <text x="690" y="380" font-size="16" fill="#1c1917">You, every line</text>
+
+    <rect x="48" y="410" width="864" height="58" rx="5" fill="#efe6d4" stroke="#d6cbb6"/>
+    <text x="72" y="446" font-size="24" font-weight="650" fill="#9a3412">1</text>
+    <text x="130" y="446" font-size="18" font-weight="650" fill="#1c1917">Coding intern</text>
+    <text x="400" y="446" font-size="16" fill="#44403c">Hand off snippets and boilerplate</text>
+    <text x="690" y="446" font-size="16" fill="#1c1917">You, every line</text>
+
+    <rect x="48" y="476" width="864" height="58" rx="5" fill="#efe6d4" stroke="#d6cbb6"/>
+    <text x="72" y="512" font-size="24" font-weight="650" fill="#9a3412">0</text>
+    <text x="130" y="512" font-size="18" font-weight="650" fill="#1c1917">Spicy autocomplete</text>
+    <text x="400" y="512" font-size="16" fill="#44403c">You type; it suggests</text>
+    <text x="690" y="512" font-size="16" fill="#1c1917">You wrote it</text>
+  </g>
+
+  <!-- the gap marker between 3 and 4 -->
+  <path d="M920 336 h18 v-124 h-18" fill="none" stroke="#9a3412" stroke-width="2"/>
+  <text x="946" y="279" font-size="13" fill="#9a3412" font-weight="650">the gap</text>
+</svg>

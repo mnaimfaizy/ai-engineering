@@ -1,0 +1,11 @@
+# Cloudflare Pages headers. Without this, .ts files are served as video (MPEG-TS)
+# and browsers download them instead of showing the code.
+/code/*
+  Content-Type: text/plain; charset=utf-8
+  X-Content-Type-Options: nosniff
+
+/*.md
+  Content-Type: text/plain; charset=utf-8
+
+/assets/*
+  Cache-Control: public, max-age=604800

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>0004 — Look it up, then ask</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:ital,wght@0,450;0,650;1,450&family=Source+Serif+4:ital,wght@0,450;0,600;1,450&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/lesson.css">
+  <link rel="stylesheet" href="../assets/diagram.css">
+</head>
+<body>
+  <header class="mast">
+    <a href="../index.html">← All lessons</a>
+    <span>Lesson 0004</span>
+  </header>
+  <article>
+    <p class="kicker">Context trick</p>
+    <h1>Look it up, then ask</h1>
+    <p class="lede">The model’s training is a frozen cookbook. Your live menu is not in there. <strong>RAG</strong> means: find a few pages, paste them into the script, then pack · read · pick as usual.</p>
+
+    <ol class="remember">
+      <li><strong>1 · Find</strong><span>Search the library. Keep two or three pages, not the shelf.</span></li>
+      <li><strong>2 · Paste</strong><span>Drop those pages into the user (or system) bubble.</span></li>
+      <li><strong>3 · Pick</strong><span>Same call as lesson 0003. The model now “read” the pages.</span></li>
+    </ol>
+    <p class="caption">Find · paste · pick. If the answer already fits in the script, skip the library.</p>
+
+    <h2>Why a library at all?</h2>
+    <p>Lewis et al. split memory in two: facts baked into the weights, and a pile of documents you can <em>look up</em> and swap when the world changes. That lookup-plus-generate recipe is what they named RAG. <cite><a href="https://arxiv.org/abs/2005.11401">Retrieval-Augmented Generation</a> (2020)</cite></p>
+    <p>Anthropic’s one-line version of how people use it today: retrieve the relevant bits, <em>append them to the prompt</em>. The knowledge base can be huge; the window stays small. <cite><a href="https://www.anthropic.com/engineering/contextual-retrieval">Contextual Retrieval</a></cite></p>
+
+    <figure class="pipeline" data-pipeline aria-label="Library to window to answer.">
+      <div class="pipeline-step"><strong>Disk</strong><span>the whole menu</span></div>
+      <div class="pipeline-arrow"><i class="token-dot" aria-hidden="true"></i></div>
+      <div class="pipeline-step"><strong>Find</strong><span>2–3 snippets</span></div>
+      <div class="pipeline-arrow"><i class="token-dot" aria-hidden="true"></i></div>
+      <div class="pipeline-step"><strong>RAM</strong><span>pasted in the script</span></div>
+      <div class="pipeline-arrow"><i class="token-dot" aria-hidden="true"></i></div>
+      <div class="pipeline-step"><strong>Pick</strong><span>the answer</span></div>
+    </figure>
+    <p class="caption">Karpathy’s picture: window = RAM, files = disk. RAG is paging a few files into RAM — not buying a bigger brain.</p>
+
+    <h2>The pizza kitchen</h2>
+    <figure class="worked">
+      <p class="worked-head">Example · without RAG</p>
+      <div class="worked-body">
+        <div class="chat">
+          <div class="bubble user"><small>user</small>Is the walnut pizza safe for nut allergies?</div>
+          <div class="bubble assistant"><small>assistant · guessing from training</small>Many walnut toppings contain tree nuts… (may be stale or wrong)</div>
+        </div>
+      </div>
+      <p class="worked-note"><strong>What this shows.</strong> The waiter (the model) is reciting a cookbook printed last year. Your actual allergen sheet never got into the weights.</p>
+    </figure>
+
+    <figure class="worked">
+      <p class="worked-head">Example · with RAG</p>
+      <div class="worked-body">
+        <div class="chat">
+          <div class="bubble user"><small>user · after find + paste</small>
+            Using only this kitchen note:<br>
+            “Walnut pizza: walnut crumb. Contains tree nuts. Not safe for nut allergy.”<br><br>
+            Question: Is the walnut pizza safe for nut allergies?
+          </div>
+          <div class="bubble assistant"><small>assistant</small>No. The kitchen note says it contains tree nuts.</div>
+        </div>
+      </div>
+      <p class="worked-note"><strong>What this shows.</strong> Same pack · read · pick. The new move is the paste. You can point at the note later — that is provenance. Lewis et al. cared about being able to update the pile without retraining.</p>
+    </figure>
+
+    <h2>Skill: paste two pages, not the shelf</h2>
+    <p>Type a question. This toy library lights up at most two cards (word overlap, not magic). Those are what you would paste.</p>
+
+    <div class="lab" data-rag-lab>
+      <h3>Kitchen shelf</h3>
+      <input data-rag-q type="search" placeholder="Try: walnut allergy   or   opening hours" style="width:100%;font-family:var(--sans);font-size:0.95rem;padding:0.45rem 0.55rem;border:1px solid var(--rule);background:var(--paper);margin-bottom:0.4rem">
+      <div class="shelf">
+        <article class="card" data-card><strong>Allergens</strong><p>Walnut pizza: walnut crumb. Contains tree nuts. Not safe for nut allergy.</p></article>
+        <article class="card" data-card><strong>Hours</strong><p>Kitchen opening hours: Tuesday to Sunday, 17:00–22:00. Closed Monday.</p></article>
+        <article class="card" data-card><strong>Prices</strong><p>Margherita 14. Walnut pizza 18. Garlic bread 6.</p></article>
+        <article class="card" data-card><strong>Wine</strong><p>House red 7 a glass. No walnut in the wine list.</p></article>
+        <article class="card" data-card><strong>Staff rota</strong><p>Friday: Sam on dough, Riley on pass. Nothing about toppings.</p></article>
+        <article class="card" data-card><strong>Delivery</strong><p>Delivery radius 3 km. Cash or card. Allergen sheet is in the kitchen binder, not here.</p></article>
+      </div>
+      <p class="meter-label">Pasted into the script:</p>
+      <pre data-paste style="min-height:4.2rem"></pre>
+      <p class="hint" data-rag-note></p>
+    </div>
+
+    <div class="compare">
+      <div class="compare-card">
+        <h3>Do look up</h3>
+        <p>Private docs, prices, policies, anything that changes. The shelf is bigger than RAM.</p>
+      </div>
+      <div class="compare-card">
+        <h3>Skip the shelf</h3>
+        <p>The fact is already in the script, or it is “2+2”. Extra pages are hay (lesson 0002’s U-curve).</p>
+      </div>
+    </div>
+
+    <p>A later trick (not this lesson) is embeddings: “near in meaning,” not just matching words. Anthropic also warns agents not to preload everything — sometimes you keep a pointer and fetch just in time. Same idea: spend RAM on the page you need. <cite><a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents">Effective context engineering</a></cite></p>
+
+    <h2>Check</h2>
+    <form class="quiz" data-quiz data-answers="bab"
+          data-success="Find, paste, pick. The library stays on disk until a page earns a seat in RAM."
+          data-retry="Try ‘walnut allergy’ in the shelf, then look at the three boxes at the top.">
+      <fieldset>
+        <legend>1. RAG’s extra step is</legend>
+        <label><input type="radio" name="q1" value="a"> train the weights</label>
+        <label><input type="radio" name="q1" value="b"> paste a few pages</label>
+        <label><input type="radio" name="q1" value="c"> raise temperature</label>
+      </fieldset>
+      <fieldset>
+        <legend>2. You should skip the library when</legend>
+        <label><input type="radio" name="q2" value="a"> script has it</label>
+        <label><input type="radio" name="q2" value="b"> shelf is big</label>
+        <label><input type="radio" name="q2" value="c"> pizza is nut</label>
+      </fieldset>
+      <fieldset>
+        <legend>3. Dumping fifty pages into RAM</legend>
+        <label><input type="radio" name="q3" value="a"> helps recall</label>
+        <label><input type="radio" name="q3" value="b"> fills middle</label>
+        <label><input type="radio" name="q3" value="c"> trains model</label>
+      </fieldset>
+      <button type="submit">Check</button>
+      <p class="feedback" data-feedback></p>
+    </form>
+
+    <div class="callout">
+      <p><strong>Primary source.</strong> Read the first page of Lewis et al. — parametric vs lookup memory — <a href="https://arxiv.org/abs/2005.11401">arxiv.org/abs/2005.11401</a>. Then Anthropic’s opening of <a href="https://www.anthropic.com/engineering/contextual-retrieval">Contextual Retrieval</a> (retrieve, append to the prompt). Skip BM25 and rerankers for now.</p>
+      <p>Card: <a href="../reference/rag.html">find · paste · pick</a>.</p>
+    </div>
+
+    <footer class="lesson-foot">
+      <p>If “is ChatGPT browsing RAG?” or “what is an embedding, really?” is fuzzy, replay the lab above and reread the <a href="../reference/rag.html">find · paste · pick cheat sheet</a>. Next: <a href="0005-the-model-writes-a-slip.html">lesson 0005</a> — the model writes a slip; you run it.</p>
+    </footer>
+  </article>
+  <script src="../assets/pipeline.js"></script>
+  <script src="../assets/rag-lab.js"></script>
+  <script src="../assets/quiz.js"></script>
+  <script src="../assets/course-data.js"></script>
+  <script src="../assets/progress.js"></script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" font-family="'Source Sans 3','Segoe UI',system-ui,sans-serif">
+  <defs>
+    <marker id="k" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z" fill="#1c1917"/>
+    </marker>
+    <marker id="t" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z" fill="#9a3412"/>
+    </marker>
+  </defs>
+  <rect width="960" height="540" fill="#f7f1e5"/>
+  <text x="48" y="52" font-size="15" letter-spacing="2.4" fill="#9a3412" font-weight="650">SEED · VALIDATE · FEED BACK</text>
+  <text x="48" y="80" font-size="15" fill="#44403c">The human stands at two places. Neither of them is inside the loop.</text>
+
+  <!-- human lane -->
+  <rect x="48" y="112" width="864" height="96" rx="8" fill="none" stroke="#9a3412" stroke-width="1.6"/>
+  <text x="64" y="136" font-size="13" letter-spacing="1.4" fill="#9a3412" font-weight="650">HUMAN</text>
+  <rect x="120" y="146" width="220" height="48" rx="5" fill="#efe6d4" stroke="#9a3412" stroke-width="1.4"/>
+  <text x="230" y="176" text-anchor="middle" font-size="17" font-weight="650" fill="#1c1917">writes the seed</text>
+  <rect x="610" y="146" width="250" height="48" rx="5" fill="#efe6d4" stroke="#9a3412" stroke-width="1.4"/>
+  <text x="735" y="176" text-anchor="middle" font-size="17" font-weight="650" fill="#1c1917">curates the scenarios</text>
+
+  <!-- loop lane -->
+  <rect x="48" y="240" width="864" height="260" rx="8" fill="none" stroke="#1d4e4a" stroke-width="2.5" stroke-dasharray="2 7" stroke-linecap="round"/>
+  <text x="64" y="264" font-size="13" letter-spacing="1.4" fill="#1d4e4a" font-weight="650">THE LOOP · NO HUMAN INSIDE</text>
+
+  <!-- builder -->
+  <rect x="120" y="300" width="220" height="110" rx="55" fill="#1d4e4a"/>
+  <text x="230" y="348" text-anchor="middle" font-size="19" font-weight="650" fill="#f7f1e5">Builder agent</text>
+  <text x="230" y="374" text-anchor="middle" font-size="14" fill="#d6cbb6">writes the code</text>
+
+  <!-- wall -->
+  <line x1="475" y1="270" x2="475" y2="486" stroke="#1c1917" stroke-width="5"/>
+  <text x="488" y="284" font-size="12" fill="#1c1917" font-weight="650">builder cannot</text>
+  <text x="488" y="300" font-size="12" fill="#1c1917" font-weight="650">read past here</text>
+
+  <!-- harness -->
+  <rect x="610" y="290" width="250" height="130" rx="6" fill="#efe6d4" stroke="#1c1917" stroke-width="1.6"/>
+  <text x="735" y="324" text-anchor="middle" font-size="19" font-weight="650" fill="#1c1917">Validation harness</text>
+  <text x="735" y="352" text-anchor="middle" font-size="14" fill="#44403c">holdout scenarios</text>
+  <text x="735" y="374" text-anchor="middle" font-size="14" fill="#44403c">twins of real services</text>
+  <text x="735" y="396" text-anchor="middle" font-size="14" fill="#44403c">score, not a boolean</text>
+
+  <!-- arrows -->
+  <path d="M230 194 V292" stroke="#9a3412" stroke-width="2" fill="none" marker-end="url(#t)"/>
+  <path d="M735 194 V282" stroke="#9a3412" stroke-width="2" fill="none" marker-end="url(#t)"/>
+  <path d="M340 330 H602" stroke="#1c1917" stroke-width="1.8" fill="none" marker-end="url(#k)"/>
+  <text x="400" y="320" font-size="13" fill="#1c1917" font-family="'IBM Plex Mono',monospace">build</text>
+  <path d="M610 390 H348" stroke="#1c1917" stroke-width="1.8" fill="none" marker-end="url(#k)"/>
+  <text x="352" y="412" font-size="13" fill="#1c1917" font-family="'IBM Plex Mono',monospace">failures</text>
+
+  <text x="64" y="486" font-size="13" fill="#44403c">Tokens are the fuel. Stops when the holdout passes and stays passing.</text>
+</svg>

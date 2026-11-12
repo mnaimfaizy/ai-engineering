@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 500" font-family="'Source Sans 3','Segoe UI',system-ui,sans-serif">
+  <rect width="960" height="500" fill="#f7f1e5"/>
+  <text x="48" y="54" font-size="15" letter-spacing="2.4" fill="#9a3412" font-weight="650">ONE ARRAY · THREE CALLS</text>
+  <text x="48" y="84" font-size="15" fill="#44403c">Each call sends everything above its line. The model keeps nothing between calls.</text>
+
+  <g font-family="'IBM Plex Mono','Cascadia Mono',monospace" font-size="14">
+    <!-- row 0 -->
+    <rect x="48" y="120" width="560" height="44" rx="4" fill="#efe6d4" stroke="#d6cbb6"/>
+    <text x="64" y="147" fill="#44403c">[0] user</text>
+    <text x="200" y="147" fill="#1c1917">"What do I owe on inv_42…"</text>
+
+    <!-- row 1 -->
+    <rect x="48" y="176" width="560" height="44" rx="4" fill="#1d4e4a"/>
+    <text x="64" y="203" fill="#d6cbb6">[1] assistant</text>
+    <text x="200" y="203" fill="#f7f1e5">text + tool_use  toolu_01</text>
+
+    <!-- row 2 -->
+    <rect x="48" y="232" width="560" height="44" rx="4" fill="#efe6d4" stroke="#9a3412" stroke-width="1.6"/>
+    <text x="64" y="259" fill="#44403c">[2] user</text>
+    <text x="200" y="259" fill="#9a3412">tool_result  for toolu_01</text>
+
+    <!-- row 3 -->
+    <rect x="48" y="288" width="560" height="44" rx="4" fill="#1d4e4a"/>
+    <text x="64" y="315" fill="#d6cbb6">[3] assistant</text>
+    <text x="200" y="315" fill="#f7f1e5">tool_use  toolu_02</text>
+
+    <!-- row 4 -->
+    <rect x="48" y="344" width="560" height="44" rx="4" fill="#efe6d4" stroke="#9a3412" stroke-width="1.6"/>
+    <text x="64" y="371" fill="#44403c">[4] user</text>
+    <text x="200" y="371" fill="#9a3412">tool_result  for toolu_02</text>
+  </g>
+
+  <!-- brackets: what each call sends -->
+  <g fill="none" stroke="#1c1917" stroke-width="1.8">
+    <path d="M632 120 h14 v44 h-14"/>
+    <path d="M722 120 h14 v156 h-14"/>
+    <path d="M812 120 h14 v268 h-14"/>
+  </g>
+  <g font-size="15" font-weight="650" fill="#1c1917">
+    <text x="654" y="146">call 1</text>
+    <text x="744" y="202">call 2</text>
+    <text x="834" y="258">call 3</text>
+  </g>
+  <g font-size="14" fill="#44403c" font-family="'IBM Plex Mono',monospace">
+    <text x="654" y="166">~101</text>
+    <text x="744" y="222">~180</text>
+    <text x="834" y="278">~229</text>
+  </g>
+  <text x="834" y="298" font-size="12" fill="#44403c">input tokens</text>
+
+  <text x="48" y="440" font-size="15" fill="#44403c">Teal rows are what the model wrote. Rust-edged rows are what your code pasted back.</text>
+  <text x="48" y="464" font-size="15" fill="#44403c">Each tool_result names the id of the slip it answers.</text>
+</svg>

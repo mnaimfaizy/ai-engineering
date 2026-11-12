@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tokens — cheat sheet</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:ital,wght@0,450;0,650;1,450&family=Source+Serif+4:ital,wght@0,450;0,600;1,450&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/lesson.css">
+</head>
+<body>
+  <header class="mast">
+    <a href="../index.html">← All lessons</a>
+    <span>Reference</span>
+  </header>
+  <article>
+    <p class="kicker">Cheat sheet</p>
+    <h1>Tokens</h1>
+    <p class="lede">Compressed facts from <a href="../lessons/0001-the-model-sees-tokens.html">lesson 0001</a>. Print this. Do not use it to learn the idea for the first time.</p>
+
+    <h2>What a token is</h2>
+    <ul>
+      <li>A token is an integer ID from a fixed vocabulary. The model’s input and output are sequences of those IDs.</li>
+      <li>A tokenizer maps text ↔ token IDs. The neural net never sees raw characters.</li>
+      <li>Modern LLM tokenizers use byte-pair encoding (BPE) and similar subword schemes — not “one word = one token.”</li>
+    </ul>
+
+    <h2>Rules of thumb</h2>
+    <ul>
+      <li>English: often ~4 characters per token, or ~100 tokens per 75 words — <em>rough</em>, encoding-specific. <cite><a href="https://help.openai.com/en/articles/4936856-what-are-tokens-and-how-to-count-them">OpenAI</a></cite></li>
+      <li>Case, leading spaces, punctuation, and non-English text change the split. “hello” ≠ “Hello” ≠ “ hello”.</li>
+      <li>Context windows and API bills are measured in tokens, not pages or words.</li>
+    </ul>
+
+    <h2>Same skeleton, different flavour</h2>
+    <ul>
+      <li>Every modern LLM: text → tokenizer → IDs → next-token loop. Subword algorithms (BPE, WordPiece, Unigram / SentencePiece). <cite><a href="https://huggingface.co/docs/transformers/tokenizer_summary">HF tokenizer summary</a></cite></li>
+      <li>Each family trains its own vocabulary. Do not reuse token IDs or token counts across models.</li>
+      <li>OpenAI encodings differ even inside one vendor: <code>r50k_base</code>, <code>p50k_base</code>, <code>cl100k_base</code>, <code>o200k_base</code>. <cite><a href="https://developers.openai.com/cookbook/examples/how_to_count_tokens_with_tiktoken">tiktoken cookbook</a></cite></li>
+      <li>Llama 2 = SentencePiece; Llama 3 = tiktoken-style BPE. Claude 4.7+ uses a newer tokenizer (~30% more tokens on the same text). <cite><a href="https://huggingface.co/docs/transformers/en/model_doc/llama3">Llama 3</a>; <a href="https://platform.claude.com/docs/en/build-with-claude/token-counting">Claude counting</a></cite></li>
+    </ul>
+
+    <h2>Why later patterns care</h2>
+    <ul>
+      <li>A tool result, a skill file, a retrieved doc, a chat history — all spend the same budget.</li>
+      <li>Context engineering = choosing the smallest high-signal token set. <cite><a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents">Anthropic</a></cite></li>
+    </ul>
+
+    <h2>Check with a real tokenizer</h2>
+    <p><a href="https://tiktokenizer.vercel.app">tiktokenizer.vercel.app</a> — pick an encoding, paste text, read the IDs. The lesson’s chip lab is a toy. Next unit: <a href="context-window.html">context window</a>.</p>
+  </article>
+  <script src="../assets/course-data.js"></script>
+  <script src="../assets/progress.js"></script>
+</body>
+</html>

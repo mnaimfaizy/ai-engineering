@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>0003 — Pack, read, pick</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:ital,wght@0,450;0,650;1,450&family=Source+Serif+4:ital,wght@0,450;0,600;1,450&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/lesson.css">
+  <link rel="stylesheet" href="../assets/diagram.css">
+</head>
+<body>
+  <header class="mast">
+    <a href="../index.html">← All lessons</a>
+    <span>Lesson 0003</span>
+  </header>
+  <article>
+    <p class="kicker">The call</p>
+    <h1>Chat is a play script</h1>
+    <p class="lede">You already know tokens and RAM. This lesson is only three verbs: <strong>pack</strong> the script, <strong>read</strong> the whole thing, <strong>pick</strong> the next word. That is every API call.</p>
+
+    <ol class="remember">
+      <li><strong>1 · Pack</strong><span>Name who is speaking. Stage directions, you, the bot.</span></li>
+      <li><strong>2 · Read</strong><span>The model sees the entire script at once — that is the window.</span></li>
+      <li><strong>3 · Pick</strong><span>It writes the next word. Safe or spicy is one knob: temperature.</span></li>
+    </ol>
+    <p class="caption">Say it once: pack, read, pick. If you remember only that, this lesson worked.</p>
+
+    <h2>1. Pack — who is talking?</h2>
+    <p>A chat app looks like bubbles. Under the hood it is the same conversation with name tags. OpenAI calls the tags <code>system</code>, <code>user</code>, and <code>assistant</code>. <cite><a href="https://developers.openai.com/api/reference/resources/chat">Chat API</a></cite></p>
+
+    <figure class="worked">
+      <p class="worked-head">Example · ordering pizza</p>
+      <div class="worked-body">
+        <div class="chat">
+          <div class="bubble system"><small>system · stage directions</small>You are a waiter. Keep answers short. Never invent a topping we do not have.</div>
+          <div class="bubble user"><small>user · you</small>What is on a Margherita?</div>
+          <div class="bubble assistant"><small>assistant · the model, last time</small>Tomato, mozzarella, basil.</div>
+          <div class="bubble user"><small>user · you, now</small>Add olives?</div>
+        </div>
+      </div>
+      <p class="worked-note"><strong>What this shows.</strong> <em>System</em> is the boss whispering rules (not shown in ChatGPT’s main thread). <em>User</em> is you. <em>Assistant</em> is earlier bot lines you are sending back so it remembers. The new answer will be one more assistant bubble.</p>
+    </figure>
+
+    <p>That chat packed as a script (same words, name tags):</p>
+    <figure class="worked">
+      <p class="worked-head">Same pizza · as the computer sees it</p>
+      <div class="worked-body">
+<pre>[
+  { "role": "system",    "content": "You are a waiter. Keep answers short. …" },
+  { "role": "user",      "content": "What is on a Margherita?" },
+  { "role": "assistant", "content": "Tomato, mozzarella, basil." },
+  { "role": "user",      "content": "Add olives?" }
+]</pre>
+      </div>
+      <p class="worked-note"><strong>What this shows.</strong> You do not send “the latest sentence.” You send <em>the whole script so far</em>. Each new turn, the list grows. ChatGPT does this for you; an API does not. <cite>OpenAI’s default Hello example is just system + user — two lines of this same list.</cite></p>
+    </figure>
+
+    <h2>2. Read — it all sits in RAM</h2>
+    <p>Lesson 0002: one window. The script above is what fills it. The reply has to fit in the leftover space.</p>
+
+    <figure class="pipeline" data-pipeline aria-label="The window holds the script and the reply.">
+      <div class="pipeline-step"><strong>Rules</strong><span>system</span></div>
+      <div class="pipeline-arrow"><i class="token-dot" aria-hidden="true"></i></div>
+      <div class="pipeline-step"><strong>Chat so far</strong><span>user + assistant</span></div>
+      <div class="pipeline-arrow"><i class="token-dot" aria-hidden="true"></i></div>
+      <div class="pipeline-step"><strong>Room left</strong><span>the new reply</span></div>
+    </figure>
+    <p class="caption">Postage: the envelope (name tags) costs a few extra tokens besides the words. Don’t memorise the recipe — just know “Hello” is not 1 token on the bill.</p>
+
+    <h2>3. Pick — safe or spicy?</h2>
+    <p>The model lines up guesses for the next token (lesson 0001). <strong>Temperature</strong> is how boldly it rolls the dice. Low = always the favourite. High = sometimes a wild guess. OpenAI’s knob runs from 0 to 2. <cite><a href="https://developers.openai.com/api/reference/resources/chat">temperature</a></cite></p>
+
+    <div class="compare">
+      <div class="compare-card">
+        <h3>Low (safe)</h3>
+        <p>“What is 2 + 2?” → four, every time. Invoices, JSON, facts.</p>
+      </div>
+      <div class="compare-card">
+        <h3>High (spicy)</h3>
+        <p>“Name a pizza” → surprise pies. Stories. Not for a price list.</p>
+      </div>
+    </div>
+
+    <div class="lab" data-sample-lab>
+      <h3>Finish: “I want to eat ___”</h3>
+      <p class="hint" style="margin-top:0">Four made-up guesses. Drag toward 0 (safe) or 2 (spicy). Watch which bar stays the winner.</p>
+      <div class="bars">
+        <div class="bar-row" data-bar><span> the</span><div class="bar-track"><div class="bar-fill"></div></div><span data-pct></span></div>
+        <div class="bar-row" data-bar><span> a</span><div class="bar-track"><div class="bar-fill"></div></div><span data-pct></span></div>
+        <div class="bar-row" data-bar><span> my</span><div class="bar-track"><div class="bar-fill"></div></div><span data-pct></span></div>
+        <div class="bar-row" data-bar><span> banana</span><div class="bar-track"><div class="bar-fill"></div></div><span data-pct></span></div>
+      </div>
+      <div class="slider-row">
+        <label>safe ← → spicy <input type="range" min="0.05" max="2" step="0.05" value="1" data-temp></label>
+        <span class="meter-label" data-temp-label>1.0</span>
+      </div>
+      <p class="hint" data-sample-note></p>
+    </div>
+
+    <h2>Check</h2>
+    <p>Three questions. Pack, read, pick.</p>
+    <form class="quiz" data-quiz data-answers="abb"
+          data-success="That’s the whole call: pack the script, read it in RAM, pick the next word."
+          data-retry="Look at the pizza bubbles, then the three boxes at the top, then try again.">
+      <fieldset>
+        <legend>1. The system bubble is</legend>
+        <label><input type="radio" name="q1" value="a"> the rules</label>
+        <label><input type="radio" name="q1" value="b"> the query</label>
+        <label><input type="radio" name="q1" value="c"> the reply</label>
+      </fieldset>
+      <fieldset>
+        <legend>2. Each new question, you send</legend>
+        <label><input type="radio" name="q2" value="a"> just new lines</label>
+        <label><input type="radio" name="q2" value="b"> the full script</label>
+        <label><input type="radio" name="q2" value="c"> just old lines</label>
+      </fieldset>
+      <fieldset>
+        <legend>3. A low temperature is</legend>
+        <label><input type="radio" name="q3" value="a"> more random</label>
+        <label><input type="radio" name="q3" value="b"> more peaked</label>
+        <label><input type="radio" name="q3" value="c"> more billed</label>
+      </fieldset>
+      <button type="submit">Check</button>
+      <p class="feedback" data-feedback></p>
+    </form>
+
+    <div class="callout">
+      <p><strong>Primary source.</strong> Glance at OpenAI’s <a href="https://developers.openai.com/api/reference/resources/chat">Hello example</a> — it is the pizza script with two lines. Optional later (not required tonight): Hugging Face on <a href="https://huggingface.co/docs/transformers/en/generation_strategies">greedy vs sampling</a>.</p>
+      <p>Wallet card: <a href="../reference/the-call.html">pack · read · pick</a>.</p>
+    </div>
+
+    <footer class="lesson-foot">
+      <p>If “why send the old assistant line back?” is still weird, replay the lab above and reread the <a href="../reference/the-call.html">pack, read, pick cheat sheet</a>. Next: <a href="0004-look-it-up-then-ask.html">lesson 0004</a> — look it up, then ask.</p>
+    </footer>
+  </article>
+  <script src="../assets/pipeline.js"></script>
+  <script src="../assets/sample-lab.js"></script>
+  <script src="../assets/quiz.js"></script>
+  <script src="../assets/course-data.js"></script>
+  <script src="../assets/progress.js"></script>
+</body>
+</html>

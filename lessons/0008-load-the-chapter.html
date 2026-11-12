@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>0008 — Load the chapter</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:ital,wght@0,450;0,650;1,450&family=Source+Serif+4:ital,wght@0,450;0,600;1,450&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/lesson.css">
+  <link rel="stylesheet" href="../assets/diagram.css">
+</head>
+<body>
+  <header class="mast">
+    <a href="../index.html">← All lessons</a>
+    <span>Lesson 0008</span>
+  </header>
+  <article>
+    <p class="kicker">Skills</p>
+    <h1>Load the chapter, not the shelf</h1>
+    <p class="lede">You already know the window is RAM (lesson 0002) and that a harness spends it on purpose (lesson 0007). A <strong>skill</strong> is how you stop stuffing every SOP into the system prompt: keep a table of contents in RAM, and read the chapter only when this task needs it.</p>
+
+    <div class="callout scope">
+      <p><strong>What this is.</strong> A skill is a folder with a <code>SKILL.md</code>: YAML <code>name</code> + <code>description</code> on top, instructions in the body, optional extra files. Anthropic calls the loading rule <em>progressive disclosure</em>. <cite><a href="https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills">Equipping agents for the real world with Agent Skills</a></cite></p>
+      <p><strong>What this is not.</strong> A second model. A tool (a slip you run). RAG (pages you looked up). A plugin store — that is how a folder arrives on disk; tonight is the folder. Cursor and Claude Code already do this with the same open format. <cite><a href="https://agentskills.io/specification">Agent Skills spec</a> · <a href="https://cursor.com/docs/skills">Cursor skills</a></cite></p>
+    </div>
+
+    <ol class="remember">
+      <li><strong>1 · Catalog</strong><span>Name + description. Always in the system prompt. Cheap.</span></li>
+      <li><strong>2 · Chapter</strong><span>The SKILL.md body. Loaded only on a match.</span></li>
+      <li><strong>3 · Appendix</strong><span>Extra files or scripts. Only if the chapter points at them.</span></li>
+    </ol>
+    <p class="caption">Like a manual: contents, then the chapter, then the appendix. Not the whole binder in your pocket.</p>
+
+    <figure class="art">
+      <img class="lesson-art" src="../assets/skills-three-levels.webp" alt="Three stacked layers labeled progressive disclosure. Level 1 catalog cards always in RAM. Level 2 SKILL.md loaded on a match. Level 3 forms and scripts only if the chapter points here.">
+      <p class="caption">Same window as <a href="0002-the-window-is-ram.html">lesson 0002</a>. The harness chooses which layer to paste.</p>
+    </figure>
+
+    <h2>The three rents</h2>
+    <p>At startup the harness pastes every installed skill’s <code>name</code> and <code>description</code> into the system prompt — on the order of a hundred tokens each, not the whole file. If the task matches a description, the model writes a <em>read</em> slip (lesson 0005) and the harness pastes the body. Linked files wait. Scripts can be <em>run</em> so only their output enters RAM. <cite><a href="https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview">Claude · Agent Skills overview</a></cite></p>
+
+    <figure class="pipeline" data-pipeline aria-label="Progressive disclosure.">
+      <div class="pipeline-step"><strong>Catalog</strong><span>name · when to use</span></div>
+      <div class="pipeline-arrow"><i class="token-dot" aria-hidden="true"></i></div>
+      <div class="pipeline-step"><strong>Match</strong><span>this task?</span></div>
+      <div class="pipeline-arrow"><i class="token-dot" aria-hidden="true"></i></div>
+      <div class="pipeline-step"><strong>Chapter</strong><span>read SKILL.md</span></div>
+      <div class="pipeline-arrow"><i class="token-dot" aria-hidden="true"></i></div>
+      <div class="pipeline-step"><strong>Pick</strong><span>now with the SOP</span></div>
+    </figure>
+    <p class="caption">The inner agent loop did not change. The harness chose <em>what</em> to paste into the window.</p>
+
+    <figure class="art">
+      <img class="lesson-art" src="../assets/stuffed-vs-catalog.webp" alt="Left: a waiter’s apron stuffed with entire cookbooks. Right: the same waiter holds a thin contents card; the books stay on a shelf.">
+      <p class="caption">Kitchen only to make the rent concrete. The load-bearing picture is the three layers above.</p>
+    </figure>
+
+    <figure class="worked">
+      <p class="worked-head">One skill · walnut-crumb/SKILL.md</p>
+      <div class="worked-body">
+<pre class="pseudo">---
+name: walnut-crumb
+description: Toast walnuts and fold them into
+  the mix. Use for the walnut crumb special.
+---
+
+# Walnut crumb
+
+1. Toast the walnuts.
+2. Fold into the mix.
+3. Ninety seconds on the stone.
+
+If the stone is cold, read oven/SKILL.md.
+Do not load refunds/ for this ticket.</pre>
+      </div>
+      <p class="worked-note"><strong>What this shows.</strong> Frontmatter is the catalog line — what it does <em>and</em> when to use it. The numbered body is the chapter. <code>oven/SKILL.md</code> is an appendix pointer: still on disk until the stone is cold. A stuffed prompt would have included refunds anyway.</p>
+    </figure>
+
+    <figure class="art">
+      <img class="lesson-art" src="../assets/skill-is-a-folder.webp" alt="An open folder labeled walnut-crumb. SKILL.md sits on top. A dimmer drawer holds forms.md and a script.">
+      <p class="caption">Open standard: a directory, not a vendor menu item. Cursor and Claude Code both read this shape.</p>
+    </figure>
+
+    <h2>The description is the match</h2>
+    <p>Anthropic: pay special attention to <code>name</code> and <code>description</code> — that is what the model uses to decide whether to trigger the skill. The spec says the description should name <em>what it does</em> and <em>when to use it</em>. Vague catalog lines mean the chapter never opens, or the wrong chapter does. <cite>Same essay, “Think from Claude’s perspective” · <a href="https://agentskills.io/specification">agentskills.io</a></cite></p>
+
+    <figure class="worked">
+      <p class="worked-head">Same folder · two catalog lines</p>
+      <div class="worked-body">
+<pre class="pseudo"># Poor — the model cannot match this
+description: Helps with walnuts.
+
+# Useful — what, and when
+description: Toast walnuts and fold them into
+  the mix. Use for the walnut crumb special.</pre>
+      </div>
+      <p class="worked-note"><strong>What this shows.</strong> The body can be perfect and still never load if the catalog line is “helps with walnuts.” You are writing a search snippet for the model, not a title for humans.</p>
+    </figure>
+
+    <h2>Skill: watch the window</h2>
+    <p>Same question, three spends — then a fourth if the chapter points onward. <strong>Stuffed</strong> puts every SOP in RAM. <strong>Catalog</strong> puts three labels in RAM and writes a read slip. <strong>Load chapter</strong> runs that slip. <strong>Appendix</strong> runs a second read only because the chapter named it.</p>
+
+    <div class="lab" data-skill-lab>
+      <h3>Same ticket, three windows</h3>
+      <div class="btn-row">
+        <button type="button" data-scene="stuff">Stuffed prompt</button>
+        <button type="button" data-scene="catalog">Catalog only</button>
+        <button type="button" data-scene="load">Load chapter</button>
+        <button type="button" data-scene="extra">Appendix</button>
+      </div>
+      <p class="kind" data-kind></p>
+      <figure class="pipeline" aria-label="Disclosure steps.">
+        <div class="pipeline-step"><strong>Catalog</strong><span>labels</span></div>
+        <div class="pipeline-arrow"><i class="token-dot" aria-hidden="true"></i></div>
+        <div class="pipeline-step"><strong>Chapter</strong><span>SKILL.md</span></div>
+        <div class="pipeline-arrow"><i class="token-dot" aria-hidden="true"></i></div>
+        <div class="pipeline-step"><strong>Appendix</strong><span>only if pointed</span></div>
+      </figure>
+      <div class="meter" aria-hidden="true"><div class="meter-fill" data-meter-fill></div></div>
+      <p class="meter-label" data-meter-label></p>
+      <div class="stack">
+        <span data-layer="system" data-name="System"></span>
+        <span data-layer="catalog" data-name="Catalog"></span>
+        <span data-layer="stuffed" data-name="Stuffed SOPs"></span>
+        <span data-layer="body" data-name="Chapter"></span>
+        <span data-layer="extra" data-name="Appendix"></span>
+        <span data-layer="user" data-name="User"></span>
+      </div>
+      <div class="chat ticket-q" data-skill-chat></div>
+      <p class="cost-line" data-cost></p>
+      <p class="hint" data-skill-note></p>
+    </div>
+
+    <h2>Not a tool, not RAG</h2>
+    <div class="compare three">
+      <div class="compare-card">
+        <h3>Tool</h3>
+        <p>The model writes a slip. Your code runs it. Live state or an action (lesson 0005).</p>
+      </div>
+      <div class="compare-card">
+        <h3>RAG</h3>
+        <p>You find a few pages and paste them. Facts from a pile (lesson 0004).</p>
+      </div>
+      <div class="compare-card">
+        <h3>Skill</h3>
+        <p>You wrote a how-to folder. The harness pastes the matching chapter into RAM.</p>
+      </div>
+    </div>
+    <p>A skill <em>may</em> bundle a script. Then the script is a tool the chapter told the model to run — still propose · run · paste. The load-bearing idea tonight is the chapter, not the script.</p>
+
+    <p class="sidenote">Plugins, MCP, and “always-on” editor rules are neighboring names. A plugin is typically how a bundle of skills (and sometimes tools) gets installed. MCP is still USB-C for tools and data. A rule that is always in the prompt is a stuffed chapter — useful when it must apply to every turn; wasteful when it does not. Compaction is <a href="0009-evict-compact-note.html">lesson 0009</a>, not a skill.</p>
+
+    <h2>Check</h2>
+    <form class="quiz" data-quiz data-answers="bcccb"
+          data-success="A skill is a folder. Catalog in RAM always; chapter only on a match; appendix only if pointed at. The description is how the match happens."
+          data-retry="Read the three layers in the picture, then the two catalog lines in the grey box.">
+      <fieldset>
+        <legend>1. A skill is</legend>
+        <label><input type="radio" name="q1" value="a"> a second language model</label>
+        <label><input type="radio" name="q1" value="b"> a folder of instructions</label>
+        <label><input type="radio" name="q1" value="c"> a bigger context window</label>
+      </fieldset>
+      <fieldset>
+        <legend>2. At startup the agent loads</legend>
+        <label><input type="radio" name="q2" value="a"> every SKILL.md in full</label>
+        <label><input type="radio" name="q2" value="b"> every bundled extra file</label>
+        <label><input type="radio" name="q2" value="c"> name and description only</label>
+      </fieldset>
+      <fieldset>
+        <legend>3. Progressive disclosure means</legend>
+        <label><input type="radio" name="q3" value="a"> train a larger model now</label>
+        <label><input type="radio" name="q3" value="b"> paste the whole manual now</label>
+        <label><input type="radio" name="q3" value="c"> load more only if needed</label>
+      </fieldset>
+      <fieldset>
+        <legend>4. You load the SKILL.md body when</legend>
+        <label><input type="radio" name="q4" value="a"> the process first starts</label>
+        <label><input type="radio" name="q4" value="b"> the window already overflows</label>
+        <label><input type="radio" name="q4" value="c"> the task actually needs</label>
+      </fieldset>
+      <fieldset>
+        <legend>5. A useful description names</legend>
+        <label><input type="radio" name="q5" value="a"> the folder path alone</label>
+        <label><input type="radio" name="q5" value="b"> the job and when</label>
+        <label><input type="radio" name="q5" value="c"> every recipe in full</label>
+      </fieldset>
+      <button type="submit">Check</button>
+      <p class="feedback" data-feedback></p>
+    </form>
+
+    <div class="callout">
+      <p><strong>Primary source.</strong> The three levels and the PDF walkthrough in <a href="https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills">Equipping agents for the real world with Agent Skills</a>. Then the token table in <a href="https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview">Claude’s overview</a>. Format: <a href="https://agentskills.io/specification">agentskills.io</a>. You are sitting in an editor that implements it: <a href="https://cursor.com/docs/skills">Cursor · Agent Skills</a>.</p>
+      <p>Card: <a href="../reference/skills.html">skills</a>. Last box: <a href="../reference/harnesses.html">the harness</a>.</p>
+    </div>
+
+    <footer class="lesson-foot">
+      <p>If “is a Cursor rule a skill?” is still fuzzy, replay the lab above and reread the <a href="../reference/skills.html">skills cheat sheet</a>. Next: <a href="0009-evict-compact-note.html">evict, compact, note</a> — what to do when the chapter still is not enough and the loop has filled RAM.</p>
+    </footer>
+  </article>
+  <script src="../assets/pipeline.js"></script>
+  <script src="../assets/skill-lab.js"></script>
+  <script src="../assets/quiz.js"></script>
+  <script src="../assets/course-data.js"></script>
+  <script src="../assets/progress.js"></script>
+</body>
+</html>

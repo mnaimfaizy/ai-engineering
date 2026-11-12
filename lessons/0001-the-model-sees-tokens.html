@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>0001 — The model sees tokens</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:ital,wght@0,450;0,650;1,450&family=Source+Serif+4:ital,wght@0,450;0,600;1,450&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/lesson.css">
+  <link rel="stylesheet" href="../assets/diagram.css">
+</head>
+<body>
+  <header class="mast">
+    <a href="../index.html">← All lessons</a>
+    <span>Lesson 0001</span>
+  </header>
+  <article>
+    <p class="kicker">Atoms</p>
+    <h1>The model does not see words</h1>
+    <p class="lede">Your first engineering skill: look at a chat and see a sequence of token IDs, not English. Every later pattern — context, tools, skills, loops, graphs — is a way of spending that sequence on purpose.</p>
+
+    <h2>The trick ChatGPT hides</h2>
+    <p>When you type a sentence, it feels like the assistant “reads” it. Under the hood the pipeline is mechanical — and this skeleton is shared by GPT, Claude, Llama, Gemini, and the rest:</p>
+
+    <figure class="pipeline" data-pipeline aria-label="Text becomes tokens, then the next token.">
+      <div class="pipeline-step"><strong>1. Text</strong><span>your string</span></div>
+      <div class="pipeline-arrow"><i class="token-dot" aria-hidden="true"></i></div>
+      <div class="pipeline-step"><strong>2. Tokenizer</strong><span>chunks → IDs</span></div>
+      <div class="pipeline-arrow"><i class="token-dot" aria-hidden="true"></i></div>
+      <div class="pipeline-step"><strong>3. Model</strong><span>next-ID odds</span></div>
+      <div class="pipeline-arrow"><i class="token-dot" aria-hidden="true"></i></div>
+      <div class="pipeline-step"><strong>4. Decode</strong><span>append &amp; loop</span></div>
+    </figure>
+    <p class="caption">Watch the highlight move: every chat turn is this loop. The flavour is which tokenizer sits in step 2.</p>
+
+    <p>Karpathy’s one-line picture: the network is a next-token predictor. Chat products are that predictor, wrapped in a loop, with extra training so it answers as an assistant rather than continuing a webpage. <cite><a href="https://www.youtube.com/watch?v=zjkBMFhNj_g">Intro to Large Language Models</a>, first third of the talk.</cite></p>
+
+    <p class="sidenote">
+      OpenAI: tokens “can be as short as a single character or as long as a full word.” Billing and context limits are token counts, not word counts.
+      <a href="https://help.openai.com/en/articles/4936856-what-are-tokens-and-how-to-count-them">What are tokens and how to count them?</a>
+    </p>
+
+    <h2>Tokens are a learned alphabet</h2>
+    <p>If we gave the model one ID per Unicode character, sequences would be long and expensive. If we gave it one ID per English word, it would choke on typos, code, and other languages. The compromise used by GPT-style models is <strong>byte-pair encoding</strong> (BPE): start from bytes, repeatedly merge the most common adjacent pairs into a new vocabulary entry. Frequent chunks (“the”, “ing”, a leading space plus a common word) become single tokens. Rare strings stay split.</p>
+    <p>Two consequences you will keep meeting:</p>
+    <ul>
+      <li><strong>Case and spaces are real.</strong> <code>Hello</code>, <code>hello</code>, and <code> hello</code> are often different IDs.</li>
+      <li><strong>Odd failures are sometimes tokenizer failures.</strong> Arithmetic, Unicode, and “the model can’t see that space” bugs often start here — Karpathy calls tokenization gnarly for exactly this reason. <cite><a href="https://github.com/karpathy/minbpe/blob/master/lecture.md">LLM Tokenization lecture notes</a></cite></li>
+    </ul>
+
+    <h2>Skill: watch the split</h2>
+    <p>Type in the box. This page uses a <em>toy</em> BPE — a handful of merges so you can see chips appear and split. It is not GPT-4 or Claude. After you get the feel, you will check a real encoding.</p>
+
+    <div class="lab" data-token-lab>
+      <h3>Toy token lab</h3>
+      <textarea data-token-input>Hello world!  Hello WORLD!</textarea>
+      <div class="lab-meta">
+        <span>Toy tokens: <strong data-token-count>0</strong></span>
+        <span>Characters: <strong data-char-count>0</strong></span>
+      </div>
+      <div class="chips" data-token-chips></div>
+      <p class="hint">Try: extra spaces, ALL CAPS, a number like 398, then a non-English word. Leading spaces often glue to the next chunk — that is a feature of real tokenizers, not a bug in the chips.</p>
+    </div>
+
+    <p>Now the real thing: open <a href="https://tiktokenizer.vercel.app">tiktokenizer.vercel.app</a>, paste the same strings, and switch the encoding in the dropdown. Karpathy uses this app because the live split is the ground truth for a <em>given</em> encoding — not for “language” in general. <cite><a href="https://github.com/karpathy/minbpe/blob/master/lecture.md">minbpe lecture</a></cite></p>
+
+    <h2 id="flavours">Same skeleton, different flavour</h2>
+    <p>The dropdown changing the split is not a bug. The <strong>job</strong> is the same for every modern LLM: map text to a sequence of integer IDs from a fixed vocabulary, then predict the next ID. Hugging Face groups the algorithms as three subword cousins — BPE, WordPiece, and Unigram — plus SentencePiece as a library that can run BPE or Unigram on raw text (spaces included). <cite><a href="https://huggingface.co/docs/transformers/tokenizer_summary">Tokenization algorithms</a></cite></p>
+    <p>The <strong>dictionary</strong> is not shared. Each model family trains its own vocabulary on its own data, with its own size and merge rules. Token ID <code>1234</code> is a different chunk in GPT-4 than in Llama. OpenAI says this outright: “Different models use different encodings,” and ships several (<code>r50k_base</code>, <code>p50k_base</code>, <code>cl100k_base</code>, <code>o200k_base</code>). Their cookbook even compares the same English word across encodings and gets different splits. <cite><a href="https://developers.openai.com/cookbook/examples/how_to_count_tokens_with_tiktoken">How to count tokens with tiktoken</a></cite></p>
+
+    <div class="compare">
+      <div class="compare-card">
+        <h3>Shared</h3>
+        <p>Text → tokenizer → IDs → next-token loop. Subword chunks, not whole words.</p>
+      </div>
+      <div class="compare-card">
+        <h3>Per family</h3>
+        <p>Vocabulary, merge table, special tokens, even how spaces are stored. Count with that model’s tokenizer.</p>
+      </div>
+    </div>
+
+    <p>It changes inside a vendor too. Llama 2 used SentencePiece; Llama 3 switched to a tiktoken-style BPE. Anthropic documents that Claude 4.7 and later use a newer tokenizer: the same input is about 30% more tokens than on earlier Claude models — so you recount against the model you will actually call. <cite><a href="https://huggingface.co/docs/transformers/en/model_doc/llama3">Llama 3 tokenizer note</a>; <a href="https://platform.claude.com/docs/en/build-with-claude/token-counting">Claude token counting</a></cite></p>
+
+    <p>Feel it with two toy “families.” Same string. Different merge tables. Different chip counts — the same phenomenon as Tiktokenizer’s model dropdown.</p>
+
+    <div class="lab" data-flavour-lab>
+      <h3>Two flavours, one sentence</h3>
+      <textarea data-token-input>Hello, world! counting tokens.</textarea>
+      <div class="flavour-row" data-flavour-row="wide">
+        <div class="flavour-head"><span class="tag">Wide vocab</span><span>toy tokens: <strong data-token-count>0</strong></span></div>
+        <div class="chips" data-token-chips></div>
+      </div>
+      <div class="flavour-row" data-flavour-row="tight">
+        <div class="flavour-head"><span class="tag">Tight vocab</span><span>toy tokens: <strong data-token-count>0</strong></span></div>
+        <div class="chips" data-token-chips></div>
+      </div>
+      <p class="hint">The wide table has learned more English chunks, so the same text is shorter. A real model trained on more code or more Japanese would look like a third flavour. Never mix IDs across flavours.</p>
+    </div>
+
+    <p>Engineering rule for later (RAG, agents, cost caps): count tokens with the tokenizer that belongs to the model you will run. A GPT encoding will mis-budget a Claude or Llama prompt.</p>
+
+    <h2>Why this is lesson one for an AI engineer</h2>
+    <p>This course ends at harnesses, skills, plugins, context engineering, loop engineering, and graph engineering. Those names all sit on one fact:</p>
+    <blockquote>Context is a finite attention budget, measured in tokens. The job is the smallest set of high-signal tokens that make the next action likely. <cite><a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents">Anthropic, Effective context engineering</a></cite></blockquote>
+    <p>A tool dump, a retrieved PDF, a <code>SKILL.md</code>, a looping agent’s history — each is more tokens in the same window. If you cannot see the window, you cannot choose an architecture. That is the whole course in miniature: judgment starts with the budget.</p>
+
+    <h2>Check</h2>
+    <p>Answer from memory. Options are the same length on purpose.</p>
+    <form class="quiz" data-quiz data-answers="baaaa"
+          data-success="All five correct. Shared loop, private vocabulary — that is the whole flavour story."
+          data-retry="Not yet. Replay the pipeline and the two-flavour lab, then try again from memory.">
+      <fieldset>
+        <legend>1. An LLM’s immediate job is to emit the</legend>
+        <label><input type="radio" name="q1" value="a"> full reply</label>
+        <label><input type="radio" name="q1" value="b"> next token</label>
+        <label><input type="radio" name="q1" value="c"> true sense</label>
+      </fieldset>
+      <fieldset>
+        <legend>2. “hello” and “Hello” often tokenize differently because</legend>
+        <label><input type="radio" name="q2" value="a"> they treat case as different</label>
+        <label><input type="radio" name="q2" value="b"> they ignore case completely</label>
+        <label><input type="radio" name="q2" value="c"> they strip case before split</label>
+      </fieldset>
+      <fieldset>
+        <legend>3. A context window is a budget of</legend>
+        <label><input type="radio" name="q3" value="a"> token IDs</label>
+        <label><input type="radio" name="q3" value="b"> page nums</label>
+        <label><input type="radio" name="q3" value="c"> word lens</label>
+      </fieldset>
+      <fieldset>
+        <legend>4. Context and cost are both measured in</legend>
+        <label><input type="radio" name="q4" value="a"> token units</label>
+        <label><input type="radio" name="q4" value="b"> sheet units</label>
+        <label><input type="radio" name="q4" value="c"> clock units</label>
+      </fieldset>
+      <fieldset>
+        <legend>5. The tokenizer a model uses is</legend>
+        <label><input type="radio" name="q5" value="a"> unique per family</label>
+        <label><input type="radio" name="q5" value="b"> shared by vendors</label>
+        <label><input type="radio" name="q5" value="c"> fixed for English</label>
+      </fieldset>
+      <button type="submit">Check</button>
+      <p class="feedback" data-feedback></p>
+    </form>
+
+    <div class="callout">
+      <p><strong>Primary source (do this next).</strong> Watch Karpathy’s <a href="https://www.youtube.com/watch?v=zjkBMFhNj_g">Intro to Large Language Models</a> through the tokenization / next-token section (~first 25 minutes). Pause and replay; do not treat it as background TV. Then spend five minutes on <a href="https://tiktokenizer.vercel.app">Tiktokenizer</a> with strings you care about (your name, a JSON blob, a bit of code).</p>
+      <p>On Tiktokenizer, switch encodings on one string and write down the two counts. That is the flavour difference in the wild.</p>
+      <p>Keep this lesson’s <a href="../reference/tokens.html">token cheat sheet</a> for later. The <a href="../reference/map-of-the-era.html">map of the era</a> is the rest of the path.</p>
+    </div>
+
+    <footer class="lesson-foot">
+      <p>If anything here is fuzzy — “what is sampling?”, “is a token always a subword?”, “how does this connect to Claude’s window?” — replay the labs above and try the check again from memory. Follow-up questions are the point, not a distraction: write yours down and test it against the sources, or talk it through with an AI assistant.</p>
+      <p>Next up when you are ready: the context window as working memory — <a href="0002-the-window-is-ram.html">lesson 0002</a>.</p>
+    </footer>
+  </article>
+  <script src="../assets/token-lab.js"></script>
+  <script src="../assets/pipeline.js"></script>
+  <script src="../assets/quiz.js"></script>
+  <script src="../assets/course-data.js"></script>
+  <script src="../assets/progress.js"></script>
+</body>
+</html>

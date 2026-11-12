@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>0013 — You draw the edges</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:ital,wght@0,450;0,650;1,450&family=Source+Serif+4:ital,wght@0,450;0,600;1,450&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/lesson.css">
+  <link rel="stylesheet" href="../assets/diagram.css">
+</head>
+<body>
+  <header class="mast">
+    <a href="../index.html">← All lessons</a>
+    <span>Lesson 0013</span>
+  </header>
+  <article>
+    <p class="kicker">Graph engineering</p>
+    <h1>You draw the edges</h1>
+    <p class="lede">Lesson 0006 asked who owns control flow: your path, or a loop. <strong>Graph engineering</strong> is the mix. You write the valid paths as nodes and edges so the model cannot skip classify-before-till — and a node may still be a whole agent when the work inside is open.</p>
+
+    <div class="callout scope">
+      <p><strong>What this is.</strong> Encoding your knowledge of how the system should work: nodes do work, edges say what happens next, state is the ticket that moves. LangGraph’s claim: mix deterministic steps with agentic ones in one graph. <cite><a href="https://www.langchain.com/blog/3-years-of-graph-engineering-with-langgraph">3 Years of Graph Engineering with LangGraph</a></cite></p>
+      <p><strong>What this is not.</strong> A new model. “Always use LangGraph.” A DAG religion (production graphs need cycles). Evals, checkpointing, or the whole runtime catalogue — parked. Not a ChatGPT menu item named “Graph.”</p>
+    </div>
+
+    <ol class="remember">
+      <li><strong>1 · Node</strong><span>Does work. Code, one LLM call, or a full agent (0011).</span></li>
+      <li><strong>2 · Edge</strong><span>What happens next. Fixed, or conditional on state.</span></li>
+      <li><strong>3 · State</strong><span>The ticket moving through. A graph is a state machine.</span></li>
+    </ol>
+    <p class="caption">You already chose workflow vs agent. Tonight you may put both on one floor plan.</p>
+
+    <figure class="art">
+      <img class="lesson-art" src="../assets/graph-nodes-edges-state.webp" alt="A state machine: classify code node, conditional edge, then either an explore agent node or a refund code node, joining a synthesize LLM node, then END. A state ticket moves on an edge.">
+      <p class="caption">Architecture first. You imposed the paths. The model reasons only where you left a hole.</p>
+    </figure>
+
+    <h2>A loop is already a tiny graph</h2>
+    <p>Khourshid via LangChain: a loop is a directed cyclic graph. LangChain’s simple agent loop is built on LangGraph. Loop engineering (0012) is not the opposite of graphs — it is the one-cycle case: act → verify → stop? → kick. Graph engineering is when you need more than that cycle: classify always before refund; inspect always before patch. <cite>Same essay · “loops are simple graphs”</cite></p>
+
+    <figure class="art">
+      <img class="lesson-art" src="../assets/loop-is-a-graph.webp" alt="Left: a three-box cycle labeled a loop is a tiny graph. Right: a messy research cloud with the caption do not force this into a DAG, use a harness.">
+      <p class="caption">Agent graphs are usually not DAGs: retry, ask a human, tool until enough. Cycles are the point.</p>
+    </figure>
+
+    <figure class="worked">
+      <p class="worked-head">One kitchen · three node kinds</p>
+      <div class="worked-body">
+<pre class="pseudo"># OPEN LOOP — model picks; may refund first
+while not done:
+    action = llm(messages, tools)
+
+# GRAPH — you drew the edges
+classify = code(ticket)              # deterministic node
+if classify == "allergy":
+    refund = code + harness stamp    # still 0007 on the till
+elif classify == "recipe":
+    sop = Agent(explore, brief)      # agent node (0011)
+answer = llm("synthesize", sop)      # one call, no tools
+
+# NOT A GRAPH
+"Who else does walnut crumb?" → harness loop
+# you cannot name the search path in advance</pre>
+      </div>
+      <p class="worked-note"><strong>What this shows.</strong> Same tools as 0005. Architecture = which transitions are legal. Runkle & Chase’s docs agent: Slack/Linear are code nodes, classify/synthesize are single calls, codebase work is an agent node. That mix is cheaper and more predictable than hoping one loop does all three.</p>
+    </figure>
+
+    <figure class="art">
+      <img class="lesson-art" src="../assets/graph-kitchen-floorplan.webp" alt="A pizza ticket follows a painted floor plan: classify, then a fork allergy versus refund. Caption: the floor plan is the graph; a station may still be an agent.">
+      <p class="caption">Kitchen only to make the floor plan concrete. The load-bearing picture is the state machine.</p>
+    </figure>
+
+    <h2>When not to draw edges</h2>
+    <p>Open-ended research: plan, delegate, search, read, synthesize in orders you cannot pin. LangGraph’s team built early deep research as a workflow, then moved to an agent harness (Deep Agents) so planning and context stay in the loop. Forcing fake stages is how you get a graph that lies. <cite>Same essay · “When not to use graphs”</cite></p>
+
+    <h2>Skill: name the shape</h2>
+    <p><strong>Hope</strong> is an open loop that refunds first. <strong>Edges</strong> force classify. <strong>Mix</strong> puts a helper inside a node. <strong>Research</strong> should stay a harness.</p>
+
+    <div class="lab" data-graph-lab>
+      <h3>Same kitchen, four shapes</h3>
+      <div class="btn-row">
+        <button type="button" data-scene="hope">Open loop</button>
+        <button type="button" data-scene="graph">Draw edges</button>
+        <button type="button" data-scene="mix">Mix nodes</button>
+        <button type="button" data-scene="research">Don’t graph</button>
+      </div>
+      <p class="kind" data-kind></p>
+      <figure class="pipeline" data-path aria-label="Tonight’s shape."></figure>
+      <div class="chat ticket-q" data-graph-chat></div>
+      <p class="cost-line" data-cost></p>
+      <p class="hint" data-graph-note></p>
+    </div>
+
+    <h2>Layers, not religions</h2>
+    <div class="compare three">
+      <div class="compare-card">
+        <h3>Loop (0006 / 0012)</h3>
+        <p>The model picks the next tool, or you design the heartbeat. Right when the path cannot be named.</p>
+      </div>
+      <div class="compare-card">
+        <h3>Graph (tonight)</h3>
+        <p>You name the legal paths and leave holes. Right when classify-then-act must always hold.</p>
+      </div>
+      <div class="compare-card">
+        <h3>Harness (0007)</h3>
+        <p>The box around whatever you drew: allow, run, stop, show. LangGraph is a runtime; Deep Agents is a harness on top.</p>
+      </div>
+    </div>
+
+    <p class="sidenote">Parked: durable execution, checkpoints, <code>Send</code> / map-reduce, LangSmith. A node that is “a whole coding agent” is newly practical — that is the 2026 twist, not the invention of graphs. Plugins still wait. Next: <a href="0014-measure-then-add.html">whether the shape moved a number you care about</a>.</p>
+
+    <h2>Check</h2>
+    <form class="quiz" data-quiz data-answers="bbabb"
+          data-success="A graph encodes your paths: nodes work, edges decide next, state is the ticket. A loop is a tiny cyclic graph. Do not graph open research — use a harness."
+          data-retry="Read the three rents at the top, then the three programs in the grey box.">
+      <fieldset>
+        <legend>1. A graph encodes</legend>
+        <label><input type="radio" name="q1" value="a"> a bigger language model</label>
+        <label><input type="radio" name="q1" value="b"> your path in structure</label>
+        <label><input type="radio" name="q1" value="c"> a folder of instructions</label>
+      </fieldset>
+      <fieldset>
+        <legend>2. A node can be</legend>
+        <label><input type="radio" name="q2" value="a"> only one LLM call</label>
+        <label><input type="radio" name="q2" value="b"> code, call, or agent</label>
+        <label><input type="radio" name="q2" value="c"> only a cron schedule</label>
+      </fieldset>
+      <fieldset>
+        <legend>3. An edge decides</legend>
+        <label><input type="radio" name="q3" value="a"> the next legal step</label>
+        <label><input type="radio" name="q3" value="b"> the model's own training</label>
+        <label><input type="radio" name="q3" value="c"> the token window size</label>
+      </fieldset>
+      <fieldset>
+        <legend>4. Use a harness loop when</legend>
+        <label><input type="radio" name="q4" value="a"> the path is known</label>
+        <label><input type="radio" name="q4" value="b"> research cannot be pinned</label>
+        <label><input type="radio" name="q4" value="c"> you need a stamp</label>
+      </fieldset>
+      <fieldset>
+        <legend>5. A loop is</legend>
+        <label><input type="radio" name="q5" value="a"> opposite of any graph</label>
+        <label><input type="radio" name="q5" value="b"> a small cyclic graph</label>
+        <label><input type="radio" name="q5" value="c"> a second language model</label>
+      </fieldset>
+      <button type="submit">Check</button>
+      <p class="feedback" data-feedback></p>
+    </form>
+
+    <div class="callout">
+      <p><strong>Primary source.</strong> <a href="https://www.langchain.com/blog/3-years-of-graph-engineering-with-langgraph">3 Years of Graph Engineering with LangGraph</a> (nodes/edges/state; loop is a cyclic graph; when <em>not</em> to graph). Runtime one-liner: <a href="https://docs.langchain.com/oss/python/langgraph/overview">LangGraph overview</a> (mix deterministic and agentic steps). Layers: <a href="https://www.langchain.com/blog/deep-agents-vs-langchain-vs-langgraph">Deep Agents vs LangChain vs LangGraph</a>.</p>
+      <p>Card: <a href="../reference/graph-engineering.html">graph engineering</a>. Last split: <a href="../reference/workflows.html">workflow vs agent</a>. Last heartbeat: <a href="../reference/loop-engineering.html">loop engineering</a>.</p>
+    </div>
+
+    <footer class="lesson-foot">
+      <p>If “is a graph just a workflow with extra boxes?” is still fuzzy, replay the lab above and reread the <a href="../reference/graph-engineering.html">graph engineering cheat sheet</a>. Next: <a href="0014-measure-then-add.html">evals</a> — measure, then add a node only when it moves a number you care about.</p>
+    </footer>
+  </article>
+  <script src="../assets/graph-lab.js"></script>
+  <script src="../assets/quiz.js"></script>
+  <script src="../assets/course-data.js"></script>
+  <script src="../assets/progress.js"></script>
+</body>
+</html>

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>0025 — The ramp</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:ital,wght@0,450;0,650;1,450&family=Source+Serif+4:ital,wght@0,450;0,600;1,450&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/lesson.css">
+  <link rel="stylesheet" href="../assets/diagram.css">
+</head>
+<body>
+  <header class="mast">
+    <a href="../index.html">← All lessons</a>
+    <span>Lesson 0025 · Software factory 4 of 4</span>
+  </header>
+  <article>
+    <p class="kicker">Software factory</p>
+    <h1>The ramp</h1>
+    <p class="lede">You have the parts: the test for a real factory (<a href="0022-the-lights-go-out-last.html">0022</a>), a check the builder cannot see (<a href="0023-a-check-the-builder-cannot-see.html">0023</a>), a repo the builder can read (<a href="0024-a-repo-agents-can-read.html">0024</a>). What is left is the order to build them in and the one decision that actually changes how you work: when to stop reading the diff. The answer is never “now, for everything.” <strong>You stop reading one class of change at a time, and only after the check has spent a while agreeing with your eyes.</strong></p>
+
+    <div class="callout scope">
+      <p><strong>What this is.</strong> A way up Shapiro’s ladder that one developer can afford and a team can govern: four landings, a log that tells you when to step up, a budget cap, and a list of what stays with a person. The shadow log is my synthesis. It applies to code what <a href="0019-the-suite-has-two-jobs.html">0019</a> taught about calibrating a judge, and it follows how Anthropic’s harness team tuned their evaluator: by reading its logs for places where its verdict differed from the author’s own. <cite><a href="https://www.anthropic.com/engineering/harness-design-long-running-apps">Harness design for long-running apps</a></cite></p>
+      <p><strong>What this is not.</strong> A route to level 5 for everything you ship. Most code never should get there, and most teams should stop at a landing. It is also not a method for a ten-year-old codebase. Every first-hand report I could find started from an empty repository, and I have no high-trust source for the other case. The landings still apply; the effort to reach the first two will be larger and nobody has published by how much.</p>
+    </div>
+
+    <ol class="remember">
+      <li><strong>1 · Shadow</strong><span>The check runs beside your review. Log disagreements.</span></li>
+      <li><strong>2 · Release</strong><span>One class of change: covered, and undoable.</span></li>
+      <li><strong>3 · Keep</strong><span>The spec, the exam, the irreversible stay human.</span></li>
+    </ol>
+    <p class="caption">The lights go out last (0022), and one room at a time.</p>
+
+    <figure class="art">
+      <img class="lesson-art" src="../assets/factory-ramp.svg" alt="Four rising landings. One, map and records, lesson 0024. Two, one check for one feature, lesson 0023. Three, shadow: the check runs beside your own review and every disagreement is logged. Four, release: one class of change merges on the check and you read a sample. A bracket under the first three says you still read every diff. An arrow returns from landing four to landing two for the next class of change.">
+      <p class="caption">Architecture first. Landings 1 and 2 are the last two lessons. Tonight is 3 and 4.</p>
+    </figure>
+
+    <h2>Three moves</h2>
+    <ul class="shapes">
+      <li><strong>Shadow</strong> <span>For a run of agent changes in one area, review each as you do today, write down merge or reject, and only then look at what the check said. You are not testing the agent. You are testing whether the check sees what you see.</span></li>
+      <li><strong>Release</strong> <span>When the check has stopped missing things you catch, let that one class of change merge on the check and read a sample instead of all of it. A class is narrow: “changes to refund logic,” not “the backend.” Trust earned on one class says nothing about the next.</span></li>
+      <li><strong>Keep</strong> <span>Three things do not move down the ramp: what the software should do, the exam that decides whether it does, and any action in the world that cannot be taken back.</span></li>
+    </ul>
+
+    <figure class="worked">
+      <p class="worked-head">Shadow log · refund logic · 20 agent changes · numbers invented for illustration</p>
+      <div class="worked-body">
+<pre class="pseudo">                         check PASS    check FAIL
+  you would merge            13             1
+  you would reject            2             4
+
+  agreement: 17 of 20
+
+  THE CELL THAT MATTERS: you reject, check passes  (2)
+    #7    the refund was issued twice when the request was retried
+          -> new scenario: "the same request arrives twice"
+    #15   right amount, wrong currency on the refund
+          -> the twin now records currency; the judge compares it
+
+  re-run all 20 with the two additions:  that cell is 0
+  the other odd cell: you merge, check fails  (1)
+    #11   you missed a monthly plan being refunded. The check was right.</pre>
+      </div>
+      <p class="worked-note"><strong>What this shows.</strong> Seventeen of twenty sounds like a good check. It is not the number to read. The two changes in the bottom-left cell are what would have shipped had the lights been off, so each one becomes a scenario or a field the twin records, and the run is repeated. The top-right cell is worth a look for the opposite reason: sometimes the check is too strict, and sometimes, as with #11, it caught what you did not. You step up when the bottom-left cell stays empty across a run long enough that you believe it. I have no sourced number for how long that is; pick one before you start so you cannot talk yourself into stopping early.</p>
+    </figure>
+
+    <h2>What may go, and what may not</h2>
+    <p>Releasing a class needs two things to be true of it, not one. The check covers it, and a mistake in it can be undone.</p>
+
+    <figure class="art">
+      <img class="lesson-art" src="../assets/factory-who-looks.svg" alt="A two by two grid. Columns: a shadowed check covers the change, or no trusted check covers it. Rows: the effect can be undone, or cannot. Covered and undoable: let it merge and sample afterwards. Not covered and undoable: read the diff and write the scenario. Covered but not undoable: the code may merge, the action waits for a person at a gate. Neither: read it and approve it.">
+      <p class="caption">My synthesis, not a quoted source. The bottom row is the allow gate from 0007 and 0020, placed on the action and not on the code.</p>
+    </figure>
+
+    <h2>Skill: decide who looks</h2>
+    <p>Six changes arrive in the billing assistant’s queue. Refund logic has been shadowed and released. Nothing else has.</p>
+
+    <div class="lab" data-sort-lab>
+      <h3>Merge, approve, or read?</h3>
+      <script type="application/json" data-sort-data>
+      {
+        "bins": ["Let it merge", "Approve the action", "Read the diff"],
+        "retry": "Not that one. Two questions: does a check you have shadowed cover this? Can its effect be undone?",
+        "cases": [
+          {
+            "text": "The agent changes how months remaining are rounded in the pro-rata refund. All held-out refund scenarios pass. The change is code only and a deploy can be rolled back in a minute.",
+            "bin": "Let it merge",
+            "why": "Let it merge. Covered by the check you shadowed, and undoable. This is the class you released. Read one in every few afterwards so you notice if the check stops agreeing with you."
+          },
+          {
+            "text": "Same class, same green scenarios. But the task also asks the agent to run a backfill that issues the corrected refunds to 400 real customers through Stripe.",
+            "bin": "Approve the action",
+            "why": "Approve the action. The logic is covered, so the code can merge. The backfill moves real money and cannot be recalled. A person approves that run at a gate, after looking at the list it will act on."
+          },
+          {
+            "text": "A new feature: export an invoice as a PDF. The agent's own tests pass. No held-out scenarios exist for PDFs and nobody has shadowed this area.",
+            "bin": "Read the diff",
+            "why": "Read the diff. Nothing independent has replaced your eyes here; the builder's own tests are a claim. While you read, write the first scenarios. That is how this class starts up the ramp."
+          },
+          {
+            "text": "A pull request titled 'fix flaky check' edits two files in the scenarios repository and loosens one comparison in the judge. Every scenario now passes.",
+            "bin": "Read the diff",
+            "why": "Read the diff. This is a change to the exam, and the exam is yours. A builder that can adjust what it is graded on is the first tell of a fake factory from 0022. Always a person, whatever the score says."
+          },
+          {
+            "text": "The scheduled sweep opens a small pull request fixing three stale lines in docs/. The dead-pointer check passes. Reverting it is one click.",
+            "bin": "Let it merge",
+            "why": "Let it merge. A narrow class, a check that covers what can go wrong in it, and nothing that cannot be reverted. OpenAI reports most such cleanup changes are reviewed in under a minute and merged automatically."
+          },
+          {
+            "text": "A migration drops the old 'plan_type' column now that nothing reads it. All refund scenarios pass against the twin. The production table has four years of rows.",
+            "bin": "Approve the action",
+            "why": "Approve the action. The scenarios say the code no longer needs the column. They cannot give the data back. A person approves the migration run, with a backup confirmed first."
+          }
+        ]
+      }
+      </script>
+    </div>
+
+    <h2>The bill, and a cap on it</h2>
+    <p>The check costs more than the build. That is the consistent finding in the reports, and the reason to release narrow classes instead of buying a factory.</p>
+    <ul>
+      <li><strong>Anthropic’s harness team</strong> ran the same one-line prompt two ways: one agent alone, 20 minutes and $9; planner, builder and evaluator together, 6 hours and $200. The cheap run’s main feature did not work. A later, slimmer harness on a newer model cost about $124, of which the evaluator’s three passes were about $10.</li>
+      <li><strong>Carlini’s compiler</strong> took about two weeks of sixteen agents and just under $20,000.</li>
+      <li><strong>StrongDM’s benchmark</strong> is $1,000 of tokens per engineer per day. Simon Willison’s response is the one to keep: at $20,000 a month per engineer this is a business-model question, and he hopes the patterns work at far lower spend. He experiments on a $200-a-month plan. <cite><a href="https://simonwillison.net/2026/Feb/7/software-factory/">Willison</a></cite></li>
+    </ul>
+    <p>Two habits keep the bill honest. First, the same team found an evaluator earns its cost only where the task is beyond what the model does reliably alone, and that each piece of a harness stands for something the model could not do when you added it. When the model changes, take pieces out one at a time and see what breaks. Second, give every unattended run a ceiling. You wrote one in <a href="0021-write-the-loop.html">0021</a> as <code>maxTurns</code>. Claude Code’s non-interactive mode has the same cap and a dollar one:</p>
+<pre>claude -p --max-turns 30 --max-budget-usd 5 "Fix the failing refund scenario"</pre>
+    <p>The docs note that the dollar cap is checked against a client-side estimate that can differ from the bill. This line is here to show the shape. It makes paid calls, so it is not something to run in this course. <cite><a href="https://code.claude.com/docs/en/cli-reference">Claude Code · CLI reference</a></cite></p>
+
+    <h2>Where a human stays</h2>
+    <ul>
+      <li><strong>The spec.</strong> In the OpenAI report, people prioritise the work, turn user feedback into acceptance criteria and validate outcomes. The agent escalates when judgment is needed. Nobody has automated deciding what should be built.</li>
+      <li><strong>The exam.</strong> Scenarios, twins, the judge, the CI config. A Stanford Law commentary on StrongDM names the risk when an LLM also does the judging: builder and inspector can share blind spots, and the difference between them is what made testing useful. Someone who is not the builder owns the exam. <cite><a href="https://law.stanford.edu/2026/02/08/built-by-agents-tested-by-agents-trusted-by-whom/">Kahana · Stanford CodeX</a></cite></li>
+      <li><strong>The irreversible.</strong> Money, deletion, access, anything sent to a customer.</li>
+      <li><strong>The name on it.</strong> The same commentary: “Existing legal frameworks assume someone, somewhere, looked at the work.” Liability, what to disclose to a customer, and warranty terms have not caught up. Until they do, every released class needs a named person who answers for it, and you should know what your contracts say about review before you stop doing it.</li>
+      <li><strong>The skill.</strong> The commentary also warns that as scrutiny fades, so does the ability to catch a serious failure. Carlini, a former penetration tester, ends his own report uneasy about software nobody personally verified. The sample you keep reading is how you stay able to read.</li>
+    </ul>
+
+    <div class="compare three">
+      <div class="compare-card">
+        <h3>Solo developer</h3>
+        <p>One repo, one feature, one class. A map, six scenarios and a twin. Shadow twenty changes on a notepad. Release that class with a turn cap. Reaching landing 4 for a single class is a real result. Stay there as long as you like.</p>
+      </div>
+      <div class="compare-card">
+        <h3>Team</h3>
+        <p>A written list of released classes, each with an owner, its check, and the date it was last shadowed. Scenarios live where builders cannot push. A budget per person. Re-shadow after a model change. Legal reads the list before customers rely on it.</p>
+      </div>
+      <div class="compare-card">
+        <h3>After this</h3>
+        <p>The section ends here. The ramp’s first two landings are waiting in <code>code/</code>: the lint from 0024 and the check from 0023. Or build track 2, the allow gate that the bottom row of the grid depends on.</p>
+      </div>
+    </div>
+
+    <div class="lab">
+      <h3>Your ramp, this week</h3>
+      <p>No new code tonight. Three exercises are open, and they are the ramp in order of value. Pick one.</p>
+<pre>cd code/0023-a-check-the-builder-cannot-see     landing 2: the check
+node check.ts
+
+cd code/0024-a-rule-that-teaches                landing 1: a rule in the repo
+node check.ts
+
+cd code/0021-write-the-loop                     the loop every agent runs on
+node check.ts</pre>
+      <p class="hint">Then, for something of your own: name one class of change in a repository you work in, write down the two or three things you look for when you review it, and send me the list. Those are your first scenarios.</p>
+    </div>
+
+    <p class="sidenote">Parked: many agents in parallel, task locks and worktrees; LLM judges for outcomes code cannot grade, and why they bring the shared-blind-spot problem with them; running each scenario several times so the score is a rate; factories on old codebases, where I have no source worth teaching from yet.</p>
+
+    <h2>Check</h2>
+    <p>From memory.</p>
+    <form class="quiz" data-quiz data-answers="babca"
+          data-success="Shadowing runs the check alongside your review. The dangerous cell is you reject, check passes. You stop reading one class at a time. What cannot be undone needs a human approval. Harness pieces are re-tested when the model changes."
+          data-retry="Not yet. Look at the shadow log and the grid, then try again.">
+      <fieldset>
+        <legend>1. During shadowing the check runs</legend>
+        <label><input type="radio" name="q1" value="a"> instead of you</label>
+        <label><input type="radio" name="q1" value="b"> alongside your review</label>
+        <label><input type="radio" name="q1" value="c"> after the merge</label>
+      </fieldset>
+      <fieldset>
+        <legend>2. The cell of the shadow log to empty first is</legend>
+        <label><input type="radio" name="q2" value="a"> you reject, check passes</label>
+        <label><input type="radio" name="q2" value="b"> you merge, check passes</label>
+        <label><input type="radio" name="q2" value="c"> you reject, check fails</label>
+      </fieldset>
+      <fieldset>
+        <legend>3. You stop reading diffs</legend>
+        <label><input type="radio" name="q3" value="a"> across the whole repository now</label>
+        <label><input type="radio" name="q3" value="b"> one class at a time</label>
+        <label><input type="radio" name="q3" value="c"> whenever the budget allows it</label>
+      </fieldset>
+      <fieldset>
+        <legend>4. A change whose effect cannot be undone needs</legend>
+        <label><input type="radio" name="q4" value="a"> a longer prompt</label>
+        <label><input type="radio" name="q4" value="b"> a second agent</label>
+        <label><input type="radio" name="q4" value="c"> a human approval</label>
+      </fieldset>
+      <fieldset>
+        <legend>5. Re-test each piece of your harness when</legend>
+        <label><input type="radio" name="q5" value="a"> the model changes</label>
+        <label><input type="radio" name="q5" value="b"> the team grows</label>
+        <label><input type="radio" name="q5" value="c"> the quarter ends</label>
+      </fieldset>
+      <button type="submit">Check</button>
+      <p class="feedback" data-feedback></p>
+    </form>
+
+    <div class="callout">
+      <p><strong>Primary source.</strong> <a href="https://www.anthropic.com/engineering/harness-design-long-running-apps">Harness design for long-running application development</a>, by Prithvi Rajasekaran. Read the cost tables, the passage on how the evaluator was tuned against the author’s own judgment, and the section on removing harness pieces after a model upgrade. It is a vendor report on its own models, with the limits stated. Then, for the half engineers skip, <a href="https://law.stanford.edu/2026/02/08/built-by-agents-tested-by-agents-trusted-by-whom/">Built by Agents, Tested by Agents, Trusted by Whom?</a></p>
+      <p>Wisdom lives with people doing this. Simon Willison’s <a href="https://simonwillison.net/tags/coding-agents/">coding-agents posts</a> and the discussions they link to are the most candid running record I know of; read the disagreements, not only the posts.</p>
+      <p>Card: <a href="../reference/software-factory.html">software factory</a> (now with the ramp). Calibrating a judge: <a href="0019-the-suite-has-two-jobs.html">0019</a>. The gate: <a href="0020-the-prompt-is-not-the-wall.html">0020</a>.</p>
+    </div>
+
+    <footer class="lesson-foot">
+      <p>If “class of change” is hard to pin down for your own work, or you want to know which landing your team is really on, write down how a change gets from an agent to production where you work, and mark who or what looks at each step. That is the end of the course — the <a href="../reference/map-of-the-era.html">map of the era</a> and the cheat sheets are there to come back to.</p>
+    </footer>
+  </article>
+  <script src="../assets/sort-lab.js"></script>
+  <script src="../assets/quiz.js"></script>
+  <script src="../assets/course-data.js"></script>
+  <script src="../assets/progress.js"></script>
+</body>
+</html>

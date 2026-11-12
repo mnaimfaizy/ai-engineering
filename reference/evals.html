@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Evals — cheat sheet</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:ital,wght@0,450;0,650;1,450&family=Source+Serif+4:ital,wght@0,450;0,600;1,450&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/lesson.css">
+  <link rel="stylesheet" href="../assets/diagram.css">
+</head>
+<body>
+  <header class="mast">
+    <a href="../index.html">← All lessons</a>
+    <span>Reference</span>
+  </header>
+  <article>
+    <p class="kicker">Cheat sheet</p>
+    <h1>Evals</h1>
+    <p class="lede">From <a href="../lessons/0014-measure-then-add.html">lesson 0014</a>. Measure, then add a node only when a number you care about moves.</p>
+
+    <ol class="remember">
+      <li><strong>Task</strong><span>Input + success criteria. ~20 real failures to start.</span></li>
+      <li><strong>Trace</strong><span>Full trial record. Outcome ≠ last sentence.</span></li>
+      <li><strong>Gate</strong><span>Change one thing. Keep it only if the score moves.</span></li>
+    </ol>
+
+    <h2>Not</h2>
+    <ul>
+      <li>Not a vibe check. Feeling “the graph is calmer” is not a grader.</li>
+      <li>Not “wait for hundreds of tasks / a vendor platform.” Anthropic: 20–50 from real failures.</li>
+      <li>Not the claim in the transcript. Outcome is environment state after the trial.</li>
+      <li>A graph, helper, or skill is a <em>change</em>. The eval decides if it stays. <a href="graph-engineering.html">Graph card</a>.</li>
+      <li>CI grades the branch. In production, join the trial to HTTP and Stripe with one id. <a href="production-traces.html">Production traces</a>.</li>
+      <li>Two boards once you have trees: capability vs regression. <a href="eval-suites.html">Eval suites</a>.</li>
+    </ul>
+
+    <h2>In a full-stack app</h2>
+    <ul>
+      <li><strong>Task</strong> = <code>POST /assistant</code> + pass rule (policy before Stripe). Source: Zendesk / Sentry, ~20 failures.</li>
+      <li><strong>Trace</strong> = one request id (messages, tools, SQL, Stripe). Not the chat bubble.</li>
+      <li><strong>Outcome</strong> = <code>refunds</code> row + Stripe status. Same idea as Anthropic’s reservation SQL.</li>
+      <li><strong>Gate</strong> = keep policy-before-Stripe if pass rate moves; revert a helper that only burns tokens.</li>
+    </ul>
+    <p>Anthropic: simplest solution; add complexity only when it demonstrably improves outcomes. Hamel: error analysis before infrastructure — read traces first.</p>
+  </article>
+  <script src="../assets/course-data.js"></script>
+  <script src="../assets/progress.js"></script>
+</body>
+</html>

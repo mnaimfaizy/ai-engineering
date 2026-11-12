@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Propose · run · paste · pick — cheat sheet</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:ital,wght@0,450;0,650;1,450&family=Source+Serif+4:ital,wght@0,450;0,600;1,450&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/lesson.css">
+  <link rel="stylesheet" href="../assets/diagram.css">
+</head>
+<body>
+  <header class="mast">
+    <a href="../index.html">← All lessons</a>
+    <span>Reference</span>
+  </header>
+  <article>
+    <p class="kicker">Cheat sheet</p>
+    <h1>Tools</h1>
+    <p class="lede">From <a href="../lessons/0005-the-model-writes-a-slip.html">lesson 0005</a>. The model writes a slip. You cook. The ticket re-enters RAM.</p>
+
+    <ol class="remember four">
+      <li><strong>Propose</strong><span>Structured tool call, not English.</span></li>
+      <li><strong>Run</strong><span>Your code or an MCP server.</span></li>
+      <li><strong>Paste</strong><span>Result goes into the script.</span></li>
+      <li><strong>Pick</strong><span>Pack · read · pick, now with a live fact.</span></li>
+    </ol>
+
+    <h2>When</h2>
+    <ul>
+      <li>Do: live state, actions, anything the weights cannot know tonight.</li>
+      <li>Skip: already in the script, or a tiny general question (2+2).</li>
+      <li>RAG pastes pages you found. Tools paste tickets from work you ran.</li>
+    </ul>
+
+    <h2>MCP</h2>
+    <p>USB-C for AI apps: one plug, many kitchens. Same loop. Not a bigger window, not a new tokenizer.</p>
+    <p>OpenAI: tool call → you execute → tool output. Anthropic: the model never executes on its own.</p>
+
+    <h2>The loop in code</h2>
+    <p>From <a href="../lessons/0021-write-the-loop.html">lesson 0021</a>. Claude Messages API shapes; TypeScript.</p>
+<pre>const messages = [{ role: "user", content: userText }];
+let turns = 0;
+
+while (true) {
+  if (turns === maxTurns) return "max_turns";            // CAP
+  turns++;
+
+  const response = await client.messages.create({ model, max_tokens, tools, messages });
+
+  if (response.stop_reason === "end_turn") return text;   // STOP
+
+  messages.push({ role: "assistant", content: response.content });   // KEEP, whole
+
+  const results = response.content                         // RUN
+    .filter((block) => block.type === "tool_use")
+    .map((slip) => ({
+      type: "tool_result",
+      tool_use_id: slip.id,
+      content: runTool(slip.name, slip.input),
+    }));
+
+  messages.push({ role: "user", content: results });       // PASTE, one message
+}</pre>
+    <ul>
+      <li><code>stop_reason</code>: <code>tool_use</code> means run slips; <code>end_turn</code> means done.</li>
+      <li>Results go in a <code>user</code> message, immediately after the slip message. No <code>tool</code> role.</li>
+      <li>Every <code>tool_use</code> id needs a matching <code>tool_result</code>, or the API returns 400.</li>
+      <li>The whole array is resent each call. Input tokens grow every turn.</li>
+    </ul>
+    <p>Source: <a href="https://platform.claude.com/docs/en/agents-and-tools/tool-use/handle-tool-calls">Handle tool calls</a>.</p>
+  </article>
+  <script src="../assets/course-data.js"></script>
+  <script src="../assets/progress.js"></script>
+</body>
+</html>

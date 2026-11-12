@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" font-family="'Source Sans 3','Segoe UI',system-ui,sans-serif">
+  <defs>
+    <marker id="p" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z" fill="#9a3412"/>
+    </marker>
+  </defs>
+  <rect width="960" height="540" fill="#f7f1e5"/>
+  <text x="48" y="52" font-size="15" letter-spacing="2.4" fill="#9a3412" font-weight="650">PROMOTE THE RULE</text>
+  <text x="48" y="80" font-size="15" fill="#44403c">The same sentence, in three places. Each step up reaches more code and depends less on anyone remembering.</text>
+
+  <!-- step 1 -->
+  <rect x="48" y="300" width="256" height="110" rx="6" fill="#efe6d4" stroke="#d6cbb6"/>
+  <text x="68" y="330" font-size="13" letter-spacing="1.4" fill="#44403c" font-weight="650">1 · SAID</text>
+  <text x="68" y="358" font-size="16" fill="#1c1917">A review comment</text>
+  <text x="68" y="384" font-size="13" fill="#44403c">Reaches one pull request.</text>
+  <text x="68" y="402" font-size="13" fill="#44403c">Gone by the next session.</text>
+
+  <!-- step 2 -->
+  <rect x="352" y="220" width="256" height="190" rx="6" fill="#efe6d4" stroke="#1d4e4a" stroke-width="1.6"/>
+  <text x="372" y="250" font-size="13" letter-spacing="1.4" fill="#1d4e4a" font-weight="650">2 · WRITTEN</text>
+  <text x="372" y="278" font-size="16" fill="#1c1917">A line in docs/</text>
+  <text x="372" y="304" font-size="13" fill="#44403c">Reaches every agent that</text>
+  <text x="372" y="322" font-size="13" fill="#44403c">opens the file.</text>
+  <text x="372" y="358" font-size="13" fill="#44403c">Context, not enforcement:</text>
+  <text x="372" y="376" font-size="13" fill="#44403c">it can be read and still</text>
+  <text x="372" y="394" font-size="13" fill="#44403c">not followed.</text>
+
+  <!-- step 3 -->
+  <rect x="656" y="140" width="256" height="270" rx="6" fill="#1d4e4a"/>
+  <text x="676" y="170" font-size="13" letter-spacing="1.4" fill="#e7c9a9" font-weight="650">3 · CHECKED</text>
+  <text x="676" y="198" font-size="16" fill="#f7f1e5">A lint that runs in CI</text>
+  <text x="676" y="224" font-size="13" fill="#f7f1e5">Reaches every file,</text>
+  <text x="676" y="242" font-size="13" fill="#f7f1e5">on every run.</text>
+  <text x="676" y="278" font-size="13" fill="#e7c9a9">Nobody has to remember it.</text>
+  <text x="676" y="296" font-size="13" fill="#e7c9a9">Nobody has to read the diff</text>
+  <text x="676" y="314" font-size="13" fill="#e7c9a9">to see it was broken.</text>
+
+  <!-- promote arrows -->
+  <path d="M304 330 C328 330 328 270 346 270" stroke="#9a3412" stroke-width="2.2" fill="none" marker-end="url(#p)"/>
+  <text x="250" y="286" font-size="13" fill="#9a3412" font-weight="650">second time</text>
+  <path d="M608 250 C632 250 632 190 650 190" stroke="#9a3412" stroke-width="2.2" fill="none" marker-end="url(#p)"/>
+  <text x="560" y="206" font-size="13" fill="#9a3412" font-weight="650">third time</text>
+
+  <!-- the message -->
+  <rect x="48" y="436" width="864" height="62" rx="4" fill="#1c1917"/>
+  <g font-family="'IBM Plex Mono','Cascadia Mono',monospace" font-size="13">
+    <text x="64" y="461" fill="#e7c9a9">ERROR src/repo/invoices.ts:2</text>
+    <text x="300" y="461" fill="#f7f1e5">repo may not import from service. Move this logic up into</text>
+    <text x="64" y="483" fill="#f7f1e5">src/service/, or pass the value in as an argument. See docs/architecture.md.</text>
+  </g>
+  <text x="48" y="522" font-size="13" fill="#44403c">Step 3 prints this into the agent’s window at the moment of the mistake. The message carries the fix.</text>
+</svg>

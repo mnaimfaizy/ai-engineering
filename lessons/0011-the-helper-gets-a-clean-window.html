@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>0011 — The helper gets a clean window</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:ital,wght@0,450;0,650;1,450&family=Source+Serif+4:ital,wght@0,450;0,600;1,450&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/lesson.css">
+  <link rel="stylesheet" href="../assets/diagram.css">
+</head>
+<body>
+  <header class="mast">
+    <a href="../index.html">← All lessons</a>
+    <span>Lesson 0011</span>
+  </header>
+  <article>
+    <p class="kicker">Context engineering</p>
+    <h1>The helper gets a clean window</h1>
+    <p class="lede">Lesson 0010 still fills <em>your</em> RAM if you do every grep. A <strong>sub-agent</strong> is a second loop with its own window. You keep the plan. They keep the dumps. You take back a short summary.</p>
+
+    <div class="callout scope">
+      <p><strong>What this is.</strong> Anthropic’s third long-horizon lever, after compaction and notes: specialized helpers with clean context windows. Each may spend tens of thousands of tokens exploring; the lead gets a distilled summary (often 1–2k). <cite><a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents">Effective context engineering</a> · “Sub-agent architectures”</cite></p>
+      <p><strong>What this is not.</strong> A second model (it often <em>inherits</em> yours). A skill (that plays out in your thread). Agent teams, worktrees, or a 15-agent research swarm — parked. Not a ChatGPT menu item named “Subagent.”</p>
+    </div>
+
+    <ol class="remember">
+      <li><strong>1 · Isolate</strong><span>Helper RAM is a second bar. Search dumps never hit the lead.</span></li>
+      <li><strong>2 · Brief</strong><span>Objective, format, bounds. Vague briefs duplicate work.</span></li>
+      <li><strong>3 · Return</strong><span>A short note, not the transcript. Then the lead picks.</span></li>
+    </ol>
+    <p class="caption">Same agent loop as <a href="0006-you-draw-the-path.html">0006</a>. Same harness as <a href="0007-the-harness-wraps-the-loop.html">0007</a>. Tonight is <em>whose</em> window the greps land in.</p>
+
+    <figure class="art">
+      <img class="lesson-art" src="../assets/subagent-two-windows.webp" alt="Two context-window bars. The lead bar is thin: plan plus a small summary card. The helper bar is packed with grep and file dumps. A dashed arrow returns only the summary.">
+      <p class="caption">Claude Code’s worked picture: helper read 6,100 tokens of files; you got ~420 back, plus a small metadata trailer. <cite><a href="https://code.claude.com/docs/en/context-window">Context window</a></cite></p>
+    </figure>
+
+    <h2>The lead coordinates. The helper explores.</h2>
+    <p>One agent trying to hold the whole project is how windows die. The lead keeps a high-level plan; helpers do the noisy search. Separation of concerns: detailed search stays isolated; the lead synthesizes. The research-system writeup names the same move as compression — distill a corpus in a window you are willing to throw away. <cite><a href="https://www.anthropic.com/engineering/multi-agent-research-system">How we built our multi-agent research system</a></cite></p>
+
+    <figure class="pipeline" data-pipeline aria-label="Lead, helper, summary.">
+      <div class="pipeline-step"><strong>Lead</strong><span>plan + brief</span></div>
+      <div class="pipeline-arrow"><i class="token-dot" aria-hidden="true"></i></div>
+      <div class="pipeline-step"><strong>Helper</strong><span>own RAM, greps</span></div>
+      <div class="pipeline-arrow"><i class="token-dot" aria-hidden="true"></i></div>
+      <div class="pipeline-step"><strong>Return</strong><span>summary only</span></div>
+      <div class="pipeline-arrow"><i class="token-dot" aria-hidden="true"></i></div>
+      <div class="pipeline-step"><strong>Pick</strong><span>lead decides</span></div>
+    </figure>
+    <p class="caption">You are sitting in this: Cursor’s Explore / Bash / Browser helpers exist because those jobs spew logs. <cite><a href="https://cursor.com/docs/subagents">Cursor · Subagents</a></cite></p>
+
+    <figure class="art">
+      <img class="lesson-art" src="../assets/solo-vs-subagent.webp" alt="Left: one window filling with file dumps, labeled lead does every grep. Right: two windows, lead stays thin, helper is full, arrow says summary only.">
+      <p class="caption">Architecture first. Kitchen below is optional.</p>
+    </figure>
+
+    <figure class="worked">
+      <p class="worked-head">One ticket · last hour’s stone</p>
+      <div class="worked-body">
+<pre class="pseudo"># SOLO JIT — lead does every read
+Grep("temp_c", "oven/") → 8 log hits
+Read(p1) Read(p2) … Read(p8)     # 6k+ tokens now in LEAD RAM
+
+# SUB-AGENT — second window
+Agent({
+  type: "explore",
+  prompt: """
+    Objective: last eight oven probes.
+    Format: three lines (start, end, target).
+    Bounds: oven/ only. Return no dumps.
+  """
+})
+# helper greps in ITS window
+# lead receives:
+#   180°C → 188°C. Target 240. Unresolved: preheat.</pre>
+      </div>
+      <p class="worked-note"><strong>What this shows.</strong> The question did not change. Whose RAM paid for the logs did. Cursor: the parent must put the needed facts in the brief — the helper has no prior conversation. Anthropic: teach the orchestrator to delegate (objective, format, tools, bounds) or helpers duplicate searches.</p>
+    </figure>
+
+    <figure class="art">
+      <img class="lesson-art" src="../assets/subagent-pass-vs-prep.webp" alt="Head chef at a pizza pass holds a short brief. Through a swinging door, a prep cook is buried in oven-log printouts and sends one small slip back.">
+      <p class="caption">The dump stays in the prep room. The pass only sees the three-line slip.</p>
+    </figure>
+
+    <h2>The brief is the match</h2>
+    <p>Same lesson as a skill <code>description</code> (0008). Claude Code uses the sub-agent’s description to decide when to delegate. A prompt that says “look into the oven” is how you get refunds/ and a 2021 stone story in the summary. Write what success looks like, what to ignore, and how short the return should be. <cite><a href="https://code.claude.com/docs/en/sub-agents">Create custom subagents</a></cite></p>
+
+    <h2>Skill: watch the lead’s bar</h2>
+    <p><strong>Solo</strong> is JIT in the lead window. <strong>Isolate</strong> opens a helper bar. <strong>Vague brief</strong> still pollutes the return. <strong>Sharp brief</strong> is the three-line note.</p>
+
+    <div class="lab" data-sub-lab>
+      <h3>Same ticket, two windows</h3>
+      <div class="btn-row">
+        <button type="button" data-scene="solo">Solo JIT</button>
+        <button type="button" data-scene="helper">Isolate</button>
+        <button type="button" data-scene="vague">Vague brief</button>
+        <button type="button" data-scene="sharp">Sharp brief</button>
+      </div>
+      <p class="kind" data-kind></p>
+      <figure class="pipeline" aria-label="Isolate, brief, return.">
+        <div class="pipeline-step"><strong>Isolate</strong><span>second RAM</span></div>
+        <div class="pipeline-arrow"><i class="token-dot" aria-hidden="true"></i></div>
+        <div class="pipeline-step"><strong>Brief</strong><span>objective · bounds</span></div>
+        <div class="pipeline-arrow"><i class="token-dot" aria-hidden="true"></i></div>
+        <div class="pipeline-step"><strong>Return</strong><span>summary only</span></div>
+      </figure>
+      <div class="compare">
+        <div class="compare-card" data-lead-box>
+          <h3>Lead window</h3>
+          <div class="meter" aria-hidden="true"><div class="meter-fill" data-meter-fill></div></div>
+          <p class="meter-label" data-meter-label></p>
+          <div class="stack">
+            <span data-layer="system" data-name="System"></span>
+            <span data-layer="dump" data-name="Dumps"></span>
+            <span data-layer="plan" data-name="Plan"></span>
+            <span data-layer="summary" data-name="Summary"></span>
+            <span data-layer="user" data-name="User"></span>
+          </div>
+        </div>
+        <div class="compare-card" data-help-box>
+          <h3>Helper window</h3>
+          <div class="meter" aria-hidden="true"><div class="meter-fill" data-meter-fill></div></div>
+          <p class="meter-label" data-meter-label></p>
+          <div class="stack">
+            <span data-layer="system" data-name="System"></span>
+            <span data-layer="dump" data-name="Dumps"></span>
+            <span data-layer="user" data-name="Brief"></span>
+          </div>
+        </div>
+      </div>
+      <div class="chat ticket-q" data-sub-chat></div>
+      <p class="cost-line" data-cost></p>
+      <p class="hint" data-sub-note></p>
+    </div>
+
+    <h2>Skill in the thread, helper off-stage</h2>
+    <div class="compare">
+      <div class="compare-card">
+        <h3>Skill (0008)</h3>
+        <p>Chapter loads into <em>your</em> window. You see and steer each step. Use when the procedure is the work.</p>
+      </div>
+      <div class="compare-card">
+        <h3>Sub-agent (tonight)</h3>
+        <p>Side task that would flood you with logs. Isolation is the feature. Cursor: if it is a one-shot format job, it is a skill.</p>
+      </div>
+    </div>
+    <p>You already sit in one: Cursor’s Explore is a read-only helper so codebase search does not bloat the parent. Claude Code’s Explore is the same idea. The product names differ; the rent is the second bar.</p>
+
+    <p class="sidenote">Parked: spinning many helpers in parallel (Anthropic’s Research feature; ~15× the tokens of a chat — only when the task pays). Agent teams, git worktrees, cheaper-model routing. Loop engineering — designing the cycle that prompts the agent — is next, not a second helper.</p>
+
+    <h2>Check</h2>
+    <form class="quiz" data-quiz data-answers="bacba"
+          data-success="A sub-agent is a second clean window. The lead keeps a plan plus a summary. The helper returns a short note. Brief it like a skill description. Use a skill when you must steer the steps."
+          data-retry="Read the two bars in the picture, then the walnut brief in the grey box.">
+      <fieldset>
+        <legend>1. A sub-agent is</legend>
+        <label><input type="radio" name="q1" value="a"> a bigger language model</label>
+        <label><input type="radio" name="q1" value="b"> a second clean window</label>
+        <label><input type="radio" name="q1" value="c"> a folder of instructions</label>
+      </fieldset>
+      <fieldset>
+        <legend>2. The lead agent keeps</legend>
+        <label><input type="radio" name="q2" value="a"> a plan plus summary</label>
+        <label><input type="radio" name="q2" value="b"> every helper file dump</label>
+        <label><input type="radio" name="q2" value="c"> the helper system prompt</label>
+      </fieldset>
+      <fieldset>
+        <legend>3. The helper returns</legend>
+        <label><input type="radio" name="q3" value="a"> its entire search log</label>
+        <label><input type="radio" name="q3" value="b"> a newly trained model</label>
+        <label><input type="radio" name="q3" value="c"> a short distilled note</label>
+      </fieldset>
+      <fieldset>
+        <legend>4. Use a skill when</legend>
+        <label><input type="radio" name="q4" value="a"> dumps would flood RAM</label>
+        <label><input type="radio" name="q4" value="b"> you must steer steps</label>
+        <label><input type="radio" name="q4" value="c"> you need two windows</label>
+      </fieldset>
+      <fieldset>
+        <legend>5. A vague helper brief</legend>
+        <label><input type="radio" name="q5" value="a"> causes duplicate wasted searches</label>
+        <label><input type="radio" name="q5" value="b"> saves the lead tokens</label>
+        <label><input type="radio" name="q5" value="c"> trains the helper model</label>
+      </fieldset>
+      <button type="submit">Check</button>
+      <p class="feedback" data-feedback></p>
+    </form>
+
+    <div class="callout">
+      <p><strong>Primary source.</strong> The sub-agent paragraph in <a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents">Effective context engineering</a>, then the isolation numbers in <a href="https://www.anthropic.com/engineering/multi-agent-research-system">How we built our multi-agent research system</a> (search is compression; brief the helper). Product form: <a href="https://code.claude.com/docs/en/sub-agents">Claude Code sub-agents</a> and <a href="https://cursor.com/docs/subagents">Cursor subagents</a> — you are sitting in the second one.</p>
+      <p>Card: <a href="../reference/sub-agents.html">sub-agents</a>. Last path: <a href="../reference/just-in-time.html">just-in-time</a>. Last folder: <a href="../reference/skills.html">skills</a>.</p>
+    </div>
+
+    <footer class="lesson-foot">
+      <p>If “is Explore a sub-agent or a tool?” is still fuzzy, replay the lab above and reread the <a href="../reference/sub-agents.html">sub-agents cheat sheet</a>. Next: <a href="0012-you-design-the-heartbeat.html">you design the heartbeat</a> — verify, stop, schedule, instead of typing every turn.</p>
+    </footer>
+  </article>
+  <script src="../assets/pipeline.js"></script>
+  <script src="../assets/subagent-lab.js"></script>
+  <script src="../assets/quiz.js"></script>
+  <script src="../assets/course-data.js"></script>
+  <script src="../assets/progress.js"></script>
+</body>
+</html>

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>0015 — Write the floor once</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:ital,wght@0,450;0,650;1,450&family=Source+Serif+4:ital,wght@0,450;0,600;1,450&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/lesson.css">
+  <link rel="stylesheet" href="../assets/diagram.css">
+</head>
+<body>
+  <header class="mast">
+    <a href="../index.html">← All lessons</a>
+    <span>Lesson 0015</span>
+  </header>
+  <article>
+    <p class="kicker">Development flow</p>
+    <h1>Write the floor once</h1>
+    <p class="lede">Lesson 0014 was <em>ops</em>: the assistant inside the product, graded on Stripe. Tonight is <em>dev</em>: you are the team lead. Developers and agents share one floor. <strong>Do not keep a wiki for people and a prompt for Cursor.</strong> Put guidelines, guardrails, and named jobs in the repo — the same files both read.</p>
+
+    <div class="callout scope">
+      <p><strong>What this is.</strong> The team operating system as files: a guide (always-on brief), a guard (harness that can block), a job (skill or sub-agent anyone may dispatch). Anthropic: CLAUDE.md is what a new teammate would need, committed so the team shares it. Cursor: rules and <code>.cursor/agents/</code> belong in git. <cite><a href="https://code.claude.com/docs/en/claude-md">Claude Code · CLAUDE.md</a> · <a href="https://cursor.com/docs/context/rules">Cursor · Rules</a></cite></p>
+      <p><strong>What this is not.</strong> A new model. HR process theatre. Re-teaching skills, hooks, or isolate·brief·return — those cards still hold; tonight is <em>who they are for</em>. Plugins, org MDM, “agent teams” of many sessions — parked. Not a ChatGPT menu named “Team.”</p>
+    </div>
+
+    <ol class="remember">
+      <li><strong>1 · Guide</strong><span>Text in git. Humans onboard on it; agents load it.</span></li>
+      <li><strong>2 · Guard</strong><span>Hooks, CI, CODEOWNERS, merge stamp. Can block.</span></li>
+      <li><strong>3 · Job</strong><span>Named helpers in git. Human or agent may call them.</span></li>
+    </ol>
+    <p class="caption">You already have the three machines (0007, 0008, 0011). Tonight you aim them at the team.</p>
+
+    <figure class="art">
+      <img class="lesson-art" src="../assets/team-write-the-floor-once.webp" alt="Left: Slack wiki for humans diverging from a paste prompt for agents. Right: one git tree with guide, guard, and job files; humans and an agent both point at it.">
+      <p class="caption">Architecture first. Alignment is not a meeting. It is whether both parties read the same tree.</p>
+    </figure>
+
+    <h2>Ops was the product. This is how you ship it.</h2>
+    <p>The full-stack map still holds. The request is no longer <code>POST /assistant</code>. It is a ticket: branch, implement, PR, CI, merge. The agent sits in implement and review — inside a harness you already named (allow · run · stop · show). The lead’s job is to make that harness <em>the team’s</em>, not each developer’s private prompt.</p>
+
+    <figure class="art">
+      <img class="lesson-art" src="../assets/team-dev-flow.webp" alt="Issue, branch, implement, PR, CI, merge. Guide sits under implement, job under PR, guard under merge with a human stamp.">
+      <p class="caption">Guide on the work. Job on the review. Guard on the merge. CI is still an eval (0014) — tests are graders.</p>
+    </figure>
+
+    <figure class="worked">
+      <p class="worked-head">One billing team · three files</p>
+      <div class="worked-body">
+<pre class="pseudo"># GUIDE — AGENTS.md / CLAUDE.md / .cursor/rules
+# What a new teammate needs. Commit it.
+- npm test before a PR
+- refunds: policy node before Stripe (0014)
+- never push to main; never apply a migration without a stamp
+
+# GUARD — .cursor/hooks.json  (also CI + CODEOWNERS)
+# Anthropic: if it must fire at a moment, a hook, not another sentence.
+on git push origin main → deny
+on migrate → pause for human  # 12-factor: selection ≠ invocation
+
+# JOB — .cursor/agents/reviewer.md  (or .claude/agents/)
+# Cursor: check this folder into git so the team benefits.
+description: After a PR. Tests, secrets, policy-before-Stripe.
+# Human:  @reviewer
+# Agent:  Agent({ type: "reviewer", prompt: "diff vs main" })
+# Return: eight lines. Human still merges.</pre>
+      </div>
+      <p class="worked-note"><strong>What this shows.</strong> The Confluence page and the personal “ship fast” prompt were two floors. These three files are one. A guideline can be ignored; a hook cannot. A job is not a second model — it is a named helper with isolate · brief · return, now owned by the repo.</p>
+    </figure>
+
+    <figure class="art">
+      <img class="lesson-art" src="../assets/team-kitchen-stations.webp" alt="A kitchen wall poster labeled shift brief, a till that needs a human stamp, and named stations review and explore that both a cook and a helper can work.">
+      <p class="caption">Kitchen optional. The wall is the guide, the stamp is the guard, the named stations are jobs. Same stations for cooks and helpers.</p>
+    </figure>
+
+    <h2>Skill: name the layer</h2>
+    <p><strong>Drift</strong> is two floors. <strong>Guide</strong> is one brief in git. <strong>Guard</strong> blocks. <strong>Job</strong> is a helper both callers use.</p>
+
+    <div class="lab" data-team-lab>
+      <h3>Four developers, one lead</h3>
+      <div class="btn-row">
+        <button type="button" data-scene="drift">Drift</button>
+        <button type="button" data-scene="guide">Guide</button>
+        <button type="button" data-scene="guard">Guard</button>
+        <button type="button" data-scene="job">Job</button>
+      </div>
+      <p class="kind" data-kind></p>
+      <figure class="pipeline" data-path aria-label="Tonight’s layer."></figure>
+      <div class="chat ticket-q" data-team-chat></div>
+      <p class="cost-line" data-cost></p>
+      <p class="hint" data-team-note></p>
+    </div>
+
+    <h2>You already own the machines</h2>
+    <div class="compare three">
+      <div class="compare-card">
+        <h3>Guide ← skills / rules</h3>
+        <p>Always-on brief, or a chapter on a match. <a href="../reference/skills.html">Skills card</a>. Cursor rules and CLAUDE.md are the same rent: persistent instructions, in git.</p>
+      </div>
+      <div class="compare-card">
+        <h3>Guard ← harness</h3>
+        <p>Allow, stop, stamp. <a href="../reference/harnesses.html">Harness card</a>. Hooks and CI are the box around every developer’s agent, not a speech in standup.</p>
+      </div>
+      <div class="compare-card">
+        <h3>Job ← sub-agent</h3>
+        <p>Clean window, short return. <a href="../reference/sub-agents.html">Sub-agents card</a>. The new move is: the definition lives in the repo so the lead, the hire, and the agent share it.</p>
+      </div>
+    </div>
+
+    <p class="sidenote">Parked: plugins (how a folder arrives), org-wide MDM/managed CLAUDE.md, Cursor dashboard Team Rules vs repo rules, Claude “agent teams” of many sessions. Personal <code>CLAUDE.local.md</code> / user rules stay off git — taste, not the floor. Evals (0014) still grade the product; CI grades the branch.</p>
+
+    <h2>Check</h2>
+    <form class="quiz" data-quiz data-answers="bbbab"
+          data-success="Alignment lives in repo files. A guideline is text both sides read. A guardrail is a hook that can block. A named job is a shared helper file. A human still stamps the merge."
+          data-retry="Read the three rents at the top, then the three-file grey box.">
+      <fieldset>
+        <legend>1. Alignment lives in</legend>
+        <label><input type="radio" name="q1" value="a"> a private Slack channel</label>
+        <label><input type="radio" name="q1" value="b"> files the repo holds</label>
+        <label><input type="radio" name="q1" value="c"> a bigger language model</label>
+      </fieldset>
+      <fieldset>
+        <legend>2. A guideline is</legend>
+        <label><input type="radio" name="q2" value="a"> a blocking harness hook</label>
+        <label><input type="radio" name="q2" value="b"> text both sides read</label>
+        <label><input type="radio" name="q2" value="c"> a vendor dashboard SKU</label>
+      </fieldset>
+      <fieldset>
+        <legend>3. A guardrail is</legend>
+        <label><input type="radio" name="q3" value="a"> the standup notes file</label>
+        <label><input type="radio" name="q3" value="b"> the hook that blocks</label>
+        <label><input type="radio" name="q3" value="c"> the catalog of skills</label>
+      </fieldset>
+      <fieldset>
+        <legend>4. A named job is</legend>
+        <label><input type="radio" name="q4" value="a"> a shared helper file</label>
+        <label><input type="radio" name="q4" value="b"> a personal chat prompt</label>
+        <label><input type="radio" name="q4" value="c"> a monthly token bill</label>
+      </fieldset>
+      <fieldset>
+        <legend>5. Development flow still</legend>
+        <label><input type="radio" name="q5" value="a"> skips the human stamp</label>
+        <label><input type="radio" name="q5" value="b"> keeps the merge stamp</label>
+        <label><input type="radio" name="q5" value="c"> replaces the CI suite</label>
+      </fieldset>
+      <button type="submit">Check</button>
+      <p class="feedback" data-feedback></p>
+    </form>
+
+    <div class="callout">
+      <p><strong>Primary source.</strong> <a href="https://code.claude.com/docs/en/claude-md">CLAUDE.md</a> (team-shared via git; what a new teammate needs; hooks when it must fire). Cursor: <a href="https://cursor.com/docs/context/rules">Rules / AGENTS.md</a> (check into git); <a href="https://cursor.com/docs/subagents">subagents</a> (project folder in version control); <a href="https://cursor.com/docs/hooks">hooks</a> (observe / block). Gap between slip and run: <a href="https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-08-own-your-control-flow.md">12-factor · Factor 8</a>.</p>
+      <p>Card: <a href="../reference/team-floor.html">team floor</a>. Machines: <a href="../reference/harnesses.html">harness</a> · <a href="../reference/skills.html">skills</a> · <a href="../reference/sub-agents.html">sub-agents</a>. Last gate: <a href="../reference/evals.html">evals</a>.</p>
+    </div>
+
+    <footer class="lesson-foot">
+      <p>If “is a Slack engineering handbook a guide?” is still fuzzy, replay the lab above and reread the <a href="../reference/team-floor.html">team floor cheat sheet</a>. Next: <a href="0016-escalate-on-the-symptom.html">connecting the stack</a> — when to stay on context, when to add a loop or a graph. Plugins still wait.</p>
+    </footer>
+  </article>
+  <script src="../assets/team-lab.js"></script>
+  <script src="../assets/quiz.js"></script>
+  <script src="../assets/course-data.js"></script>
+  <script src="../assets/progress.js"></script>
+</body>
+</html>

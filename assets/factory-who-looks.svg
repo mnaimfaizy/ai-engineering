@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 500" font-family="'Source Sans 3','Segoe UI',system-ui,sans-serif">
+  <rect width="960" height="500" fill="#f7f1e5"/>
+  <text x="48" y="52" font-size="15" letter-spacing="2.4" fill="#9a3412" font-weight="650">WHO LOOKS?</text>
+  <text x="48" y="80" font-size="15" fill="#44403c">Two questions about one change. The answers decide where the human stands.</text>
+
+  <!-- column heads -->
+  <text x="270" y="126" font-size="13" letter-spacing="1.4" fill="#1d4e4a" font-weight="650">A SHADOWED CHECK COVERS IT</text>
+  <text x="600" y="126" font-size="13" letter-spacing="1.4" fill="#44403c" font-weight="650">NO CHECK YOU TRUST COVERS IT</text>
+
+  <!-- row heads -->
+  <text x="48" y="196" font-size="13" letter-spacing="1.4" fill="#44403c" font-weight="650">CAN BE UNDONE</text>
+  <text x="48" y="218" font-size="13" fill="#44403c">a deploy you can</text>
+  <text x="48" y="236" font-size="13" fill="#44403c">roll back in a minute</text>
+
+  <text x="48" y="336" font-size="13" letter-spacing="1.4" fill="#9a3412" font-weight="650">CANNOT BE UNDONE</text>
+  <text x="48" y="358" font-size="13" fill="#44403c">money sent, data dropped,</text>
+  <text x="48" y="376" font-size="13" fill="#44403c">access granted, mail sent</text>
+
+  <!-- cells -->
+  <rect x="254" y="144" width="322" height="132" rx="6" fill="#1d4e4a"/>
+  <text x="274" y="180" font-size="17" fill="#f7f1e5" font-weight="650">Let it merge</text>
+  <text x="274" y="208" font-size="13" fill="#e7c9a9">Read a sample afterwards.</text>
+  <text x="274" y="228" font-size="13" fill="#e7c9a9">The only cell where the lights go out.</text>
+
+  <rect x="584" y="144" width="322" height="132" rx="6" fill="#efe6d4" stroke="#d6cbb6"/>
+  <text x="604" y="180" font-size="17" fill="#1c1917" font-weight="650">Read the diff</text>
+  <text x="604" y="208" font-size="13" fill="#44403c">Write the scenario while you read.</text>
+  <text x="604" y="228" font-size="13" fill="#44403c">This is how the left column grows.</text>
+
+  <rect x="254" y="284" width="322" height="132" rx="6" fill="#efe6d4" stroke="#9a3412" stroke-width="1.8"/>
+  <text x="274" y="320" font-size="17" fill="#1c1917" font-weight="650">Approve the action</text>
+  <text x="274" y="348" font-size="13" fill="#44403c">The code may merge on the check.</text>
+  <text x="274" y="368" font-size="13" fill="#44403c">The run that touches the world waits</text>
+  <text x="274" y="388" font-size="13" fill="#44403c">for a person at a gate (0007, 0020).</text>
+
+  <rect x="584" y="284" width="322" height="132" rx="6" fill="#efe6d4" stroke="#9a3412" stroke-width="1.8"/>
+  <text x="604" y="320" font-size="17" fill="#1c1917" font-weight="650">Read it and approve it</text>
+  <text x="604" y="348" font-size="13" fill="#44403c">Not ready to hand over.</text>
+  <text x="604" y="368" font-size="13" fill="#44403c">Build the check first.</text>
+
+  <text x="48" y="456" font-size="13" fill="#44403c">Changes to the spec, the scenarios, the twins or the CI config sit outside this grid. Those are always read by a person.</text>
+</svg>

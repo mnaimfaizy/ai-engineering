@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Context window — cheat sheet</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:ital,wght@0,450;0,650;1,450&family=Source+Serif+4:ital,wght@0,450;0,600;1,450&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/lesson.css">
+</head>
+<body>
+  <header class="mast">
+    <a href="../index.html">← All lessons</a>
+    <span>Reference</span>
+  </header>
+  <article>
+    <p class="kicker">Cheat sheet</p>
+    <h1>Context window</h1>
+    <p class="lede">Compressed facts from <a href="../lessons/0002-the-window-is-ram.html">lesson 0002</a>. Print this after the labs, not instead of them.</p>
+
+    <h2>What it is</h2>
+    <ul>
+      <li>The maximum token sequence the model conditions on in one call. Karpathy: RAM. Anthropic: attention budget.</li>
+      <li>Shared by system, history, tools/files, and the output you still need to generate. Overflow → API error.</li>
+      <li>Counted in that model’s tokenizer, not words. <a href="tokens.html">Token cheat sheet</a>.</li>
+    </ul>
+
+    <h2>Two failure modes</h2>
+    <ul>
+      <li><strong>Hard:</strong> over the cap. Rejected.</li>
+      <li><strong>Soft:</strong> under the cap, but <em>context rot</em> (recall fades as n grows) and the <em>U-curve</em> (middle facts weaker than start/end). <cite><a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents">Anthropic</a>; <a href="https://aclanthology.org/2024.tacl-1.9/">Liu et al.</a></cite></li>
+    </ul>
+
+    <h2>A receipt, not a vibe</h2>
+    <ul>
+      <li>OpenAI cookbook: <code>"tiktoken is great!"</code> → 6 tokens on <code>cl100k_base</code> (IDs 83, 8251, 2488, 382, 2212, 0).</li>
+      <li>Same word, different encodings: <code>antidisestablishmentarianism</code> is 5 tokens on r50k/p50k and 6 on cl100k/o200k.</li>
+      <li>Chat messages add wrapping tokens; <code>max_tokens</code> reserves output inside the same window.</li>
+    </ul>
+
+    <h2>Why later patterns exist</h2>
+    <ul>
+      <li>Smallest high-signal token set — the seed of context engineering.</li>
+      <li>RAG, skills, evict · compact · note, sub-agents: ways to page RAM to disk instead of stuffing the window. <a href="context-engineering.html">Context engineering card</a>.</li>
+    </ul>
+  </article>
+  <script src="../assets/course-data.js"></script>
+  <script src="../assets/progress.js"></script>
+</body>
+</html>

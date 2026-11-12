@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 520" font-family="'Source Sans 3','Segoe UI',system-ui,sans-serif">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z" fill="#1c1917"/>
+    </marker>
+    <marker id="r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z" fill="#9a3412"/>
+    </marker>
+  </defs>
+  <rect width="960" height="520" fill="#f7f1e5"/>
+  <text x="48" y="54" font-size="15" letter-spacing="2.4" fill="#9a3412" font-weight="650">YOUR PROGRAM · loop.ts</text>
+  <text x="48" y="84" font-size="15" fill="#44403c">The model is one function call inside it.</text>
+
+  <!-- harness frame -->
+  <rect x="40" y="110" width="880" height="370" rx="10" fill="none" stroke="#1d4e4a" stroke-width="2.5" stroke-dasharray="2 7" stroke-linecap="round"/>
+
+  <!-- CAP -->
+  <rect x="72" y="150" width="150" height="76" rx="6" fill="#efe6d4" stroke="#1c1917" stroke-width="1.6"/>
+  <text x="147" y="182" text-anchor="middle" font-size="19" font-weight="650" fill="#1c1917">1 · CAP</text>
+  <text x="147" y="206" text-anchor="middle" font-size="14" fill="#44403c">turns &lt; max?</text>
+
+  <!-- model call -->
+  <rect x="300" y="138" width="200" height="100" rx="50" fill="#1d4e4a"/>
+  <text x="400" y="182" text-anchor="middle" font-size="19" font-weight="650" fill="#f7f1e5">model.create</text>
+  <text x="400" y="207" text-anchor="middle" font-size="14" fill="#d6cbb6">whole transcript in</text>
+
+  <!-- STOP diamond -->
+  <path d="M660 110 L760 188 L660 266 L560 188 Z" fill="#efe6d4" stroke="#1c1917" stroke-width="1.6"/>
+  <text x="660" y="183" text-anchor="middle" font-size="19" font-weight="650" fill="#1c1917">2 · STOP</text>
+  <text x="660" y="206" text-anchor="middle" font-size="14" fill="#44403c">stop_reason?</text>
+
+  <!-- answer -->
+  <text x="842" y="170" text-anchor="middle" font-size="13" fill="#9a3412" font-family="'IBM Plex Mono',monospace">end_turn</text>
+  <text x="842" y="216" text-anchor="middle" font-size="17" font-weight="650" fill="#9a3412">answer</text>
+
+  <!-- KEEP / RUN / PASTE -->
+  <rect x="610" y="352" width="190" height="84" rx="6" fill="#efe6d4" stroke="#1c1917" stroke-width="1.6"/>
+  <text x="705" y="386" text-anchor="middle" font-size="19" font-weight="650" fill="#1c1917">3 · KEEP</text>
+  <text x="705" y="412" text-anchor="middle" font-size="14" fill="#44403c">push assistant turn</text>
+
+  <rect x="350" y="352" width="190" height="84" rx="6" fill="#efe6d4" stroke="#1c1917" stroke-width="1.6"/>
+  <text x="445" y="386" text-anchor="middle" font-size="19" font-weight="650" fill="#1c1917">4 · RUN</text>
+  <text x="445" y="412" text-anchor="middle" font-size="14" fill="#44403c">runTool per slip</text>
+
+  <rect x="90" y="352" width="190" height="84" rx="6" fill="#efe6d4" stroke="#1c1917" stroke-width="1.6"/>
+  <text x="185" y="386" text-anchor="middle" font-size="19" font-weight="650" fill="#1c1917">5 · PASTE</text>
+  <text x="185" y="412" text-anchor="middle" font-size="14" fill="#44403c">push tool_results</text>
+
+  <!-- arrows -->
+  <path d="M222 188 H292" stroke="#1c1917" stroke-width="1.8" fill="none" marker-end="url(#a)"/>
+  <path d="M500 188 H552" stroke="#1c1917" stroke-width="1.8" fill="none" marker-end="url(#a)"/>
+  <path d="M760 188 H804" stroke="#9a3412" stroke-width="2" fill="none" marker-end="url(#r)"/>
+  <path d="M660 266 V310 Q660 330 680 340 L690 346" stroke="#1c1917" stroke-width="1.8" fill="none" marker-end="url(#a)"/>
+  <text x="674" y="300" font-size="13" fill="#1c1917" font-family="'IBM Plex Mono',monospace">tool_use</text>
+  <path d="M610 394 H548" stroke="#1c1917" stroke-width="1.8" fill="none" marker-end="url(#a)"/>
+  <path d="M350 394 H288" stroke="#1c1917" stroke-width="1.8" fill="none" marker-end="url(#a)"/>
+  <path d="M147 352 V234" stroke="#1c1917" stroke-width="1.8" fill="none" marker-end="url(#a)"/>
+
+  <!-- cap exit -->
+  <path d="M147 150 V128" stroke="#9a3412" stroke-width="2" fill="none" marker-end="url(#r)"/>
+  <text x="162" y="136" font-size="13" fill="#9a3412" font-family="'IBM Plex Mono',monospace">max_turns</text>
+</svg>

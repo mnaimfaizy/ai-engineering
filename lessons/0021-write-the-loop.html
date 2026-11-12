@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>0021 — Write the loop</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:ital,wght@0,450;0,650;1,450&family=Source+Serif+4:ital,wght@0,450;0,600;1,450&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/lesson.css">
+  <link rel="stylesheet" href="../assets/diagram.css">
+</head>
+<body>
+  <header class="mast">
+    <a href="../index.html">← All lessons</a>
+    <span>Lesson 0021 · Build track 1</span>
+  </header>
+  <article>
+    <p class="kicker">Build it in code</p>
+    <h1>Write the loop</h1>
+    <p class="lede">Twenty lessons described the machine. Tonight you type it. <a href="0005-the-model-writes-a-slip.html">Lesson 0005</a> said the model writes a slip and you run it. <a href="0007-the-harness-wraps-the-loop.html">Lesson 0007</a> said a harness wraps that loop. The loop is about twenty lines of TypeScript, and after tonight they are your twenty lines. <strong>No API key, no account, no cost.</strong></p>
+
+    <div class="callout scope">
+      <p><strong>What this is.</strong> You fill in five gaps in one file, <code>loop.ts</code>, and a grader tells you in the terminal whether your loop is correct. The model on the other end is a <em>scripted stand-in</em>: a small local file that replies in the exact shape the Claude Messages API uses and rejects a malformed transcript the way the real API does. <cite><a href="https://platform.claude.com/docs/en/agents-and-tools/tool-use/handle-tool-calls">Handle tool calls — Claude docs</a></cite></p>
+      <p><strong>What this is not.</strong> A real model call. The stand-in has no intelligence; it reads from a script. What is real is the part you write: the control flow and the transcript. Swapping in a live model later changes one line. Also not tonight: streaming, error results, the SDK's ready-made tool runner, permissions.</p>
+    </div>
+
+    <ol class="remember">
+      <li><strong>Stop</strong><span>Read <code>stop_reason</code>. Cap the turns.</span></li>
+      <li><strong>Keep</strong><span>Push the assistant turn, whole.</span></li>
+      <li><strong>Run · Paste</strong><span>One result per slip, one message.</span></li>
+    </ol>
+    <p class="caption">The model call sits in the middle. Everything in this list is code you own.</p>
+
+    <figure class="art">
+      <img class="lesson-art" src="../assets/code-loop-five-lines.svg" alt="Flowchart of loop.ts. Cap check, then model.create, then a stop_reason diamond. end_turn exits with the answer. tool_use goes to keep, run, paste, and back to the cap check. A second exit at the cap is labelled max_turns.">
+      <p class="caption">The five TODOs, in the order they sit in the file. Two exits: the model says it is done, or you say it has had enough.</p>
+    </figure>
+
+    <h2>The response tells you what to do next</h2>
+    <p>Every reply carries a <code>stop_reason</code>. When the model wants a tool, the docs say the response “will have a <code>stop_reason</code> of <code>tool_use</code>” and one or more <code>tool_use</code> blocks, each with an <code>id</code>, a <code>name</code>, and an <code>input</code>. When it is finished, <code>stop_reason</code> is <code>end_turn</code>. Your loop branches on that one field. <cite><a href="https://platform.claude.com/docs/en/agents-and-tools/tool-use/handle-tool-calls">Handle tool calls</a></cite></p>
+    <p>The model still never runs anything (0005). It hands back a slip; your <code>runTool</code> does the work on your machine. <cite><a href="https://platform.claude.com/docs/en/agents-and-tools/tool-use/how-tool-use-works">How tool use works</a></cite></p>
+
+    <ul class="shapes">
+      <li><strong>Keep</strong> <span>Push <code>{ role: "assistant", content: response.content }</code> before anything else. The whole content array, text and slips together. The next call needs to see the slip it is getting an answer to.</span></li>
+      <li><strong>Paste</strong> <span>Results go back in a message with role <code>user</code>. There is no <code>tool</code> role in this API. Each block is <code>{ type: "tool_result", tool_use_id, content }</code>, and <code>tool_use_id</code> is the slip’s <code>id</code>.</span></li>
+      <li><strong>One message</strong> <span>The result message must come immediately after the assistant’s slip message. If one turn held two slips, both results go in that single message. Miss one and the real API answers 400. The stand-in does the same.</span></li>
+      <li><strong>Cap</strong> <span>A model can keep asking for tools forever. The count that stops it lives in your code, in the gap between the model choosing a tool and you invoking it. <cite><a href="https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-08-own-your-control-flow.md">Factor 8 · Own your control flow</a></cite></span></li>
+    </ul>
+
+    <figure class="worked">
+      <p class="worked-head">node run.ts · what a correct loop prints</p>
+      <div class="worked-body">
+<pre class="pseudo">TRANSCRIPT (this whole array is resent on every call)
+
+  [0] user      text        What do I owe on inv_42, and is it overdue?
+  [1] assistant text        I'll look up the invoice first.
+  [1] assistant tool_use    get_invoice({"invoice_id":"inv_42"})  id=toolu_01
+  [2] user      tool_result {"amount_due":120,"due_date":"2026-09-30"}  for=toolu_01
+  [3] assistant tool_use    get_today({})  id=toolu_02
+  [4] user      tool_result 2026-10-05  for=toolu_02
+
+ANSWER   Invoice inv_42 has $120 due on 2026-09-30. Today is 2026-10-05, so it is overdue.
+STOPPED  end_turn
+CALLS    3
+INPUT TOKENS PER CALL (rough)  101 -> 180 -> 229</pre>
+      </div>
+      <p class="worked-note"><strong>What this shows.</strong> Three calls for one question. Message [1] holds two blocks from one assistant turn, which is why you keep the whole array. Rows [2] and [4] were written by your code, not the model, and each names the slip it answers. The last line is <a href="0002-the-window-is-ram.html">lesson 0002</a> in numbers: the transcript is resent every call, so input grows each turn even though the question never changed. Token counts here are a rough four-characters-per-token estimate; a real response reports exact ones in <code>usage</code>.</p>
+    </figure>
+
+    <figure class="art">
+      <img class="lesson-art" src="../assets/code-transcript-grows.svg" alt="The messages array as five stacked rows alternating user and assistant. Three brackets show call 1 sending one row, call 2 sending three, call 3 sending all five, with rough input token counts 101, 180, 229.">
+      <p class="caption">The model keeps nothing between calls. The array is the memory, and you are the one holding it.</p>
+    </figure>
+
+    <h2>Skill: make the grader go green</h2>
+    <p>Predict first. Before you type, say out loud what order the five steps run in and which two return. Then write it.</p>
+
+    <div class="lab">
+      <h3>Four checks, one file</h3>
+      <p>Open a terminal in the course folder and go to the exercise. Node 22 runs <code>.ts</code> files directly, so there is nothing to install.</p>
+<pre>cd code/0021-write-the-loop
+node check.ts</pre>
+      <p>All four fail. Open <a href="../code/0021-write-the-loop/loop.ts"><code>loop.ts</code></a>, write the five TODOs, delete the <code>throw</code> at the bottom, and run the grader again. It names the first thing that is wrong:</p>
+<pre class="pseudo">  PASS  1 · two tools, then an answer
+  FAIL  3 · two slips in one turn get one reply
+        400 (fake): tool_use "toolu_12" in messages[1] has no
+        tool_result in the next user message</pre>
+      <p>When all four pass, print your own transcript and compare it with the grey box above:</p>
+<pre>node run.ts</pre>
+      <p class="hint">Stuck for more than ten minutes on one check? Read the FAIL line slowly — the grader names the first thing that is wrong. The reference answer is in <code>solution/loop.ts</code>; reading it before the grader has told you something costs you the lesson.</p>
+    </div>
+
+    <h2>What is yours, what is rented</h2>
+    <div class="compare three">
+      <div class="compare-card">
+        <h3>Yours tonight</h3>
+        <p><code>loop.ts</code>. The branch on <code>stop_reason</code>, the transcript, the cap. This is the naked loop from 0007, before any harness is wrapped around it.</p>
+      </div>
+      <div class="compare-card">
+        <h3>Stand-in</h3>
+        <p><code>fake-model.ts</code>. With the real SDK the call becomes <code>client.messages.create({ … })</code> with the same <code>tools</code> and <code>messages</code>. Your loop body does not change.</p>
+      </div>
+      <div class="compare-card">
+        <h3>Next</h3>
+        <p>Put <em>allow</em> into the gap between RUN and the tool (0007, 0020): a slip your code refuses, and what you paste back when it does.</p>
+      </div>
+    </div>
+
+    <p class="sidenote">Parked: <code>is_error</code> results, streaming, <code>max_tokens</code> and <code>pause_turn</code> stop reasons, strict schemas, and the SDK’s tool runner, which writes this loop for you. Anthropic’s docs recommend the runner for most work. You are writing it by hand once so that you know what it is doing when you rent it.</p>
+
+    <h2>Check</h2>
+    <p>From memory, after the grader is green.</p>
+    <form class="quiz" data-quiz data-answers="bcabc"
+          data-success="The model ends the loop with end_turn. Results go back in a user message. Two slips get one message with two results. You keep the whole assistant content. Input grows because the whole transcript is resent."
+          data-retry="Not yet. Look at rows [1], [2] and the last line of the grey box, then try again.">
+      <fieldset>
+        <legend>1. The model says it is finished with</legend>
+        <label><input type="radio" name="q1" value="a"> <code>tool_use</code></label>
+        <label><input type="radio" name="q1" value="b"> <code>end_turn</code></label>
+        <label><input type="radio" name="q1" value="c"> <code>max_turns</code></label>
+      </fieldset>
+      <fieldset>
+        <legend>2. A <code>tool_result</code> travels in a message whose role is</legend>
+        <label><input type="radio" name="q2" value="a"> assistant</label>
+        <label><input type="radio" name="q2" value="b"> tool</label>
+        <label><input type="radio" name="q2" value="c"> user</label>
+      </fieldset>
+      <fieldset>
+        <legend>3. One assistant turn holds two slips. You send</legend>
+        <label><input type="radio" name="q3" value="a"> one user message, two results</label>
+        <label><input type="radio" name="q3" value="b"> two user messages, one each</label>
+        <label><input type="radio" name="q3" value="c"> one user message, one result</label>
+      </fieldset>
+      <fieldset>
+        <legend>4. Before pasting results, you push</legend>
+        <label><input type="radio" name="q4" value="a"> only the assistant text</label>
+        <label><input type="radio" name="q4" value="b"> the whole assistant content</label>
+        <label><input type="radio" name="q4" value="c"> only the tool name</label>
+      </fieldset>
+      <fieldset>
+        <legend>5. Input tokens rise on every call because</legend>
+        <label><input type="radio" name="q5" value="a"> the model remembers past calls</label>
+        <label><input type="radio" name="q5" value="b"> the tools get longer descriptions</label>
+        <label><input type="radio" name="q5" value="c"> the whole transcript is resent</label>
+      </fieldset>
+      <button type="submit">Check</button>
+      <p class="feedback" data-feedback></p>
+    </form>
+
+    <div class="callout">
+      <p><strong>Primary source.</strong> <a href="https://platform.claude.com/docs/en/agents-and-tools/tool-use/handle-tool-calls">Handle tool calls</a>. Ten minutes. Read the two example JSON blocks and the “Important formatting requirements” note; they are the rules the grader enforces. Then <a href="https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-08-own-your-control-flow.md">Factor 8</a> for why owning this loop matters.</p>
+      <p>Card: <a href="../reference/tools.html">tools</a> (now with the loop in code). Wrapper: <a href="../reference/harnesses.html">harness</a>. Window: <a href="../reference/context-window.html">context window</a>.</p>
+    </div>
+
+    <footer class="lesson-foot">
+      <p>If a check fails and the message does not tell you why, or if “why push the assistant turn before the results?” is fuzzy, compare your transcript from <code>node run.ts</code> with the grey box, row by row. Only then open <code>solution/loop.ts</code>. Next: <a href="0022-the-lights-go-out-last.html">the lights go out last</a>.</p>
+    </footer>
+  </article>
+  <script src="../assets/quiz.js"></script>
+  <script src="../assets/course-data.js"></script>
+  <script src="../assets/progress.js"></script>
+</body>
+</html>

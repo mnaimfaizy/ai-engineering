@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>0009 — Evict, compact, note</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:ital,wght@0,450;0,650;1,450&family=Source+Serif+4:ital,wght@0,450;0,600;1,450&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/lesson.css">
+  <link rel="stylesheet" href="../assets/diagram.css">
+</head>
+<body>
+  <header class="mast">
+    <a href="../index.html">← All lessons</a>
+    <span>Lesson 0009</span>
+  </header>
+  <article>
+    <p class="kicker">Context engineering</p>
+    <h1>Evict, compact, or write a note</h1>
+    <p class="lede">Lesson 0008 kept the SOPs off the system prompt. The agent loop still fills RAM with tool dumps. <strong>Context engineering</strong> is choosing, each turn, the smallest set of high-signal tokens — not hoping a bigger window will save you.</p>
+
+    <div class="callout scope">
+      <p><strong>What this is.</strong> Anthropic’s name for curating the whole window during inference: system, tools, history, dumps — not just the prompt. Tonight’s skill is three levers when RAM fills: evict, compact, note. <cite><a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents">Effective context engineering for AI agents</a></cite></p>
+      <p><strong>What this is not.</strong> A second model. A bigger context window as the first move. Sub-agents, just-in-time search, or prompt caching — parked. Not a ChatGPT menu item named “Context.”</p>
+    </div>
+
+    <ol class="remember">
+      <li><strong>1 · Evict</strong><span>Drop low-signal tokens. Lightest: clear old tool dumps.</span></li>
+      <li><strong>2 · Compact</strong><span>Summarize the log. Next call gets the summary, not the raw turns.</span></li>
+      <li><strong>3 · Note</strong><span>Write outside RAM. Pull the file back later. Survives a reset.</span></li>
+    </ol>
+    <p class="caption">Same window as <a href="0002-the-window-is-ram.html">lesson 0002</a>. The harness spends it on purpose — that is a harness job from <a href="0007-the-harness-wraps-the-loop.html">0007</a>.</p>
+
+    <figure class="art">
+      <img class="lesson-art" src="../assets/compact-three-levers.webp" alt="Three operations on a context-window bar: Evict sends old tool dumps out; Compact collapses many blocks into one summary card still in the bar; Note drops a card to a NOTES.md file on a disk shelf.">
+      <p class="caption">Guiding principle from the essay: the smallest set of high-signal tokens that still gets the job done.</p>
+    </figure>
+
+    <h2>Prompt engineering was the prompt. This is the rest of the window.</h2>
+    <p>Prompt engineering is how you write the standing orders. Context engineering is what you pass on <em>this</em> call — including everything the loop just generated. An agent in a while-loop (lesson 0006) produces more tokens every turn. Someone has to curate, or the attention budget rot from lesson 0002 shows up as “it was in the prompt” failures. <cite>Same essay · “Context engineering vs. prompt engineering”</cite></p>
+
+    <figure class="pipeline" data-pipeline aria-label="Three levers on a filling window.">
+      <div class="pipeline-step"><strong>Evict</strong><span>dumps leave</span></div>
+      <div class="pipeline-arrow"><i class="token-dot" aria-hidden="true"></i></div>
+      <div class="pipeline-step"><strong>Compact</strong><span>summary stays</span></div>
+      <div class="pipeline-arrow"><i class="token-dot" aria-hidden="true"></i></div>
+      <div class="pipeline-step"><strong>Note</strong><span>file on disk</span></div>
+      <div class="pipeline-arrow"><i class="token-dot" aria-hidden="true"></i></div>
+      <div class="pipeline-step"><strong>Pick</strong><span>now, with less junk</span></div>
+    </figure>
+    <p class="caption">You can stack them. Evict first. Compact when the log is still too long. Note before the process dies.</p>
+
+    <figure class="art">
+      <img class="lesson-art" src="../assets/ticket-wheel-vs-notes.webp" alt="Split kitchen: left, a ticket wheel overflowing with long receipts labeled uncompacted; right, old tickets in a bin, one summary slip on the pass, a cook writing NOTES.md.">
+      <p class="caption">Kitchen only to make the three levers concrete. The load-bearing picture is the bar above.</p>
+    </figure>
+
+    <figure class="worked">
+      <p class="worked-head">One shift · walnut crumb, eight oven probes</p>
+      <div class="worked-body">
+<pre class="pseudo"># UNCOMPACTED — every dump still in RAM
+check_oven() → {temp: 180, log: "…480 tokens…"}  # ticket 1
+check_oven() → {temp: 182, log: "…480 tokens…"}  # ticket 2
+… six more dumps …
+user: "Stone still cold?"
+
+# EVICT — lightest touch (context editing)
+check_oven() → [cleared: old tool result]        # tickets 1–7
+check_oven() → {temp: 188}                       # ticket 8 stays
+
+# COMPACT — new window, summary in RAM
+SUMMARY: stone 180→188, target 240, walnut SOP
+          already loaded. Unresolved: preheat.
+last files: oven/SKILL.md, ticket-8
+
+# NOTE — disk; the process can die
+NOTES.md: "Walnut crumb. Stone 188. Target 240."</pre>
+      </div>
+      <p class="worked-note"><strong>What this shows.</strong> The question did not change. The tokens the model sees did. Evict drops the dumps. Compact replaces the log with a high-fidelity summary (Anthropic: keep decisions and bugs; discard redundant tool output). A note is the same facts on disk, so morning-you does not need last night’s transcript.</p>
+    </figure>
+
+    <figure class="art">
+      <img class="lesson-art" src="../assets/compact-vs-note.webp" alt="Two columns. Left: compact still in RAM — a shorter window holding a summary plus last files. Right: note outside RAM — a nearly empty window and a NOTES.md folder on a shelf with a pull-back-later arrow.">
+      <p class="caption">Compaction dies when the process ends. A note on disk does not.</p>
+    </figure>
+
+    <h2>The art is what to keep</h2>
+    <p>Anthropic: overly aggressive compaction loses subtle facts whose importance only shows up later. Tune for recall first (did we keep every load-bearing decision?), then precision (did we drop the junk?). Claude Code’s version: summarize, then continue with that summary plus the most recently accessed files. The API’s lightest form is just clearing old tool results and leaving a placeholder. <cite>Same essay, “Compaction” · <a href="https://platform.claude.com/docs/en/build-with-claude/compaction">Compaction</a> · <a href="https://platform.claude.com/docs/en/build-with-claude/context-editing">Context editing</a></cite></p>
+
+    <h2>Skill: watch the same ticket shrink</h2>
+    <p>Same kitchen, four spends. <strong>Uncompacted</strong> keeps every dump. <strong>Evict</strong> clears old results. <strong>Compact</strong> replaces the log with a summary. <strong>Note</strong> is a new window after overnight — the transcript is gone; <code>NOTES.md</code> is not.</p>
+
+    <div class="lab" data-compact-lab>
+      <h3>Same ticket, four windows</h3>
+      <div class="btn-row">
+        <button type="button" data-scene="stuffed">Uncompacted</button>
+        <button type="button" data-scene="evict">Evict</button>
+        <button type="button" data-scene="compact">Compact</button>
+        <button type="button" data-scene="note">Note</button>
+      </div>
+      <p class="kind" data-kind></p>
+      <figure class="pipeline" aria-label="Three levers.">
+        <div class="pipeline-step"><strong>Evict</strong><span>dumps leave</span></div>
+        <div class="pipeline-arrow"><i class="token-dot" aria-hidden="true"></i></div>
+        <div class="pipeline-step"><strong>Compact</strong><span>summary stays</span></div>
+        <div class="pipeline-arrow"><i class="token-dot" aria-hidden="true"></i></div>
+        <div class="pipeline-step"><strong>Note</strong><span>file on disk</span></div>
+      </figure>
+      <div class="meter" aria-hidden="true"><div class="meter-fill" data-meter-fill></div></div>
+      <p class="meter-label" data-meter-label></p>
+      <div class="stack">
+        <span data-layer="system" data-name="System"></span>
+        <span data-layer="history" data-name="History"></span>
+        <span data-layer="tools" data-name="Tool dumps"></span>
+        <span data-layer="summary" data-name="Summary"></span>
+        <span data-layer="note" data-name="Note"></span>
+        <span data-layer="user" data-name="User"></span>
+      </div>
+      <div class="chat ticket-q" data-compact-chat></div>
+      <p class="cost-line" data-cost></p>
+      <p class="hint" data-compact-note></p>
+    </div>
+
+    <h2>Waiting for a million tokens is not the plan</h2>
+    <p>Anthropic is blunt: even large windows still suffer context pollution. The U-curve from lesson 0002 does not retire because the cap moved. Treat the window as a finite attention budget with diminishing returns — n² pairwise attention, same transformer you already met. <cite>Same essay, “Why context engineering is important”</cite></p>
+
+    <div class="compare three">
+      <div class="compare-card">
+        <h3>Evict</h3>
+        <p>Still the same conversation. Old dumps become placeholders. Best first lever for a tool-heavy loop.</p>
+      </div>
+      <div class="compare-card">
+        <h3>Compact</h3>
+        <p>New (shorter) window. Summary in RAM. Best for a long back-and-forth that must keep talking.</p>
+      </div>
+      <div class="compare-card">
+        <h3>Note</h3>
+        <p>Facts on disk. Best when the process will reset, or the job has milestones a summary would smear.</p>
+      </div>
+    </div>
+
+    <p class="sidenote">Parked: just-in-time files (keep a path, read the page when needed — cousin of skills), and sub-agents (a clean window that returns a short summary). 12-factor’s “own your context window” is the same idea from the other side: you decide the format, and you may hide resolved errors. Prompt caching is a cost trick, not eviction. <cite><a href="https://github.com/humanlayer/12-factor-agents/blob/main/content/factor-03-own-your-context-window.md">Factor 3</a></cite></p>
+
+    <h2>Check</h2>
+    <form class="quiz" data-quiz data-answers="bbaba"
+          data-success="Context engineering is curating tokens each turn. Evict dumps, compact into a summary in RAM, write a note to disk. A bigger window still rots."
+          data-retry="Read the three levers at the top, then the walnut shift in the grey box.">
+      <fieldset>
+        <legend>1. Context engineering is</legend>
+        <label><input type="radio" name="q1" value="a"> writing one perfect prompt</label>
+        <label><input type="radio" name="q1" value="b"> curating tokens each turn</label>
+        <label><input type="radio" name="q1" value="c"> training one bigger model</label>
+      </fieldset>
+      <fieldset>
+        <legend>2. The lightest eviction is</legend>
+        <label><input type="radio" name="q2" value="a"> drop the system prompt</label>
+        <label><input type="radio" name="q2" value="b"> clear old tool results</label>
+        <label><input type="radio" name="q2" value="c"> grow the token window</label>
+      </fieldset>
+      <fieldset>
+        <legend>3. Compaction leaves you</legend>
+        <label><input type="radio" name="q3" value="a"> a summary plus recent turns</label>
+        <label><input type="radio" name="q3" value="b"> the entire raw tool transcript</label>
+        <label><input type="radio" name="q3" value="c"> a newly trained language model</label>
+      </fieldset>
+      <fieldset>
+        <legend>4. A note lives</legend>
+        <label><input type="radio" name="q4" value="a"> only inside the window</label>
+        <label><input type="radio" name="q4" value="b"> on disk until pulled</label>
+        <label><input type="radio" name="q4" value="c"> inside the model weights</label>
+      </fieldset>
+      <fieldset>
+        <legend>5. A bigger window</legend>
+        <label><input type="radio" name="q5" value="a"> still suffers context rot</label>
+        <label><input type="radio" name="q5" value="b"> skips the curate job</label>
+        <label><input type="radio" name="q5" value="c"> replaces notes and compact</label>
+      </fieldset>
+      <button type="submit">Check</button>
+      <p class="feedback" data-feedback></p>
+    </form>
+
+    <div class="callout">
+      <p><strong>Primary source.</strong> The definition, the attention-budget argument, and the three long-horizon techniques in <a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents">Effective context engineering for AI agents</a> (Sep 2025). Then the product forms: <a href="https://platform.claude.com/docs/en/build-with-claude/compaction">compaction</a> (summarize, keep a block) and <a href="https://platform.claude.com/docs/en/build-with-claude/context-editing">context editing</a> (clear old tool results).</p>
+      <p>Card: <a href="../reference/context-engineering.html">context engineering</a>. Last RAM: <a href="../reference/context-window.html">the window</a>. Last folder: <a href="../reference/skills.html">skills</a>.</p>
+    </div>
+
+    <footer class="lesson-foot">
+      <p>If “is compaction the same as a note?” is still fuzzy, replay the lab above and reread the <a href="../reference/context-engineering.html">context engineering cheat sheet</a>. Next: <a href="0010-keep-the-path.html">keep the path</a> — load a file this turn instead of stuffing the shelf.</p>
+    </footer>
+  </article>
+  <script src="../assets/pipeline.js"></script>
+  <script src="../assets/compact-lab.js"></script>
+  <script src="../assets/quiz.js"></script>
+  <script src="../assets/course-data.js"></script>
+  <script src="../assets/progress.js"></script>
+</body>
+</html>

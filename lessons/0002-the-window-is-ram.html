@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>0002 — The context window is RAM</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:ital,wght@0,450;0,650;1,450&family=Source+Serif+4:ital,wght@0,450;0,600;1,450&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/lesson.css">
+  <link rel="stylesheet" href="../assets/diagram.css">
+</head>
+<body>
+  <header class="mast">
+    <a href="../index.html">← All lessons</a>
+    <span>Lesson 0002</span>
+  </header>
+  <article>
+    <p class="kicker">Atoms</p>
+    <h1>The window is working memory</h1>
+    <p class="lede">Lesson 1: the model sees tokens. This lesson: those tokens share one finite slot. Karpathy’s picture is RAM. Anthropic’s picture is an attention budget. Both mean you cannot dump everything in and hope.</p>
+
+    <h2>One box, everything in it</h2>
+    <p>A <strong>context window</strong> is the maximum number of tokens the model can condition on in a single call — system instructions, the chat so far, retrieved docs, tool results, and the reply it is about to write. OpenAI’s overflow error is blunt: input plus reserved output exceeded the maximum. <cite><a href="https://developers.openai.com/cookbook/examples/how_to_count_tokens_with_tiktoken">How to count tokens with tiktoken</a></cite></p>
+    <p>Karpathy’s LLM-as-OS sketch puts the model in the CPU seat and the context window in the RAM seat: fast, limited, wiped when the process ends. Disk (files, RAG, notes) is how you keep what will not fit. <cite><a href="https://www.youtube.com/watch?v=zjkBMFhNj_g">Intro to Large Language Models</a>, LLM OS section</cite></p>
+
+    <figure class="pipeline" data-pipeline aria-label="What shares the window.">
+      <div class="pipeline-step"><strong>System</strong><span>standing orders</span></div>
+      <div class="pipeline-arrow"><i class="token-dot" aria-hidden="true"></i></div>
+      <div class="pipeline-step"><strong>History</strong><span>prior turns</span></div>
+      <div class="pipeline-arrow"><i class="token-dot" aria-hidden="true"></i></div>
+      <div class="pipeline-step"><strong>Tools / files</strong><span>fresh evidence</span></div>
+      <div class="pipeline-arrow"><i class="token-dot" aria-hidden="true"></i></div>
+      <div class="pipeline-step"><strong>Output</strong><span>must still fit</span></div>
+    </figure>
+    <p class="caption">One window. Four tenants. Chat apps hide the fight by dropping or summarising old turns — that is already a tiny harness.</p>
+
+    <h2>Skill: spend the bar on purpose</h2>
+    <p>Add layers until the toy window overflows. Real windows are 32k–200k+ tokens depending on the model; the shape does not change. Count with <em>that</em> model’s tokenizer (lesson 1).</p>
+
+    <div class="lab" data-budget-lab>
+      <h3>Toy context RAM</h3>
+      <div class="meter" aria-hidden="true"><div class="meter-fill" data-meter-fill></div></div>
+      <p class="meter-label" data-meter-label></p>
+      <div class="stack" data-stack>
+        <span data-layer="system" data-n="0"></span>
+        <span data-layer="turn" data-n="0"></span>
+        <span data-layer="tool" data-n="0"></span>
+        <span data-layer="junk" data-n="0"></span>
+      </div>
+      <div class="btn-row">
+        <button type="button" data-add="system">+ system (6)</button>
+        <button type="button" data-add="turn">+ chat turn (8)</button>
+        <button type="button" data-add="tool">+ tool dump (12)</button>
+        <button type="button" data-add="junk">+ PDF dump (18)</button>
+        <button type="button" data-reset>Reset</button>
+      </div>
+      <p class="hint" data-budget-note></p>
+    </div>
+
+    <h2>Worked examples (OpenAI’s style)</h2>
+    <p>OpenAI’s tokenizer articles don’t stop at the definition. They pin a real string, show the chips and IDs, then say what you just saw. Same move here — these numbers are from their cookbook, not the toy bar above.</p>
+
+    <figure class="worked">
+      <p class="worked-head">Example · one English sentence</p>
+      <div class="worked-body">
+        <p style="font-family:var(--mono);font-size:0.9rem;margin:0 0 0.55rem">“tiktoken is great!”</p>
+        <div class="chips">
+          <span class="tok"><span class="chip" style="background:var(--chip-0)">t</span><span class="chip-id">83</span></span>
+          <span class="tok"><span class="chip" style="background:var(--chip-1)">ikt</span><span class="chip-id">8251</span></span>
+          <span class="tok"><span class="chip" style="background:var(--chip-2)">oken</span><span class="chip-id">2488</span></span>
+          <span class="tok"><span class="chip" style="background:var(--chip-3)">·is</span><span class="chip-id">382</span></span>
+          <span class="tok"><span class="chip" style="background:var(--chip-4)">·great</span><span class="chip-id">2212</span></span>
+          <span class="tok"><span class="chip" style="background:var(--chip-5)">!</span><span class="chip-id">0</span></span>
+        </div>
+        <p class="meter-label">cl100k_base · 6 tokens · spaces glued to the next word as “·is” / “·great”</p>
+      </div>
+      <p class="worked-note"><strong>What this shows.</strong> The model never sees the sentence. It sees six IDs. OpenAI’s cookbook encodes this exact string and lists those integers. Rule of thumb on English: roughly 4 characters per token — here 18 characters / 6 tokens = 3.0, in the same zip code. <cite><a href="https://developers.openai.com/cookbook/examples/how_to_count_tokens_with_tiktoken">tiktoken cookbook</a>; <a href="https://help.openai.com/en/articles/4936856-what-are-tokens-and-how-to-count-them">What are tokens?</a></cite></p>
+    </figure>
+
+    <figure class="worked">
+      <p class="worked-head">Example · same word, two encodings</p>
+      <div class="worked-body">
+        <p style="font-family:var(--mono);font-size:0.9rem;margin:0 0 0.4rem">“antidisestablishmentarianism”</p>
+        <p class="meter-label" style="margin:0 0 0.35rem">r50k_base / p50k_base → 5 tokens · cl100k_base / o200k_base → 6 tokens</p>
+        <p style="font-family:var(--sans);font-size:0.86rem;color:var(--ink-soft);margin:0">Older: ant | idis | establishment | arian | ism<br>Newer: ant | idis | establish | ment | arian | ism <span style="opacity:.7">(cl100k)</span></p>
+      </div>
+      <p class="worked-note"><strong>What this shows.</strong> Flavour is not a UI quirk. OpenAI compares encodings on this word and the splits disagree. A “token count” without naming the encoding is not a count. <cite><a href="https://developers.openai.com/cookbook/examples/how_to_count_tokens_with_tiktoken">§5 Comparing encodings</a></cite></p>
+    </figure>
+
+    <figure class="worked">
+      <p class="worked-head">Example · a chat is more than the words</p>
+      <div class="worked-body">
+<pre>{
+  "model": "gpt-4o-mini",
+  "messages": [
+    {"role": "system", "content": "You are a helpful assistant."},
+    {"role": "user",   "content": "Hello!"}
+  ],
+  "max_tokens": 64
+}</pre>
+        <p class="meter-label">Window math (shape, not a live API count): words in the two contents + wrapping tokens per message + 64 reserved for the reply. All of that must fit.</p>
+      </div>
+      <p class="worked-note"><strong>What this shows.</strong> Chat Completions wrap each message (OpenAI’s cookbook uses about 3 extra tokens per message, plus a few to prime the assistant). <code>max_tokens</code> is output headroom <em>inside the same window</em>. That is why “my prompt is short” can still overflow: you reserved a huge completion. Full anatomy is lesson 0003. <cite><a href="https://developers.openai.com/cookbook/examples/how_to_count_tokens_with_tiktoken">§6 Counting tokens for chat</a></cite></p>
+    </figure>
+
+    <h2>Full is not the same as useful</h2>
+    <p>Anthropic: context is a finite resource with diminishing returns. They name <strong>context rot</strong> — as token count rises, recall from that context gets worse. Transformers let every token attend to every other token, so n tokens make n² relationships; the attention budget thins out. <cite><a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents">Effective context engineering</a></cite></p>
+    <p>Liu et al. measured a sharper positional effect: in long prompts, models use facts at the <em>start</em> or <em>end</em> more reliably than facts in the <em>middle</em> — a U-shaped curve, even for “long context” models. Bigger RAM did not mean even access. <cite><a href="https://aclanthology.org/2024.tacl-1.9/">Lost in the Middle</a></cite></p>
+
+    <div class="lab" data-ucurve-lab>
+      <h3>Where you park the fact</h3>
+      <svg class="ucurve" viewBox="0 0 400 180" role="img" aria-label="U-shaped recall sketch.">
+        <line x1="40" y1="20" x2="40" y2="150" stroke="currentColor" opacity="0.25"/>
+        <line x1="40" y1="150" x2="360" y2="150" stroke="currentColor" opacity="0.25"/>
+        <text x="8" y="28" font-size="11" fill="currentColor" opacity="0.6">high</text>
+        <text x="8" y="148" font-size="11" fill="currentColor" opacity="0.6">low</text>
+        <text x="40" y="170" font-size="11" fill="currentColor" opacity="0.6">start</text>
+        <text x="188" y="170" font-size="11" fill="currentColor" opacity="0.6">middle</text>
+        <text x="328" y="170" font-size="11" fill="currentColor" opacity="0.6">end</text>
+        <path d="M40,86 C120,148 280,148 360,86" fill="none" stroke="#1d4e4a" stroke-width="3"/>
+        <circle data-pin class="pin" r="7" fill="#9a3412" cx="40" cy="86"></circle>
+      </svg>
+      <div class="slider-row">
+        <label>Fact position <input type="range" min="0" max="100" value="0" data-pos></label>
+        <span class="meter-label"><strong data-recall>94%</strong> · <span data-where>start (primacy)</span></span>
+      </div>
+      <p class="hint">Sketch of Liu et al.’s U-curve, not their raw numbers. Drag the fact through a long prompt. Start and end stay usable; the middle dips. That is why later “context engineering” puts the needle where attention still works — or refuses to stuff the haystack at all.</p>
+    </div>
+
+    <div class="compare">
+      <div class="compare-card">
+        <h3>Hard limit</h3>
+        <p>Overflow → the call is rejected. Chat UIs truncate or compact so you rarely see the error.</p>
+      </div>
+      <div class="compare-card">
+        <h3>Soft limit</h3>
+        <p>Still under the cap, but rot + the U-curve. The model “had it in context” and still missed it.</p>
+      </div>
+    </div>
+
+    <p>This is why it matters for everything that follows. An agent loop that appends every tool result is filling RAM with hay. RAG that stuffs 50 chunks is buying a bigger middle. Skills and compaction (later lessons) exist to keep the high-signal set small. <cite>Anthropic: “the smallest possible set of high-signal tokens.”</cite></p>
+
+    <h2>Check</h2>
+    <p>Answer from memory. Sampling (how the next token is picked) waits for the API lesson.</p>
+    <form class="quiz" data-quiz data-answers="aabb"
+          data-success="All four correct. RAM is shared, finite, and uneven — that is the whole window."
+          data-retry="Not yet. Overflow the bar, then drag the U-curve, then try again from memory.">
+      <fieldset>
+        <legend>1. The context window is shared by</legend>
+        <label><input type="radio" name="q1" value="a"> input and output</label>
+        <label><input type="radio" name="q1" value="b"> input and vendor</label>
+        <label><input type="radio" name="q1" value="c"> input and laptop</label>
+      </fieldset>
+      <fieldset>
+        <legend>2. Filling the window with extra text</legend>
+        <label><input type="radio" name="q2" value="a"> spends attention</label>
+        <label><input type="radio" name="q2" value="b"> grows the neuron</label>
+        <label><input type="radio" name="q2" value="c"> clones the model</label>
+      </fieldset>
+      <fieldset>
+        <legend>3. Facts in a long prompt are easiest at the</legend>
+        <label><input type="radio" name="q3" value="a"> middle stretch</label>
+        <label><input type="radio" name="q3" value="b"> start and end</label>
+        <label><input type="radio" name="q3" value="c"> random index</label>
+      </fieldset>
+      <fieldset>
+        <legend>4. As the window fills, recall tends to</legend>
+        <label><input type="radio" name="q4" value="a"> stay perfect</label>
+        <label><input type="radio" name="q4" value="b"> slowly fade</label>
+        <label><input type="radio" name="q4" value="c"> fully reset</label>
+      </fieldset>
+      <button type="submit">Check</button>
+      <p class="feedback" data-feedback></p>
+    </form>
+
+    <div class="callout">
+      <p><strong>Primary source (do this next).</strong> Read Anthropic’s <a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents">Effective context engineering</a> from the opening through “Why context engineering is important” (finite budget, n² attention, context rot). Then skim the abstract and Figure 1 of <a href="https://aclanthology.org/2024.tacl-1.9/">Lost in the Middle</a> — you already felt that U-curve in the lab.</p>
+      <p>Keep the <a href="../reference/context-window.html">context-window cheat sheet</a>. Tokens recap: <a href="../reference/tokens.html">tokens</a>. Path: <a href="../reference/map-of-the-era.html">map of the era</a>.</p>
+    </div>
+
+    <footer class="lesson-foot">
+      <p>If the RAM metaphor, overflow vs rot, or “why didn’t it see the sentence I pasted?” is still fuzzy, replay the lab above and reread the <a href="../reference/context-window.html">context window cheat sheet</a>. Next: <a href="0003-the-call-is-a-transcript.html">lesson 0003</a> — the call as a transcript plus a sample.</p>
+    </footer>
+  </article>
+  <script src="../assets/pipeline.js"></script>
+  <script src="../assets/budget-lab.js"></script>
+  <script src="../assets/quiz.js"></script>
+  <script src="../assets/course-data.js"></script>
+  <script src="../assets/progress.js"></script>
+</body>
+</html>

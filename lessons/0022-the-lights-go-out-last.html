@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>0022 — The lights go out last</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:ital,wght@0,450;0,650;1,450&family=Source+Serif+4:ital,wght@0,450;0,600;1,450&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/lesson.css">
+  <link rel="stylesheet" href="../assets/diagram.css">
+</head>
+<body>
+  <header class="mast">
+    <a href="../index.html">← All lessons</a>
+    <span>Lesson 0022 · Software factory 1 of 4</span>
+  </header>
+  <article>
+    <p class="kicker">Software factory</p>
+    <h1>The lights go out last</h1>
+    <p class="lede">“Software factory” is the 2026 name for a team where agents write the code and nobody reads it. The phrase is easy to say and easy to fake. One question separates the real ones from the reckless ones, and it is the only thing to learn tonight: <strong>when the human stopped reading the diff, what started doing that job?</strong></p>
+
+    <div class="callout scope">
+      <p><strong>What this is.</strong> The definition, the ladder that leads to it, and a test you can apply to any team, including yours. StrongDM, who put the term on the map: “non-interactive development where specs + scenarios drive agents that write code, run harnesses, and converge without human review.” <cite><a href="https://factory.strongdm.ai/">StrongDM · Software Factory</a></cite></p>
+      <p><strong>What this is not.</strong> How to build the validation (0023), how to make a repo agents can work in (0024), or the ramp for one developer and for a team (0025). Not a product you buy either. Vendors now sell things under this name; the pattern came first and needs none of them. Not the 2000s “software factories” of code generators and product lines, which shares only the word.</p>
+    </div>
+
+    <ol class="remember">
+      <li><strong>1 · Seed</strong><span>A spec. The human writes it.</span></li>
+      <li><strong>2 · Validate</strong><span>A check the builder cannot game.</span></li>
+      <li><strong>3 · Feed back</strong><span>Failures return. Loop until it holds.</span></li>
+    </ol>
+    <p class="caption">StrongDM’s own summary: “Seed → Validation harness → Feedback loop. Tokens are the fuel.” <cite><a href="https://factory.strongdm.ai/principles">Principles</a></cite></p>
+
+    <figure class="art">
+      <img class="lesson-art" src="../assets/factory-ladder.svg" alt="Six rows, level 0 spicy autocomplete at the bottom to level 5 dark software factory at the top. Columns show your job and who reads the diff. Levels 0 to 3: you, every line. Level 4: you, sometimes. Level 5: no human. A bracket marks the gap between levels 3 and 4.">
+      <p class="caption">Dan Shapiro’s ladder, modelled on the levels of driving automation. Read the right-hand column. The climb is a human check being removed, one rung at a time.</p>
+    </figure>
+
+    <h2>Where the name came from</h2>
+    <p>In January 2026 Dan Shapiro published five levels of AI-assisted coding, from “spicy autocomplete” to the “dark factory”, named after factories that run with the lights off because robots do not need to see. He puts most developers around level 2 and calls level 5 “a black box that turns specs into software,” run by teams of fewer than five. <cite><a href="https://www.danshapiro.com/blog/2026/01/the-five-levels-from-spicy-autocomplete-to-the-software-factory/">The Five Levels</a> · <a href="https://simonwillison.net/2026/Jan/28/the-five-levels/">Simon Willison’s notes</a></cite></p>
+    <p>A week later StrongDM’s three-person AI team described working that way since July 2025, under two rules: “Code <strong>must not be</strong> written by humans” and “Code <strong>must not be</strong> reviewed by humans.” <cite><a href="https://simonwillison.net/2026/Feb/7/software-factory/">Willison on StrongDM</a></cite></p>
+    <p>You already own every part. The loop is <a href="0012-you-design-the-heartbeat.html">0012</a>, where the maker is not the checker. The check is <a href="0014-measure-then-add.html">0014</a> and <a href="0019-the-suite-has-two-jobs.html">0019</a>. The wall around it is <a href="0020-the-prompt-is-not-the-wall.html">0020</a>. A factory is those three running with no one watching.</p>
+
+    <ul class="shapes">
+      <li><strong>Seed</strong> <span>“Every piece of software needs an initial seed”: a spec, a PRD, a screenshot, an existing codebase. The human’s work moved here, to the front.</span></li>
+      <li><strong>Validate</strong> <span>End to end, “as close to the real environment as possible.” StrongDM keeps its scenarios outside the codebase, like a holdout set, so the builder cannot see what it will be graded on.</span></li>
+      <li><strong>Feed back</strong> <span>Output is sampled and fed back in, so the system can “self-correct and compound correctness.” It stops when the holdout scenarios pass “and stay passing.”</span></li>
+    </ul>
+
+    <figure class="art">
+      <img class="lesson-art" src="../assets/factory-seed-validate-feedback.svg" alt="A human lane on top with two boxes: writes the seed, curates the scenarios. Below, a dotted loop with no human inside: builder agent sends builds to a validation harness; failures are fed back. A solid wall between them marks that the builder cannot read the scenarios.">
+      <p class="caption">Architecture first. The human did not leave. They moved from the middle of the loop to its two ends.</p>
+    </figure>
+
+    <h2>The question that sorts the real from the fake</h2>
+    <p>Removing review is the easy half. Anyone can stop reading diffs. Simon Willison, who visited the StrongDM team, names the hard half: “how can you prove that software you are producing works if both the implementation and the tests are being written for you by coding agents?” Agent-written tests only help “if they don’t cheat and <code>assert true</code>.” <cite><a href="https://simonwillison.net/2026/Feb/7/software-factory/">Willison</a></cite></p>
+    <p>Anthropic found the same thing from the other side: asked to grade their own work, agents respond by “confidently praising the work — even when, to a human observer, the quality is obviously mediocre.” <cite><a href="https://www.anthropic.com/engineering/harness-design-long-running-apps">Harness design for long-running apps</a></cite></p>
+    <p>So the test for any rung is one sentence: <em>name the thing that replaced your eyes, and say why the builder cannot fool it.</em> If you cannot, the lights are off and nothing is watching.</p>
+
+    <figure class="worked">
+      <p class="worked-head">One feature, two rungs · prorate refunds on annual plans</p>
+      <div class="worked-body">
+<pre class="pseudo"># Same billing assistant as 0014–0020: HTTP + DB + Stripe.
+
+LEVEL 3 · you read the diff
+  you     prompt: "add proration to the refund policy"
+  agent   edits policy.ts and refunds.test.ts, opens a PR
+  you     read 240 lines, ask for two changes     # your eyes are the check
+  you     merge
+
+LEVEL 5 · factory
+  SEED      you    specs/refund-proration.md      # intent + acceptance criteria
+  VALIDATE  you    scenarios/annual-midyear.md    # kept where the builder cannot read
+            twin   a fake Stripe: refunds.create returns re_ ids, records amounts
+  LOOP      agent  builds
+            check  runs every scenario against the twin        6 of 9
+            agent  receives the three failures, rebuilds       8 of 9
+            agent  again                                       9 of 9, and stays 9
+  SHIP      nobody opened policy.ts
+
+  you read: the scenario board, one trace (0018), the twin's refund ledger
+
+FAKE LEVEL 5
+  agent   writes policy.ts AND refunds.test.ts, tests green, auto-merge
+  check   none that the builder did not write itself</pre>
+      </div>
+      <p class="worked-note"><strong>What this shows.</strong> At level 5 you still did real work: one spec and one scenario, both before any code existed. What you gave up was line-by-line review, and you could only give it up because the scenario file and the Stripe twin now do the looking. Notice what you read at the end: the refund ledger, the outcome in the world, which is <a href="0014-measure-then-add.html">0014</a> again. The third block looks like level 5 from the outside and has no check at all.</p>
+    </figure>
+
+    <h2>Skill: name what replaced the eyes</h2>
+    <p>Six teams. For each, decide what stands between the agent and production. Answer before you look for the reason.</p>
+
+    <div class="lab" data-sort-lab>
+      <h3>Who is watching?</h3>
+      <script type="application/json" data-sort-data>
+      {
+        "bins": ["Human eyes", "Machine check", "Nothing"],
+        "cases": [
+          {
+            "text": "A team of three. Agents open pull requests, a second agent reviews them, and merges are automatic. The tests for each change are written by the same agent, in the same pull request. Nobody reads the code or the tests.",
+            "bin": "Nothing",
+            "why": "Nothing. The builder wrote its own exam. Willison's warning exactly: tests only help if the agent cannot cheat with assert true. A second agent reading the same diff is still an LLM inclined to be generous."
+          },
+          {
+            "text": "Agents build from specs. A set of end-to-end scenarios lives outside the repository where the building agent cannot read it. Scenarios run against behavioural clones of Okta, Slack and Jira. A change ships when the scenarios pass and stay passing. No human reads code.",
+            "bin": "Machine check",
+            "why": "Machine check. This is StrongDM's design: a holdout the builder never sees, run against twins of the real services. The eyes were replaced by something independent."
+          },
+          {
+            "text": "You write a careful spec at six in the evening and leave an agent running. In the morning there is a large pull request. You read every line, ask for changes, and merge.",
+            "bin": "Human eyes",
+            "why": "Human eyes. A long autonomous run does not make it a factory. You are Shapiro's level 3: a full-time reviewer of agent code. A sound place to be."
+          },
+          {
+            "text": "Engineers write acceptance criteria. Agents implement, review each other and merge. Custom linters enforce the layering and print fix instructions. The app boots per git worktree so the agent can drive the UI and record a video of the fix. Humans sample merged changes afterwards.",
+            "bin": "Machine check",
+            "why": "Machine check. This is OpenAI's harness-engineering team: 'Humans may review pull requests, but aren't required to.' Linters, structural tests and the agent driving the running app do the looking. Humans kept a sample after merge."
+          },
+          {
+            "text": "A solo developer. An agent loops until npm test is green, then the change deploys. The tests existed before the agent started, but the agent has write access to the test folder. The developer does not read the diff.",
+            "bin": "Nothing",
+            "why": "Nothing you can rely on. The check exists, but the builder can edit it. A test the builder may rewrite is a suggestion. The fix is small: make the folder read-only to the agent."
+          },
+          {
+            "text": "The same solo developer, two changes later. A hook denies the agent any write to the test folder. A separate scenario script, which the agent never sees, runs in CI against a fake payment API. Deploy happens only when that job passes.",
+            "bin": "Machine check",
+            "why": "Machine check. One person, no budget, and it passes the test: the builder cannot read or edit what grades it. This is the 0020 allow gate protecting the 0019 suite."
+          }
+        ]
+      }
+      </script>
+    </div>
+
+    <h2>Three field reports, and the bill</h2>
+    <div class="compare three">
+      <div class="compare-card">
+        <h3>StrongDM</h3>
+        <p>Three people, from July 2025. Security software. Scenarios as a holdout, a “Digital Twin Universe” of cloned services. Their own yardstick: about $1,000 of tokens per engineer per day. <cite><a href="https://factory.strongdm.ai/">source</a></cite></p>
+      </div>
+      <div class="compare-card">
+        <h3>OpenAI</h3>
+        <p>Three engineers growing to seven, five months, about a million lines and 1,500 pull requests, zero typed by hand. “Humans steer. Agents execute.” A new repository, started empty. <cite><a href="https://openai.com/index/harness-engineering/">source</a></cite></p>
+      </div>
+      <div class="compare-card">
+        <h3>Anthropic</h3>
+        <p>Sixteen agents, about 2,000 sessions, just under $20,000, a 100,000-line C compiler. The lesson its author drew: “it’s important that the task verifier is nearly perfect.” <cite><a href="https://www.anthropic.com/engineering/building-c-compiler">source</a></cite></p>
+      </div>
+    </div>
+
+    <p>Each report is written by the team that did the work, about a project started from nothing. Read them as evidence that it can be done, and then read the costs they and others state:</p>
+    <ul>
+      <li><strong>Money.</strong> Willison on the $1,000 a day: if these patterns add $20,000 a month per engineer, “they’re far less interesting to me.” He hopes for a version at far lower spend. That version is what 0025 is about.</li>
+      <li><strong>Transfer.</strong> OpenAI: the behaviour “depends heavily on the specific structure and tooling of this repository and should not be assumed to generalize without similar investment.” All three were new codebases.</li>
+      <li><strong>False green.</strong> The compiler’s author: “it is easy to see tests pass and assume the job is done, when this is rarely the case,” and deploying software nobody has personally verified “is a real concern.”</li>
+      <li><strong>Accountability.</strong> A Stanford Law commentary on StrongDM: when agents write and agents test, “nobody knows who is liable,” and contracts still assume a human reviewed the code. <cite><a href="https://law.stanford.edu/2026/02/08/built-by-agents-tested-by-agents-trusted-by-whom/">Built by Agents, Tested by Agents, Trusted by Whom?</a></cite></li>
+    </ul>
+
+    <h2>What to do with this on Monday</h2>
+    <div class="compare three">
+      <div class="compare-card">
+        <h3>Solo developer</h3>
+        <p>Find your rung honestly. Then pick one kind of change you review today and ask what check would let you stop. Build that check before you stop reading.</p>
+      </div>
+      <div class="compare-card">
+        <h3>Team lead</h3>
+        <p>When someone says “we should be a software factory,” ask the lesson’s question in the design review. Level 5 is not the goal for every codebase. Level 4 with strong checks beats level 5 with none.</p>
+      </div>
+      <div class="compare-card">
+        <h3>Next</h3>
+        <p>0023: build the check. Scenarios the builder cannot see, a twin of one outside service, and a score instead of a green tick.</p>
+      </div>
+    </div>
+
+    <p class="sidenote">Parked for the next three lessons: holdout scenarios and twins (0023); the repository as the system of record, a short <code>AGENTS.md</code> as a map, and rules promoted into linters (0024); the ramp, the budget and where to keep a human (0025). StrongDM’s named techniques (Attractor, gene transfusion, semports, pyramid summaries) are parked until one of them is the next thing you need.</p>
+
+    <h2>Check</h2>
+    <form class="quiz" data-quiz data-answers="bcabb"
+          data-success="A factory swaps human review for independent validation in a loop. The scenarios sit outside the codebase so the builder cannot see them. Level three is reviewing agent code. Builder-written tests merged unread are no independent check. OpenAI warned the result may not generalize without the same investment."
+          data-retry="Not yet. Re-read seed · validate · feed back, then the three blocks in the grey box.">
+      <fieldset>
+        <legend>1. A software factory replaces human review with</legend>
+        <label><input type="radio" name="q1" value="a"> a longer, stricter system prompt</label>
+        <label><input type="radio" name="q1" value="b"> independent validation in a loop</label>
+        <label><input type="radio" name="q1" value="c"> the builder checking itself twice</label>
+      </fieldset>
+      <fieldset>
+        <legend>2. StrongDM stores scenarios outside the codebase so</legend>
+        <label><input type="radio" name="q2" value="a"> the repo stays much smaller</label>
+        <label><input type="radio" name="q2" value="b"> the humans can edit faster</label>
+        <label><input type="radio" name="q2" value="c"> the builder cannot see them</label>
+      </fieldset>
+      <fieldset>
+        <legend>3. At level three, the human mostly</legend>
+        <label><input type="radio" name="q3" value="a"> reviews code the agent wrote</label>
+        <label><input type="radio" name="q3" value="b"> writes specs and leaves overnight</label>
+        <label><input type="radio" name="q3" value="c"> types code with autocomplete help</label>
+      </fieldset>
+      <fieldset>
+        <legend>4. Tests written by the builder and merged unread give you</legend>
+        <label><input type="radio" name="q4" value="a"> a level five dark factory</label>
+        <label><input type="radio" name="q4" value="b"> no independent check at all</label>
+        <label><input type="radio" name="q4" value="c"> a holdout set of scenarios</label>
+      </fieldset>
+      <fieldset>
+        <legend>5. OpenAI’s team said its results</legend>
+        <label><input type="radio" name="q5" value="a"> apply to any legacy codebase</label>
+        <label><input type="radio" name="q5" value="b"> may not generalize without investment</label>
+        <label><input type="radio" name="q5" value="c"> need no engineering discipline now</label>
+      </fieldset>
+      <button type="submit">Check</button>
+      <p class="feedback" data-feedback></p>
+    </form>
+
+    <div class="callout">
+      <p><strong>Primary source.</strong> <a href="https://simonwillison.net/2026/Feb/7/software-factory/">How StrongDM’s AI team build serious software without even looking at the code</a>, by Simon Willison. Fifteen minutes. It is the best single piece because he saw the system, quotes the team’s own words, and then says what worries him. Second, for the engineering detail: <a href="https://openai.com/index/harness-engineering/">Harness engineering</a>, by Ryan Lopopolo at OpenAI.</p>
+      <p>Card: <a href="../reference/software-factory.html">software factory</a>. Loop: <a href="../reference/loop-engineering.html">loop engineering</a>. Check: <a href="../reference/eval-suites.html">eval suites</a>. Wall: <a href="../reference/agent-security.html">agent security</a>. In code: <a href="0021-write-the-loop.html">lesson 0021</a>.</p>
+    </div>
+
+    <footer class="lesson-foot">
+      <p>If “why is a second agent reviewing the diff not enough?” is fuzzy, or you want to place your own team on the ladder and are not sure of the rung, write down how a change gets from idea to production where you work, then name what is watching each step. Next: <a href="0023-a-check-the-builder-cannot-see.html">a check the builder cannot see</a>.</p>
+    </footer>
+  </article>
+  <script src="../assets/sort-lab.js"></script>
+  <script src="../assets/quiz.js"></script>
+  <script src="../assets/course-data.js"></script>
+  <script src="../assets/progress.js"></script>
+</body>
+</html>

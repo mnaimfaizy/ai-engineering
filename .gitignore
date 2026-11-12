@@ -1,0 +1,9 @@
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Build output (Cloudflare Pages builds it)
+dist/
+
+# Full-size PNG originals; the site uses the WebP copies in assets/
+assets/originals/

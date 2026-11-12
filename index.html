@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI Engineering — a 25-lesson course</title>
+  <meta name="description" content="From tokens to software factories: a hands-on path through context, tools, harnesses, loops, graphs, evals and agent security. Interactive labs, quizzes and TypeScript exercises — no API key needed.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:ital,wght@0,450;0,650;1,450&family=Source+Serif+4:ital,wght@0,450;0,600;1,450&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/lesson.css">
+</head>
+<body>
+  <header class="mast">
+    <a href="reference/map-of-the-era.html">Map of the era</a>
+    <span>AI Engineering</span>
+  </header>
+  <article>
+    <p class="kicker">Course</p>
+    <h1>AI Engineering</h1>
+    <p class="lede">From what the model actually sees to how teams ship agents safely. Twenty-five short lessons, each with a picture, an interactive lab and a check. Choose the right architecture instead of defaulting to “just prompt it.”</p>
+
+    <p class="progress-count" data-progress-count>0 of 25 lessons done</p>
+    <div class="progress-bar" data-progress-bar role="progressbar" aria-label="Course progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div>
+    <a class="cta" data-continue="lessons/" href="lessons/0001-the-model-sees-tokens.html">Start with lesson 0001</a>
+
+    <p class="hint" data-storage-warning hidden>This browser is not letting the page save anything (private window or blocked site data?), so progress will not be remembered.</p>
+
+    <h2>How it works</h2>
+    <ul>
+      <li><strong>Go in order.</strong> Each lesson builds on the one before. Every page ends with links to the previous and next lesson.</li>
+      <li><strong>Pass the check.</strong> Each lesson ends with a short quiz. Pass it and the lesson is marked done. You can also mark a lesson done yourself.</li>
+      <li><strong>Progress stays in this browser.</strong> Nothing is sent anywhere. To move to another device, download your progress below and load it there.</li>
+      <li><strong>Three lessons have code.</strong> 0021, 0023 and 0024 are TypeScript exercises that run locally against a scripted model, using Node 22 or later. No API key and nothing to install.</li>
+    </ul>
+
+    <div id="lesson-list">
+      <noscript><p>Turn on JavaScript to see your progress. The full list is on the <a href="reference/map-of-the-era.html">map of the era</a>.</p></noscript>
+    </div>
+
+    <h2>Cheat sheets</h2>
+    <p>One-page summaries to come back to after a lesson.</p>
+    <ul class="ref-grid">
+      <li><a href="reference/map-of-the-era.html">Map of the era</a></li>
+      <li><a href="reference/tokens.html">Tokens</a></li>
+      <li><a href="reference/context-window.html">Context window</a></li>
+      <li><a href="reference/the-call.html">Pack, read, pick</a></li>
+      <li><a href="reference/rag.html">Find · paste · pick (RAG)</a></li>
+      <li><a href="reference/tools.html">Tools</a></li>
+      <li><a href="reference/workflows.html">Two architectures</a></li>
+      <li><a href="reference/harnesses.html">Harnesses</a></li>
+      <li><a href="reference/skills.html">Skills</a></li>
+      <li><a href="reference/context-engineering.html">Context engineering</a></li>
+      <li><a href="reference/just-in-time.html">Just-in-time</a></li>
+      <li><a href="reference/sub-agents.html">Sub-agents</a></li>
+      <li><a href="reference/loop-engineering.html">Loop engineering</a></li>
+      <li><a href="reference/graph-engineering.html">Graph engineering</a></li>
+      <li><a href="reference/evals.html">Evals</a></li>
+      <li><a href="reference/team-floor.html">Team floor</a></li>
+      <li><a href="reference/stack-choice.html">Stack choice</a></li>
+      <li><a href="reference/plugins.html">Plugins</a></li>
+      <li><a href="reference/production-traces.html">Production traces</a></li>
+      <li><a href="reference/eval-suites.html">Eval suites</a></li>
+      <li><a href="reference/agent-security.html">Agent security</a></li>
+      <li><a href="reference/software-factory.html">Software factory</a></li>
+    </ul>
+
+    <h2>Your progress</h2>
+    <p>Saved only in this browser. Download a copy to keep it, or to carry on from another device.</p>
+    <div class="course-tools">
+      <button type="button" data-progress-export>Download progress</button>
+      <label>Load progress file<input type="file" accept="application/json,.json" data-progress-import></label>
+      <button type="button" data-progress-reset>Reset</button>
+    </div>
+    <p class="hint" data-progress-message aria-live="polite"></p>
+
+    <footer class="lesson-foot">
+      <p>Sources are cited on every page, mostly primary: vendor engineering posts and docs. Spotted a mistake? Open an issue on the course repository.</p>
+    </footer>
+  </article>
+
+  <script src="assets/course-data.js"></script>
+  <script>
+    // Render the lesson list from the manifest; progress.js adds the status.
+    (function () {
+      const root = document.getElementById("lesson-list");
+      let n = 0;
+      window.COURSE.sections.forEach((section) => {
+        const h = document.createElement("h2");
+        h.textContent = section.title;
+        const ol = document.createElement("ol");
+        ol.className = "map-list";
+        section.lessons.forEach((lesson) => {
+          n++;
+          const li = document.createElement("li");
+          li.setAttribute("data-lesson", lesson.slug);
+          const num = document.createElement("span");
+          num.className = "n";
+          num.textContent = String(n).padStart(2, "0");
+          const body = document.createElement("div");
+          const strong = document.createElement("strong");
+          const a = document.createElement("a");
+          a.href = "lessons/" + lesson.slug + ".html";
+          a.textContent = lesson.title;
+          strong.append(a);
+          const badge = document.createElement("div");
+          badge.setAttribute("data-status", "");
+          body.append(strong, badge, document.createTextNode(lesson.summary));
+          li.append(num, body);
+          ol.append(li);
+        });
+        root.append(h, ol);
+      });
+    })();
+  </script>
+  <script src="assets/progress.js"></script>
+</body>
+</html>

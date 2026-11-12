@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>0017 — The crate is not a model</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:ital,wght@0,450;0,650;1,450&family=Source+Serif+4:ital,wght@0,450;0,600;1,450&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/lesson.css">
+  <link rel="stylesheet" href="../assets/diagram.css">
+</head>
+<body>
+  <header class="mast">
+    <a href="../index.html">← All lessons</a>
+    <span>Lesson 0017</span>
+  </header>
+  <article>
+    <p class="kicker">Plugins</p>
+    <h1>The crate is not a model</h1>
+    <p class="lede">Lesson 0008 said a plugin store is how a folder <em>arrives</em>. Lesson 0015 put Guide · Guard · Job in git. Tonight is the crate. <strong>A plugin packages files you already own so another machine can install them.</strong> It is not a new intelligence, and it does not retire hooks or evals.</p>
+
+    <div class="callout scope">
+      <p><strong>What this is.</strong> Two boxes Cursor actually loads: <em>Agent Plugins</em> (open standard: <code>plugin.json</code> at the root, skills + MCP) and <em>Cursor Plugins</em> (<code>.cursor-plugin/plugin.json</code>, plus rules, agents, commands, hooks, variables). Install from Customize or a marketplace. <cite><a href="https://cursor.com/docs/plugins">Cursor · Plugins</a> · <a href="https://agent-plugins.org">Agent Plugins</a></cite></p>
+      <p><strong>What this is not.</strong> A second model. Re-teaching SKILL.md or hooks. A Slack zip as “governance.” Team SCIM, canvases, publishing checklists — parked. Not a ChatGPT menu named “Plugin.”</p>
+    </div>
+
+    <ol class="remember">
+      <li><strong>1 · Bundle</strong><span>Manifest + the folders. Same skills, MCP, hooks.</span></li>
+      <li><strong>2 · Arrive</strong><span>Install: user, project, or team marketplace.</span></li>
+      <li><strong>3 · Trust</strong><span>Reviewed marketplace ≠ a zip. Floor still on.</span></li>
+    </ol>
+    <p class="caption">Escalate on the symptom (0016). If you only needed a Guide, do not crate it.</p>
+
+    <figure class="art">
+      <img class="lesson-art" src="../assets/plugin-how-the-floor-arrives.webp" alt="Loose folders for skills, hooks, MCP, and AGENTS.md going into one crate labeled plugin with plugin.json on the lid.">
+      <p class="caption">Architecture first. Distribution, not a new rung on the context/loop/graph ladder.</p>
+    </figure>
+
+    <h2>Two boxes</h2>
+    <p>Agent Plugins is the portable floor: skills (agentskills.io) and MCP servers, one <code>plugin.json</code> with the standard schema. Cursor supports that spec so a conformant crate loads without rearrangement. Cursor Plugins add Cursor-only pieces — rules, custom agents, commands, hooks, variables — under <code>.cursor-plugin/</code>. <cite>Same docs · two formats</cite></p>
+
+    <figure class="art">
+      <img class="lesson-art" src="../assets/plugin-two-boxes.webp" alt="Left: Agent Plugins with root plugin.json, skills, mcp.json. Right: Cursor Plugins with .cursor-plugin/plugin.json plus rules, agents, hooks.">
+      <p class="caption">Lead: crate portable skills+MCP when other clients matter. Crate Cursor extras when the Guard is a hook this editor must run.</p>
+    </figure>
+
+    <figure class="worked">
+      <p class="worked-head">Billing floor · as a crate</p>
+      <div class="worked-body">
+<pre class="pseudo"># Agent Plugin — portable (skills + MCP)
+billing-floor/
+  plugin.json          # $schema agent-plugins.org
+  skills/refund-policy/SKILL.md
+  mcp.json             # Stripe-shaped tools — no secrets
+
+# Cursor Plugin — same plus Guard
+billing-floor/
+  .cursor-plugin/plugin.json
+  skills/refund-policy/SKILL.md
+  agents/reviewer.md
+  hooks/hooks.json     # deny stripe unless policy_ok
+  mcp.json
+  # variables: declare STRIPE_KEY name, not the value
+
+# ARRIVE
+Customize → Install → this project
+# or ~/.cursor/plugins/local while developing
+
+# NOT A PLUGIN
+Slack: billing-plugin.zip
+# TRUST: marketplace review is the gate, then still 0014/0015</pre>
+      </div>
+      <p class="worked-note"><strong>What this shows.</strong> The graph in <code>POST /assistant</code> did not move. The crate is how a hire’s Cursor gets the same Job and Guard. Cursor: do not put secret values in the repo; variables are names, values live in the dashboard.</p>
+    </figure>
+
+    <figure class="art">
+      <img class="lesson-art" src="../assets/plugin-crate-arrives.webp" alt="A crate of named kitchen stations arriving at a second kitchen. A random zip crate is crossed out.">
+      <p class="caption">Kitchen optional. Official marketplace plugins are open source and manually reviewed. A zip in Slack is not that review.</p>
+    </figure>
+
+    <h2>Skill: name the crate</h2>
+    <p><strong>Folder</strong> is the floor you already have. <strong>Bundle</strong> adds a manifest. <strong>Arrive</strong> is install. <strong>Trust</strong> is review — then Guard and evals still run.</p>
+
+    <div class="lab" data-plugin-lab>
+      <h3>Same billing team, four looks</h3>
+      <div class="btn-row">
+        <button type="button" data-scene="folder">Folder</button>
+        <button type="button" data-scene="bundle">Bundle</button>
+        <button type="button" data-scene="arrive">Arrive</button>
+        <button type="button" data-scene="trust">Trust</button>
+      </div>
+      <p class="kind" data-kind></p>
+      <figure class="pipeline" data-path aria-label="Tonight’s crate."></figure>
+      <div class="chat ticket-q" data-plugin-chat></div>
+      <p class="cost-line" data-cost></p>
+      <p class="hint" data-plugin-note></p>
+    </div>
+
+    <h2>Always on after install</h2>
+    <div class="compare three">
+      <div class="compare-card">
+        <h3>Developer</h3>
+        <p>Install at project scope. Confirm skills and hooks actually loaded. You still do not merge your own PR without a stamp.</p>
+      </div>
+      <div class="compare-card">
+        <h3>Team lead</h3>
+        <p>Crate what must be shared. Required marketplace mode only for Guard you cannot opt out of. Do not crate a restated AGENTS.md.</p>
+      </div>
+      <div class="compare-card">
+        <h3>Where this leads</h3>
+        <p>Plugins are the first advanced topic: <em>distribution</em>. Next on the map: production traces, eval suites, agent security — still measure, then add.</p>
+      </div>
+    </div>
+
+    <p class="sidenote">Parked: canvases, SCIM group access, publishing to cursor.com/marketplace, Claude Code plugin format as a second crate. MCP install deeplinks wait. The advanced mission does not include training foundation models.</p>
+
+    <h2>Check</h2>
+    <form class="quiz" data-quiz data-answers="baabb"
+          data-success="A plugin is a box that arrives. Agent Plugins package skills plus MCP. Cursor Plugins also add rules, agents, and hooks. After install you keep the team floor. Trust a reviewed marketplace, not a Slack zip."
+          data-retry="Read the three rents at the top, then the two trees in the grey box.">
+      <fieldset>
+        <legend>1. A plugin is</legend>
+        <label><input type="radio" name="q1" value="a"> a bigger language model</label>
+        <label><input type="radio" name="q1" value="b"> a box that arrives</label>
+        <label><input type="radio" name="q1" value="c"> a vendor dashboard SKU</label>
+      </fieldset>
+      <fieldset>
+        <legend>2. Agent Plugins package</legend>
+        <label><input type="radio" name="q2" value="a"> skills plus MCP servers</label>
+        <label><input type="radio" name="q2" value="b"> only dashboard team rules</label>
+        <label><input type="radio" name="q2" value="c"> only kitchen metaphors</label>
+      </fieldset>
+      <fieldset>
+        <legend>3. Cursor Plugins also add</legend>
+        <label><input type="radio" name="q3" value="a"> rules agents and hooks</label>
+        <label><input type="radio" name="q3" value="b"> a second language model</label>
+        <label><input type="radio" name="q3" value="c"> a monthly token bill</label>
+      </fieldset>
+      <fieldset>
+        <legend>4. After install you still</legend>
+        <label><input type="radio" name="q4" value="a"> skip the merge stamp</label>
+        <label><input type="radio" name="q4" value="b"> keep the team floor</label>
+        <label><input type="radio" name="q4" value="c"> delete the eval suite</label>
+      </fieldset>
+      <fieldset>
+        <legend>5. Trust a plugin after</legend>
+        <label><input type="radio" name="q5" value="a"> a Slack zip arrives</label>
+        <label><input type="radio" name="q5" value="b"> a marketplace review pass</label>
+        <label><input type="radio" name="q5" value="c"> a bigger model ships</label>
+      </fieldset>
+      <button type="submit">Check</button>
+      <p class="feedback" data-feedback></p>
+    </form>
+
+    <div class="callout">
+      <p><strong>Primary source.</strong> <a href="https://cursor.com/docs/plugins">Cursor · Plugins</a> (what a crate contains; two formats; install). Manifest and local test: <a href="https://cursor.com/docs/reference/plugins">Plugins reference</a>. Portable spec: <a href="https://agent-plugins.org">Agent Plugins</a>. Skills inside the crate: <a href="https://agentskills.io/specification">Agent Skills</a>.</p>
+      <p>Card: <a href="../reference/plugins.html">plugins</a>. Floor: <a href="../reference/team-floor.html">team floor</a>. Folder: <a href="../reference/skills.html">skills</a>. Plug: <a href="../reference/tools.html">tools / MCP</a>. Ladder: <a href="../reference/stack-choice.html">stack choice</a>.</p>
+    </div>
+
+    <footer class="lesson-foot">
+      <p>If “is a marketplace install a Guard?” is still fuzzy, replay the lab above and reread the <a href="../reference/plugins.html">plugins cheat sheet</a>. Next: <a href="0018-one-id-through-the-world.html">production traces</a> — one id through HTTP, the agent, and Stripe.</p>
+    </footer>
+  </article>
+  <script src="../assets/plugin-lab.js"></script>
+  <script src="../assets/quiz.js"></script>
+  <script src="../assets/course-data.js"></script>
+  <script src="../assets/progress.js"></script>
+</body>
+</html>

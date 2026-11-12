@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>0005 — The model writes a slip</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:ital,wght@0,450;0,650;1,450&family=Source+Serif+4:ital,wght@0,450;0,600;1,450&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/lesson.css">
+  <link rel="stylesheet" href="../assets/diagram.css">
+</head>
+<body>
+  <header class="mast">
+    <a href="../index.html">← All lessons</a>
+    <span>Lesson 0005</span>
+  </header>
+  <article>
+    <p class="kicker">Tools</p>
+    <h1>The model writes a slip</h1>
+    <p class="lede">The model has a pen, not a thermometer. <strong>Tool use</strong> (also called function calling) means: it writes a kitchen ticket, <em>your code</em> cooks, the ticket comes back into RAM, then pack · read · pick as usual.</p>
+
+    <ol class="remember four">
+      <li><strong>1 · Propose</strong><span>The model writes a structured slip, not English.</span></li>
+      <li><strong>2 · Run</strong><span>Your code (or an MCP plug) actually does it.</span></li>
+      <li><strong>3 · Paste</strong><span>The result sits in the script, like a RAG page.</span></li>
+      <li><strong>4 · Pick</strong><span>Same call as lesson 0003 — now with a fresh fact.</span></li>
+    </ol>
+    <p class="caption">Propose · run · paste · pick. If the script already has the answer, skip the kitchen.</p>
+
+    <h2>No hands</h2>
+    <p>OpenAI’s name for the slip is a <em>tool call</em>. Your app then runs the function and sends a <em>tool call output</em> back. Anthropic’s wording is the same idea: the model never executes anything on its own — it emits a structured request. <cite><a href="https://developers.openai.com/api/docs/guides/function-calling">Function calling</a> · <a href="https://platform.claude.com/docs/en/agents-and-tools/tool-use/how-tool-use-works">How tool use works</a></cite></p>
+
+    <figure class="art">
+      <img class="lesson-art" src="../assets/model-has-no-hands.webp" alt="Two panels: a waiter writes check_oven() on a slip; a cook actually reads the oven thermometer. Caption: Writes a slip. Does not touch the oven.">
+      <p class="caption">ChatGPT hides this. In an API, you are the kitchen.</p>
+    </figure>
+
+    <h2>The pizza ticket</h2>
+    <figure class="worked">
+      <p class="worked-head">Example · without a tool</p>
+      <div class="worked-body">
+        <div class="chat">
+          <div class="bubble user"><small>user</small>Is the oven hot enough for the walnut pizza?</div>
+          <div class="bubble assistant"><small>assistant · guessing from training</small>Pizza ovens are often around 250°C… (maybe. Not <em>this</em> oven, tonight.)</div>
+        </div>
+      </div>
+      <p class="worked-note"><strong>What this shows.</strong> Live state — temperature, stock, “did the order go through?” — is not in the frozen cookbook. Guessing is how assistants hallucinate a number.</p>
+    </figure>
+
+    <figure class="worked">
+      <p class="worked-head">Example · with a tool</p>
+      <div class="worked-body">
+        <div class="chat">
+          <div class="bubble user"><small>user</small>Is the oven hot enough for the walnut pizza?</div>
+          <div class="bubble tool"><small>assistant · writes a slip</small>
+<pre>{ "name": "check_oven", "arguments": {} }</pre>
+          </div>
+          <div class="bubble result"><small>your code · pasted back</small>
+<pre>{ "ready": true, "temp_c": 240 }</pre>
+          </div>
+          <div class="bubble assistant"><small>assistant · pick</small>Yes. The ticket says 240°C — load it.</div>
+        </div>
+      </div>
+      <p class="worked-note"><strong>What this shows.</strong> Two API calls, not one. First pick is the slip. You cook. Second pick is English. OpenAI lists five steps for that round trip; Claude stops with <code>tool_use</code> until you send a <code>tool_result</code>. Vendors name the JSON differently. The kitchen ticket is the same.</p>
+    </figure>
+
+    <h2>Skill: you are the kitchen</h2>
+    <p>Ask a question. If a slip appears, the model is waiting. <strong>Run the kitchen</strong> is you. Try the sum last — some questions need no ticket.</p>
+
+    <div class="lab" data-tool-lab>
+      <h3>Kitchen tickets</h3>
+      <div class="btn-row">
+        <button type="button" data-ask="oven">Oven ready?</button>
+        <button type="button" data-ask="stock">How many walnut?</button>
+        <button type="button" data-ask="math">What is 2 + 2?</button>
+      </div>
+      <figure class="pipeline" aria-label="Propose, run, paste, pick.">
+        <div class="pipeline-step"><strong>Propose</strong><span>write a slip</span></div>
+        <div class="pipeline-arrow"><i class="token-dot" aria-hidden="true"></i></div>
+        <div class="pipeline-step"><strong>Run</strong><span>your code</span></div>
+        <div class="pipeline-arrow"><i class="token-dot" aria-hidden="true"></i></div>
+        <div class="pipeline-step"><strong>Paste</strong><span>into RAM</span></div>
+        <div class="pipeline-arrow"><i class="token-dot" aria-hidden="true"></i></div>
+        <div class="pipeline-step"><strong>Pick</strong><span>the answer</span></div>
+      </figure>
+      <div class="chat ticket-q" data-tool-chat></div>
+      <div class="btn-row">
+        <button type="button" data-run>Run the kitchen</button>
+      </div>
+      <p class="hint" data-tool-note></p>
+    </div>
+
+    <figure class="art">
+      <img class="lesson-art" src="../assets/tool-loop.webp" alt="Circular kitchen diagram: propose a slip, run the oven, paste the ticket into context RAM, pick an answer for the guest.">
+      <p class="caption">The loop can go around again — another slip — until the model is ready to talk. That loop is what people later call an agent. Not this lesson.</p>
+    </figure>
+
+    <h2>RAG found pages. Tools do work.</h2>
+    <div class="compare">
+      <div class="compare-card">
+        <h3>RAG (lesson 0004)</h3>
+        <p>You find two pages, paste them, then ask. The shelf does not change the world.</p>
+      </div>
+      <div class="compare-card">
+        <h3>Tools (this lesson)</h3>
+        <p>The model asks for an action. You run it. Stock, ovens, calendars, refunds — then paste the ticket.</p>
+      </div>
+    </div>
+    <p>Both spend RAM the same way: a few tokens of fresh text, not the whole universe. Skip the kitchen when the script already has it — same as skipping the shelf.</p>
+
+    <h2>MCP is a USB plug, not a new brain</h2>
+    <p>Once you have a kitchen, every gadget wants its own adapter: files, calendar, till, web. The <strong>Model Context Protocol</strong> (MCP) is an open standard so the AI app uses one plug. Official docs compare it to USB-C. <cite><a href="https://modelcontextprotocol.io/docs/getting-started/intro">What is MCP?</a></cite></p>
+
+    <figure class="art">
+      <img class="lesson-art" src="../assets/mcp-usb.webp" alt="A laptop labelled AI APP with one MCP port, four cables to a kitchen, files, a calendar, and the web. Caption: One plug. Many kitchens.">
+      <p class="caption">The model still only writes slips. MCP is how Cursor, Claude, ChatGPT, and others <em>attach</em> kitchens without a custom socket each time.</p>
+    </figure>
+
+    <p>Park for later: JSON-RPC, hosts vs servers, OAuth. Tonight’s load-bearing sentence is: <em>same loop, standard plug.</em></p>
+
+    <h2>Check</h2>
+    <form class="quiz" data-quiz data-answers="bbc"
+          data-success="Propose, run, paste, pick. The model writes. You cook. MCP is only the plug."
+          data-retry="Replay Oven ready? and click Run the kitchen. Watch who actually cooks.">
+      <fieldset>
+        <legend>1. Who reads the oven?</legend>
+        <label><input type="radio" name="q1" value="a"> the model, inside the weights</label>
+        <label><input type="radio" name="q1" value="b"> your code (or an MCP server)</label>
+        <label><input type="radio" name="q1" value="c"> temperature</label>
+      </fieldset>
+      <fieldset>
+        <legend>2. After the kitchen cooks, the ticket</legend>
+        <label><input type="radio" name="q2" value="a"> trains the weights</label>
+        <label><input type="radio" name="q2" value="b"> is pasted back into RAM</label>
+        <label><input type="radio" name="q2" value="c"> is thrown away</label>
+      </fieldset>
+      <fieldset>
+        <legend>3. MCP is</legend>
+        <label><input type="radio" name="q3" value="a"> a bigger context window</label>
+        <label><input type="radio" name="q3" value="b"> a standard plug for tools</label>
+        <label><input type="radio" name="q3" value="c"> a new tokenizer</label>
+      </fieldset>
+      <button type="submit">Check</button>
+      <p class="feedback" data-feedback></p>
+    </form>
+
+    <div class="callout">
+      <p><strong>Primary source.</strong> Skim OpenAI’s five-step flow on <a href="https://developers.openai.com/api/docs/guides/function-calling">Function calling</a> (request → tool call → you execute → send output → final answer). Then Anthropic’s sentence that the model never executes on its own: <a href="https://platform.claude.com/docs/en/agents-and-tools/tool-use/how-tool-use-works">How tool use works</a>. MCP in one analogy: <a href="https://modelcontextprotocol.io/docs/getting-started/intro">USB-C for AI apps</a>.</p>
+      <p>Card: <a href="../reference/tools.html">propose · run · paste · pick</a>.</p>
+    </div>
+
+    <footer class="lesson-foot">
+      <p>If “does ChatGPT browsing count as a tool?” or “who is allowed to run the slip?” is fuzzy, replay the lab above and reread the <a href="../reference/tools.html">tools cheat sheet</a>. Next: <a href="0006-you-draw-the-path.html">lesson 0006</a> — you write the program: a fixed path (workflow) or a model-directed loop (agent).</p>
+    </footer>
+  </article>
+  <script src="../assets/tool-lab.js"></script>
+  <script src="../assets/quiz.js"></script>
+  <script src="../assets/course-data.js"></script>
+  <script src="../assets/progress.js"></script>
+</body>
+</html>

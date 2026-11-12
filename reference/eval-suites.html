@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Eval suites — cheat sheet</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:ital,wght@0,450;0,650;1,450&family=Source+Serif+4:ital,wght@0,450;0,600;1,450&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/lesson.css">
+  <link rel="stylesheet" href="../assets/diagram.css">
+</head>
+<body>
+  <header class="mast">
+    <a href="../index.html">← All lessons</a>
+    <span>Reference</span>
+  </header>
+  <article>
+    <p class="kicker">Cheat sheet</p>
+    <h1>Eval suites</h1>
+    <p class="lede">From <a href="../lessons/0019-the-suite-has-two-jobs.html">lesson 0019</a>. Two boards on the same <code>POST /assistant</code> traces. Not a re-teach of <a href="evals.html">task · trace · gate</a>.</p>
+
+    <ol class="remember">
+      <li><strong>Split</strong><span>Capability starts low. Regression stays full.</span></li>
+      <li><strong>Graduate</strong><span>A green hard task moves to CI.</span></li>
+      <li><strong>Calibrate</strong><span>Code on the row. Judge after labels.</span></li>
+    </ol>
+
+    <h2>Not</h2>
+    <ul>
+      <li>Not one mixed score (4/8 hides the fire). Anthropic: two questions.</li>
+      <li>Not an uncalibrated LLM-as-judge dashboard. Hamel: TPR/TNR on held-out human labels.</li>
+      <li>Not a vendor SKU. The boards are the architecture. <a href="production-traces.html">Trees</a> are how you sample.</li>
+      <li>Not pass@k tonight. Saturation: 100% on the hill means graduate and add harder work.</li>
+    </ul>
+    <p>CI = regression + code assertions. Nightly = the hill. Production failures become new hill tasks. Stripe amount is a code grader; tone is a judge only after ~50 labels.</p>
+  </article>
+  <script src="../assets/course-data.js"></script>
+  <script src="../assets/progress.js"></script>
+</body>
+</html>

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Production traces — cheat sheet</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:ital,wght@0,450;0,650;1,450&family=Source+Serif+4:ital,wght@0,450;0,600;1,450&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/lesson.css">
+  <link rel="stylesheet" href="../assets/diagram.css">
+</head>
+<body>
+  <header class="mast">
+    <a href="../index.html">← All lessons</a>
+    <span>Reference</span>
+  </header>
+  <article>
+    <p class="kicker">Cheat sheet</p>
+    <h1>Production traces</h1>
+    <p class="lede">From <a href="../lessons/0018-one-id-through-the-world.html">lesson 0018</a>. One id through HTTP, the agent, the tools, and the world.</p>
+
+    <ol class="remember">
+      <li><strong>Correlate</strong><span>Same id on the request, spans, and mutations.</span></li>
+      <li><strong>Span</strong><span>Unit of work with a parent. Nest the loop.</span></li>
+      <li><strong>Read</strong><span>Open the tree. Grade the world, not the chat.</span></li>
+    </ol>
+
+    <h2>Not</h2>
+    <ul>
+      <li>Not three log files with three ids. That is not a path.</li>
+      <li>Not a vendor APM. OpenTelemetry is the interchange.</li>
+      <li>Not an eval suite — that samples these trees next. <a href="eval-suites.html">Eval suites</a>. Floor: <a href="evals.html">evals</a>.</li>
+      <li>Not default full-prompt capture in prod. Opt-in debug.</li>
+    </ul>
+    <h2>Who mints</h2>
+    <ul>
+      <li>The SDK at the first hop with no <code>traceparent</code> — not the LLM.</li>
+      <li>Context lives in RAM for the request; spans go to your backend; Stripe/SQL only if you copy the id.</li>
+      <li>The agent inherits the bag only if your harness keeps it (in-process or inject on HTTP).</li>
+    </ul>
+    <p>OTel: a trace is the path of a request. Anthropic: outcome ≠ last sentence. Put <code>request_id</code> on Stripe and SQL.</p>
+  </article>
+  <script src="../assets/course-data.js"></script>
+  <script src="../assets/progress.js"></script>
+</body>
+</html>

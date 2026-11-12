@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>0024 — A repo agents can read</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:ital,wght@0,450;0,650;1,450&family=Source+Serif+4:ital,wght@0,450;0,600;1,450&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/lesson.css">
+  <link rel="stylesheet" href="../assets/diagram.css">
+</head>
+<body>
+  <header class="mast">
+    <a href="../index.html">← All lessons</a>
+    <span>Lesson 0024 · Software factory 3 of 4</span>
+  </header>
+  <article>
+    <p class="kicker">Software factory</p>
+    <h1>A repo agents can read</h1>
+    <p class="lede"><a href="0023-a-check-the-builder-cannot-see.html">Lesson 0023</a> built the exam room. Tonight is the other room, the one the builder works in. An agent that runs for hours without you knows only what is in the repository. So when it gets something wrong, the useful question is not “how do I prompt it better” but <strong>what was missing from the repo, and which of three places does the fix belong in?</strong></p>
+
+    <div class="callout scope">
+      <p><strong>What this is.</strong> How to lay out a repository so an agent can orient itself, and how to turn a correction you keep repeating into something that no longer needs you. The fullest public account is OpenAI’s report on a product built with no hand-typed code, where the team’s job became asking what capability the agent lacked and how to make it both readable and enforceable. <cite><a href="https://openai.com/index/harness-engineering/">OpenAI · Harness engineering</a></cite></p>
+      <p><strong>What this is not.</strong> A new idea. It is <a href="0008-load-the-chapter.html">0008</a> (a small catalog, chapters on disk), <a href="0010-keep-the-path.html">0010</a> (keep a path, not a page) and <a href="0015-write-the-floor-once.html">0015</a> (write the floor once) applied to a whole repository, plus one step those lessons did not take: prose that keeps failing gets promoted into code. Not a replacement for the holdout either. Everything here sits in the builder’s room, where the builder can read and edit it.</p>
+    </div>
+
+    <ol class="remember">
+      <li><strong>1 · Record</strong><span>If it is not in the repo, it does not exist.</span></li>
+      <li><strong>2 · Map</strong><span>A short file that points; it does not explain.</span></li>
+      <li><strong>3 · Rule</strong><span>What keeps breaking becomes a check that teaches.</span></li>
+    </ol>
+    <p class="caption">Could it see it? Could it find it? Did it know and drift anyway?</p>
+
+    <figure class="art">
+      <img class="lesson-art" src="../assets/factory-what-the-agent-sees.svg" alt="On the left, outside the repository and drawn as dashed ghosts: a chat thread, a shared document, a teammate's head. A rust arrow moves them into the repository on the right. Inside, a teal AGENTS.md labelled map points to three records in docs and to one rule, a lint that runs in CI.">
+      <p class="caption">Architecture first. The map is the only part loaded every session. Everything else is reached by a path.</p>
+    </figure>
+
+    <h2>Three places a fix can go</h2>
+    <ul class="shapes">
+      <li><strong>Record</strong> <span>The knowledge itself, as versioned files next to the code: the layering, the refund policy with worked numbers, the plan in progress and the decisions made so far. The OpenAI team’s test is the new hire who joins three months later: a decision made in a chat thread is as unknown to the agent as it would be to that person. Their records live in a <code>docs/</code> folder with plans checked in beside the code.</span></li>
+      <li><strong>Map</strong> <span>The one file the harness loads every session. That team first tried one large <code>AGENTS.md</code> and reports it failed four ways: it crowded the task out of the window, marking everything important made nothing important, it went stale, and one blob could not be checked by a machine. Their rule now: “give Codex a map, not a 1,000-page instruction manual.” The file is about a hundred lines and mostly pointers.</span></li>
+      <li><strong>Rule</strong> <span>A check that runs on every file. Their layering (types, then config, repo, service, runtime, UI, each depending only on what came before) is enforced by custom linters and structural tests, and because the linters are their own, the error text is written to tell the agent how to repair the violation.</span></li>
+    </ul>
+    <p>A second vendor says the same about its own file. Claude Code’s documentation describes <code>CLAUDE.md</code> as context rather than enforced configuration, suggests keeping it under 200 lines because longer files are followed less reliably, and sends you to a hook when something must be blocked no matter what the model decides. Its advice on when to add a line is a good habit to borrow: when the agent makes the same mistake a second time. <cite><a href="https://code.claude.com/docs/en/memory">Claude Code · How Claude remembers your project</a></cite></p>
+
+    <figure class="worked">
+      <p class="worked-head">The map for the billing assistant · 21 lines</p>
+      <div class="worked-body">
+<pre class="pseudo"># Billing assistant
+Answers refund and invoice questions over HTTP. Postgres holds invoices. Stripe moves money.
+
+## Run
+- `npm run lint`   layering check. Fix every ERROR before you finish.
+- `npm test`       unit tests.
+
+## Where things are
+- `src/types/`     shapes only, no logic
+- `src/repo/`      database reads and writes
+- `src/service/`   business rules; the pro-rata maths lives here
+- `src/http/`      routes and sessions
+
+## Read before you change
+- Layering, and what to do when it gets in your way: `docs/architecture.md`
+- Refund rules with worked numbers: `docs/refunds.md`
+
+## Always
+- Money moves only through `src/service/refunds.ts`.
+- A task is done when lint and tests print no ERROR.</pre>
+      </div>
+      <p class="worked-note"><strong>What this shows.</strong> Four jobs and nothing else: how to run it, where things are, what to read next, what always holds. The refund policy is not in this file; a path to it is. The layering is named in one line and explained elsewhere. If you catch yourself pasting a paragraph of explanation here, it belongs in a record and the map gets one more pointer. The real files are in <a href="../code/0024-a-rule-that-teaches/repo/AGENTS.md"><code>code/0024-a-rule-that-teaches/repo/</code></a>.</p>
+    </figure>
+
+    <h2>When writing it down is not enough</h2>
+    <p>The record says the repo layer never imports from the service layer. An agent reads that on Monday and on Thursday, deep in a different task, puts the pro-rata maths behind a database helper anyway. A doc line can be read and still not followed. The OpenAI report’s answer is short: when documentation falls short, promote the rule into code. Review comments and bugs get captured as doc updates first, and as tooling when that does not hold.</p>
+
+    <figure class="art">
+      <img class="lesson-art" src="../assets/factory-promote-the-rule.svg" alt="Three steps rising left to right. Said: a review comment, reaches one pull request. Written: a line in docs, reaches every agent that opens the file, but is context and not enforcement. Checked: a lint that runs in CI, reaches every file on every run. Below, a terminal line shows an error whose text explains the fix.">
+      <p class="caption">Promote on repetition. Most corrections never need step 3. The ones that keep coming back do.</p>
+    </figure>
+
+    <figure class="worked">
+      <p class="worked-head">The same violation · two messages</p>
+      <div class="worked-body">
+<pre class="pseudo"># WRITTEN FOR A HUMAN WHO KNOWS THE CODEBASE
+src/repo/invoices.ts:2  error  no-restricted-imports
+
+# WRITTEN FOR AN AGENT THAT STARTED TEN MINUTES AGO   (one line in the terminal)
+ERROR src/repo/invoices.ts:2 repo may not import from service
+  (src/service/refunds.ts). Layers only look left:
+  types -> repo -> service -> http. Either move this logic up into
+  src/service/, or have service pass the value in as an argument.
+  See docs/architecture.md.
+2 errors in 5 files.</pre>
+      </div>
+      <p class="worked-note"><strong>What this shows.</strong> Both lines fail the build. Only the second lets the builder fix the cause. Faced with the first, an agent has an error code and a goal of “make lint pass,” and the cheapest way to do that is to silence the rule. The second names what is wrong, what to do instead, and where the reasoning lives, so the pointer in the message does the map’s job at the exact moment it is needed. The shape of the output matters too. Nicholas Carlini, writing a test harness for sixteen unattended agents, kept output to a few lines, sent detail to a log file, put the word ERROR and the reason on the same line so a search finds it whole, and gave the suite a fast mode that runs a small sample. <cite><a href="https://www.anthropic.com/engineering/building-c-compiler">Building a C compiler</a></cite></p>
+    </figure>
+
+    <h2>Skill: put the fix in the right place</h2>
+    <p>Six things went wrong in the billing assistant’s repo. For each, pick where the fix goes. You get the reason at once.</p>
+
+    <div class="lab" data-sort-lab>
+      <h3>Record, map, or rule?</h3>
+      <script type="application/json" data-sort-data>
+      {
+        "bins": ["Record", "Map", "Rule"],
+        "retry": "Not that one. Ask in order: could the agent see it at all? Could it find it? Did it know and drift anyway?",
+        "cases": [
+          {
+            "text": "The agent refunds a monthly plan pro rata. Billing agreed last month, in a chat thread, that monthly plans do not refund. Nothing in the repository says so.",
+            "bin": "Record",
+            "why": "Record. The knowledge exists only where the agent cannot look. Write docs/refunds.md with the policy and two worked numbers. Until it is a file in the repo, no prompt wording will make the agent know it."
+          },
+          {
+            "text": "docs/refunds.md exists and is correct. The agent never opened it and guessed the policy from the code. AGENTS.md lists the build commands and nothing else.",
+            "bin": "Map",
+            "why": "Map. The record was there and nothing led to it. One line under 'Read before you change' with the path. This is 0010: the agent keeps a path, so somebody has to hand it one."
+          },
+          {
+            "text": "AGENTS.md says the repo layer must not import from service. docs/architecture.md says it again, with reasons. This month, four merged changes did it anyway.",
+            "bin": "Rule",
+            "why": "Rule. It could see it and find it, and drifted anyway. Saying it a third time in prose will not change that. Promote it: a lint that fails the build and explains the fix."
+          },
+          {
+            "text": "Every time the agent erred, someone appended a paragraph to AGENTS.md. It is now 900 lines. The agent misses a constraint that is written plainly on line 640.",
+            "bin": "Map",
+            "why": "Map. The map became a manual, and a file where everything is important reads as if nothing is. Cut it back to a table of contents, move the paragraphs into docs/, leave a pointer to each."
+          },
+          {
+            "text": "The layering lint exists. It prints only: error no-restricted-imports. The agent makes the build pass by adding a comment that disables the rule on that line.",
+            "bin": "Rule",
+            "why": "Rule. The check finds the problem and teaches nothing, so the cheapest way to green was to switch it off. Rewrite the message to carry the fix and the doc path, and make disable comments fail too."
+          },
+          {
+            "text": "docs/db-schema.md was written by hand in the spring. Two migrations later the agent builds a query on a column that no longer exists, exactly as the doc describes.",
+            "bin": "Record",
+            "why": "Record. It could see it and find it, and the record was wrong. A record that restates the code should be generated from the code, so it cannot fall behind. OpenAI keeps its schema doc in a folder of generated files."
+          }
+        ]
+      }
+      </script>
+    </div>
+
+    <h2>Then write the rule</h2>
+    <div class="lab">
+      <h3>A lint that teaches · about fifteen lines</h3>
+      <p>The sample repo has drifted in two places. You write the check that finds both, and the sentence the agent will read when it does.</p>
+<pre>cd code/0024-a-rule-that-teaches
+node check.ts</pre>
+      <p>Five failures. Read <code>repo/docs/architecture.md</code> and <code>helpers.ts</code>, then open <a href="../code/0024-a-rule-that-teaches/lint.ts"><code>lint.ts</code></a> and write the two TODOs: <code>explain</code>, the message, and <code>lint</code>, the search. Then:</p>
+<pre>node check.ts
+node run.ts</pre>
+      <p>The second command lints the sample repo with your rule. Read your own message as if you had never seen this codebase. Would you know what to change?</p>
+      <p class="hint">This exercise does not need the loop from 0021 or the harness from 0023; all three stand alone and all three are still open. If you only have time for one, do 0023. Paste a FAIL line to me if it does not make sense. The answer is in <code>solution/lint.ts</code> for afterwards.</p>
+    </div>
+
+    <h2>It rots, so sweep it</h2>
+    <p>Agents copy what is already in the repository, including the uneven parts, so a codebase written this way drifts unless something pushes back. The OpenAI team first pushed back by hand, a fifth of every week spent cleaning up, and reports that it did not scale. What replaced it: a short list of mechanical principles written into the repo, and background agent tasks on a schedule that look for deviations and open small refactoring pull requests. A separate recurring agent looks for docs that no longer match the code. Carlini did the same thing at smaller scale by giving one of his agents the single job of merging duplicated code.</p>
+    <p>This is <a href="0012-you-design-the-heartbeat.html">0012</a> again: a loop on a schedule, with a check deciding when it is done. It is the fourth beat of this lesson, and the one to add last, after you have a rule worth sweeping for.</p>
+
+    <h2>What the reports do not show</h2>
+    <ul>
+      <li><strong>It was a new repository.</strong> The OpenAI project started empty and was shaped for the agent from the first commit. The author says the results depend on that structure and should not be assumed to carry over without similar investment. Neither report tells you how this goes in a ten-year-old codebase.</li>
+      <li><strong>Their merge gates suit their throughput.</strong> They run with few blocking gates because corrections are cheap for them, and say plainly that the same choice would be irresponsible where changes are slower. Do not copy the gate policy without the volume.</li>
+      <li><strong>Nobody knows the long run.</strong> The report lists as open how coherent a fully agent-written system stays over years.</li>
+      <li><strong>A lint is not a holdout.</strong> This part is my reasoning, not a quoted source. Records, map and rules all live where the builder can edit them, and case five in the drill is what that looks like. They steer a builder that forgets; they do not stop one that games. Protect the lint config the way 0023 protected the scenarios, and keep the exam in the other room.</li>
+    </ul>
+
+    <div class="compare three">
+      <div class="compare-card">
+        <h3>Solo developer</h3>
+        <p>A map under a hundred lines. When you correct the agent twice, write a record. When a record is ignored, write one check with a message that carries the fix. One evening for the first three files.</p>
+      </div>
+      <div class="compare-card">
+        <h3>Team</h3>
+        <p>Each record has an owner. A CI job fails on dead pointers in the map. Review comments end as a doc line or a lint, not as a comment. A scheduled sweep opens small cleanup changes.</p>
+      </div>
+      <div class="compare-card">
+        <h3>Next</h3>
+        <p>0025: the ramp. In what order one developer, then a team, should build all this, what it costs, and where a human stays.</p>
+      </div>
+    </div>
+
+    <p class="sidenote">Parked: path-scoped rule files and nested <code>CLAUDE.md</code> for monorepos; hooks that block an action before it runs; making the running app, its logs and its metrics readable by the agent, which is the other half of the OpenAI report; execution-plan formats; structural tests beyond imports. Ask when you need one.</p>
+
+    <h2>Check</h2>
+    <p>From memory.</p>
+    <form class="quiz" data-quiz data-answers="babac"
+          data-success="Knowledge outside the repository is invisible. The map is a short table of contents. A rule that keeps breaking is promoted into a check. The message says how to fix the code. Drift is caught by a recurring check."
+          data-retry="Not yet. Look at the two pictures and the two error messages, then try again.">
+      <fieldset>
+        <legend>1. An agent cannot use knowledge that is kept</legend>
+        <label><input type="radio" name="q1" value="a"> inside the repository</label>
+        <label><input type="radio" name="q1" value="b"> outside the repository</label>
+        <label><input type="radio" name="q1" value="c"> under version control</label>
+      </fieldset>
+      <fieldset>
+        <legend>2. The file loaded every session works best as a</legend>
+        <label><input type="radio" name="q2" value="a"> short table of contents</label>
+        <label><input type="radio" name="q2" value="b"> full manual of rules</label>
+        <label><input type="radio" name="q2" value="c"> weekly log of changes</label>
+      </fieldset>
+      <fieldset>
+        <legend>3. A written rule the agent keeps breaking should be</legend>
+        <label><input type="radio" name="q3" value="a"> repeated louder in the prompt</label>
+        <label><input type="radio" name="q3" value="b"> promoted into a code check</label>
+        <label><input type="radio" name="q3" value="c"> moved lower in the manual</label>
+      </fieldset>
+      <fieldset>
+        <legend>4. A lint message written for an agent says</legend>
+        <label><input type="radio" name="q4" value="a"> how to fix the code</label>
+        <label><input type="radio" name="q4" value="b"> which rule number was broken</label>
+        <label><input type="radio" name="q4" value="c"> who wrote the rule first</label>
+      </fieldset>
+      <fieldset>
+        <legend>5. Docs that drift from the code are best caught by</legend>
+        <label><input type="radio" name="q5" value="a"> a yearly cleanup by humans</label>
+        <label><input type="radio" name="q5" value="b"> a longer file of instructions</label>
+        <label><input type="radio" name="q5" value="c"> a recurring check that runs</label>
+      </fieldset>
+      <button type="submit">Check</button>
+      <p class="feedback" data-feedback></p>
+    </form>
+
+    <div class="callout">
+      <p><strong>Primary source.</strong> <a href="https://openai.com/index/harness-engineering/">Harness engineering: leveraging Codex in an agent-first world</a>, by Ryan Lopopolo. Read three sections: the one on making repository knowledge the system of record, the one on enforcing architecture and taste, and the one on entropy and garbage collection. It is a vendor writing about its own product on a new codebase, so read the closing section on what they are still learning as carefully as the rest. Then the “Put yourself in Claude’s shoes” section of <a href="https://www.anthropic.com/engineering/building-c-compiler">Carlini’s compiler write-up</a> for how a check should talk to an agent.</p>
+      <p>Card: <a href="../reference/software-factory.html">software factory</a> (now with the repo). Team floor: <a href="0015-write-the-floor-once.html">0015</a>. Paths, not pages: <a href="0010-keep-the-path.html">0010</a>. The exam room: <a href="0023-a-check-the-builder-cannot-see.html">0023</a>.</p>
+    </div>
+
+    <footer class="lesson-foot">
+      <p>If the line between a record and a map is fuzzy, or you want to do this for a repository at your work, open its <code>AGENTS.md</code> or <code>CLAUDE.md</code> and take the correction you have typed to an agent more than twice: decide whether it is a record, a map, or a rule. Next: <a href="0025-the-ramp.html">the ramp</a>.</p>
+    </footer>
+  </article>
+  <script src="../assets/sort-lab.js"></script>
+  <script src="../assets/quiz.js"></script>
+  <script src="../assets/course-data.js"></script>
+  <script src="../assets/progress.js"></script>
+</body>
+</html>

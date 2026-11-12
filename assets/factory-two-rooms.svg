@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 500" font-family="'Source Sans 3','Segoe UI',system-ui,sans-serif">
+  <defs>
+    <marker id="h" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z" fill="#1c1917"/>
+    </marker>
+  </defs>
+  <rect width="960" height="500" fill="#f7f1e5"/>
+  <text x="48" y="52" font-size="15" letter-spacing="2.4" fill="#9a3412" font-weight="650">TWO ROOMS · ONE WALL</text>
+  <text x="48" y="80" font-size="15" fill="#44403c">Code goes right. A score comes back. The builder never reads or edits the right-hand room.</text>
+
+  <!-- builder room -->
+  <rect x="48" y="112" width="372" height="320" rx="8" fill="none" stroke="#1d4e4a" stroke-width="2.5" stroke-dasharray="2 7" stroke-linecap="round"/>
+  <text x="68" y="140" font-size="13" letter-spacing="1.4" fill="#1d4e4a" font-weight="650">BUILDER'S ROOM</text>
+  <g font-family="'IBM Plex Mono','Cascadia Mono',monospace" font-size="14" fill="#1c1917">
+    <rect x="72" y="160" width="250" height="40" rx="4" fill="#efe6d4" stroke="#d6cbb6"/>
+    <text x="88" y="185">specs/refund-proration.md</text>
+    <rect x="72" y="210" width="250" height="40" rx="4" fill="#efe6d4" stroke="#d6cbb6"/>
+    <text x="88" y="235">db.ts</text>
+    <rect x="72" y="260" width="250" height="40" rx="4" fill="#1d4e4a"/>
+    <text x="88" y="285" fill="#f7f1e5">builds/*.ts</text>
+    <rect x="72" y="310" width="250" height="40" rx="4" fill="#efe6d4" stroke="#d6cbb6"/>
+    <text x="88" y="335">builds/visible.test.ts</text>
+  </g>
+  <text x="72" y="380" font-size="13" fill="#44403c">Its own tests live here too.</text>
+  <text x="72" y="400" font-size="13" fill="#44403c">They prove nothing to you.</text>
+
+  <!-- wall -->
+  <line x1="480" y1="104" x2="480" y2="440" stroke="#1c1917" stroke-width="6"/>
+
+  <!-- exam room -->
+  <rect x="540" y="112" width="372" height="320" rx="8" fill="none" stroke="#9a3412" stroke-width="1.8"/>
+  <text x="560" y="140" font-size="13" letter-spacing="1.4" fill="#9a3412" font-weight="650">EXAM ROOM · YOURS</text>
+  <g font-family="'IBM Plex Mono','Cascadia Mono',monospace" font-size="14" fill="#1c1917">
+    <rect x="640" y="160" width="250" height="40" rx="4" fill="#efe6d4" stroke="#9a3412" stroke-width="1.4"/>
+    <text x="656" y="185">holdout/scenarios.ts</text>
+    <rect x="640" y="210" width="250" height="40" rx="4" fill="#efe6d4" stroke="#9a3412" stroke-width="1.4"/>
+    <text x="656" y="235">Stripe twin + ledger</text>
+    <rect x="640" y="260" width="250" height="40" rx="4" fill="#efe6d4" stroke="#9a3412" stroke-width="1.4"/>
+    <text x="656" y="285">judge(ledger)</text>
+    <rect x="640" y="310" width="250" height="40" rx="4" fill="#efe6d4" stroke="#9a3412" stroke-width="1.4"/>
+    <text x="656" y="335">score: 2 of 6</text>
+  </g>
+
+  <!-- crossings -->
+  <path d="M322 280 H632" stroke="#1c1917" stroke-width="1.8" fill="none" marker-end="url(#h)"/>
+  <text x="352" y="270" font-size="13" fill="#1c1917" font-family="'IBM Plex Mono',monospace">build</text>
+  <path d="M640 330 H330" stroke="#1c1917" stroke-width="1.8" fill="none" marker-end="url(#h)"/>
+  <text x="500" y="352" font-size="13" fill="#1c1917" font-family="'IBM Plex Mono',monospace">score</text>
+
+  <text x="48" y="470" font-size="13" fill="#44403c">The wall is a permission, a sandbox, or a separate machine. A sentence in the prompt is not a wall (0020).</text>
+</svg>

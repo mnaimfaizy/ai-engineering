@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Just-in-time — cheat sheet</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:ital,wght@0,450;0,650;1,450&family=Source+Serif+4:ital,wght@0,450;0,600;1,450&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/lesson.css">
+  <link rel="stylesheet" href="../assets/diagram.css">
+</head>
+<body>
+  <header class="mast">
+    <a href="../index.html">← All lessons</a>
+    <span>Reference</span>
+  </header>
+  <article>
+    <p class="kicker">Cheat sheet</p>
+    <h1>Just-in-time files</h1>
+    <p class="lede">From <a href="../lessons/0010-keep-the-path.html">lesson 0010</a>. Hold a pointer. Load the page this turn. The corpus stays on disk.</p>
+
+    <ol class="remember">
+      <li><strong>Pointer</strong><span>Path, query, or URL. Cheap. Not the dump.</span></li>
+      <li><strong>Navigate</strong><span>Glob = names. Grep = lines inside. Folder names are signal.</span></li>
+      <li><strong>Load</strong><span>Read (or head/tail) this turn. Propose · run · paste.</span></li>
+    </ol>
+
+    <h2>Not</h2>
+    <ul>
+      <li>Not RAG (you find, then paste, then one call). <a href="rag.html">RAG card</a>.</li>
+      <li>Not a skill (a chapter you wrote). <a href="skills.html">Skills card</a>.</li>
+      <li>Not stuffing the repo. A hybrid always-on file (<code>CLAUDE.md</code>) is a cheap note, not the shelf.</li>
+      <li>Sub-agents: a helper’s clean window, a summary back. <a href="sub-agents.html">Sub-agents card</a>.</li>
+    </ul>
+    <p>Anthropic: just-in-time identifiers + tools. Claude Code: Glob, Grep, Read.</p>
+  </article>
+  <script src="../assets/course-data.js"></script>
+  <script src="../assets/progress.js"></script>
+</body>
+</html>

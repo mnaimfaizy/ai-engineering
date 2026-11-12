@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Seed · validate · feed back — cheat sheet</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:ital,wght@0,450;0,650;1,450&family=Source+Serif+4:ital,wght@0,450;0,600;1,450&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/lesson.css">
+  <link rel="stylesheet" href="../assets/diagram.css">
+</head>
+<body>
+  <header class="mast">
+    <a href="../index.html">← All lessons</a>
+    <span>Reference</span>
+  </header>
+  <article>
+    <p class="kicker">Cheat sheet</p>
+    <h1>Software factory</h1>
+    <p class="lede">From <a href="../lessons/0022-the-lights-go-out-last.html">lesson 0022</a>. Agents write the code and no human reads it. Only real if something independent took over the reading.</p>
+
+    <ol class="remember">
+      <li><strong>Seed</strong><span>A spec. Human-written, up front.</span></li>
+      <li><strong>Validate</strong><span>A check the builder cannot game.</span></li>
+      <li><strong>Feed back</strong><span>Failures return until it holds.</span></li>
+    </ol>
+
+    <h2>The one test</h2>
+    <p>Name what replaced your eyes, and say why the builder cannot fool it. No answer means no factory.</p>
+
+    <h2>The ladder (Dan Shapiro, Jan 2026)</h2>
+    <ul>
+      <li><strong>0 · Spicy autocomplete.</strong> You type; it suggests.</li>
+      <li><strong>1 · Coding intern.</strong> Snippets and boilerplate; you review all of it.</li>
+      <li><strong>2 · Junior developer.</strong> You pair; you read every line.</li>
+      <li><strong>3 · Developer.</strong> The agent writes most code; you are the full-time reviewer.</li>
+      <li><strong>4 · Engineering team.</strong> You write specs and plans; you read some diffs.</li>
+      <li><strong>5 · Dark software factory.</strong> Specs in, software out. No human reads the diff.</li>
+    </ul>
+
+    <h2>Tells of a fake</h2>
+    <ul>
+      <li>The builder wrote the tests it is graded on.</li>
+      <li>The builder can edit the tests, the scenarios, or the CI config.</li>
+      <li>The only reviewer is another agent reading the same diff.</li>
+      <li>“Green” is the last sentence of a transcript, not a state in the world.</li>
+    </ul>
+
+    <h2>The check</h2>
+    <p>From <a href="../lessons/0023-a-check-the-builder-cannot-see.html">lesson 0023</a>. Hold out · twin · score.</p>
+<pre>// TWIN: same calls as the real service, plus a ledger you can read
+function createStripeTwin() {
+  const ledger = [];
+  return {
+    ledger,
+    refunds: {
+      async create({ invoice, amount }) {
+        const id = `re_${ledger.length + 1}`;
+        ledger.push({ id, invoice, amount });
+        return { id };
+      },
+    },
+  };
+}
+
+// JUDGE: the outcome in the world. The reply is a claim; ignore it.
+function judge(scenario, reply, ledger) {
+  if (scenario.expect === null) return ledger.length === 0;
+  return ledger.length === 1
+    &amp;&amp; ledger[0].invoice === scenario.expect.invoice
+    &amp;&amp; ledger[0].amount === scenario.expect.amount;
+}
+
+// SCORE: a fresh twin per scenario; return the fraction that held
+async function score(build, scenarios) {
+  let passed = 0;
+  for (const scenario of scenarios) {
+    const twin = createStripeTwin();
+    const reply = await build(scenario.request, twin);
+    if (judge(scenario, reply, twin.ledger)) passed++;
+  }
+  return passed / scenarios.length;
+}</pre>
+    <ul>
+      <li>Write scenarios before the builder starts. Include ones where nothing should happen.</li>
+      <li>Know the floor: what does a build that does nothing score?</li>
+      <li>Read the board, not only the total. Two builds can fail differently at the same score.</li>
+      <li>Wall strength: deny rule &lt; sandbox &lt; separate repo and CI job.</li>
+      <li>Feed back what was observed, not the scenario text.</li>
+      <li>A twin that drifts from the real service gives a false green. Re-check it against the vendor’s sandbox.</li>
+    </ul>
+
+    <h2>The repo</h2>
+    <p>From <a href="../lessons/0024-a-repo-agents-can-read.html">lesson 0024</a>. Record · map · rule. When the agent errs, ask in order:</p>
+    <ul>
+      <li><strong>Could it see it?</strong> No: write a <em>record</em>, a versioned file in <code>docs/</code>. Chat threads and heads do not exist to it. Generate records that restate the code.</li>
+      <li><strong>Could it find it?</strong> No: add a pointer to the <em>map</em>, <code>AGENTS.md</code>. About 100 lines: how to run, where things are, what to read next, what always holds.</li>
+      <li><strong>Did it know and drift anyway?</strong> Promote to a <em>rule</em>: a check on every file whose message carries the fix.</li>
+    </ul>
+<pre>// One line. ERROR and the reason together. What is wrong, what to do, where to read.
+ERROR src/repo/invoices.ts:2 repo may not import from service. Move this logic up
+into src/service/, or pass the value in as an argument. See docs/architecture.md.</pre>
+    <ul>
+      <li>Promote on repetition: said once, written the second time, checked the third.</li>
+      <li>Check output for an agent: a few lines, detail to a log file, a fast sample mode.</li>
+      <li>Sweep on a schedule: agents copy what is there, so drift needs a recurring cleanup.</li>
+      <li>A lint is not a holdout. The builder can edit it. Protect its config; keep the exam elsewhere.</li>
+    </ul>
+
+    <h2>The ramp</h2>
+    <p>From <a href="../lessons/0025-the-ramp.html">lesson 0025</a>. Shadow · release · keep.</p>
+    <ol>
+      <li><strong>Map + records.</strong> The repo explains itself. You read every diff.</li>
+      <li><strong>One check.</strong> One feature: scenarios, a twin, a score. You read every diff.</li>
+      <li><strong>Shadow.</strong> Write your verdict, then look at the check’s. Every “you reject, check passes” becomes a scenario. You read every diff.</li>
+      <li><strong>Release.</strong> One narrow class merges on the check. You read a sample. Then the next class, from step 2.</li>
+    </ol>
+    <table>
+      <tr><th></th><th>A shadowed check covers it</th><th>No trusted check</th></tr>
+      <tr><th>Can be undone</th><td>Let it merge; sample</td><td>Read the diff; write the scenario</td></tr>
+      <tr><th>Cannot be undone</th><td>Code may merge; a person approves the action</td><td>Read it and approve it</td></tr>
+    </table>
+    <ul>
+      <li>Always a person: the spec, the exam (scenarios, twins, judge, CI config), the irreversible, the name that answers for it.</li>
+      <li>Cap every unattended run: turns and money.</li>
+      <li>Each harness piece stands for something the model could not do. Re-test when the model changes.</li>
+      <li>Keep reading a sample, or you lose the ability to.</li>
+    </ul>
+
+    <h2>Field reports</h2>
+    <ul>
+      <li><strong>StrongDM.</strong> 3 people. Holdout scenarios, twins of outside services, a satisfaction score. About $1,000 of tokens per engineer per day.</li>
+      <li><strong>OpenAI.</strong> 3 to 7 engineers, 5 months, ~1M lines, ~1,500 PRs, none hand-typed. Short <code>AGENTS.md</code> as a map, rules as linters. Greenfield.</li>
+      <li><strong>Anthropic.</strong> 16 agents, ~2,000 sessions, under $20,000, a 100k-line C compiler. “The task verifier is nearly perfect” or the work is not.</li>
+    </ul>
+
+    <h2>The bill</h2>
+    <p>The check costs more than the build: one agent alone $9 and broken, with planner and evaluator $200 and working (Anthropic). Token cost. Results from new repositories that may not transfer. Tests that pass while the job is not done. No settled answer on who is liable for code no human read.</p>
+
+    <p>Sources: <a href="https://factory.strongdm.ai/">StrongDM</a> · <a href="https://simonwillison.net/2026/Feb/7/software-factory/">Willison</a> · <a href="https://openai.com/index/harness-engineering/">OpenAI</a> · <a href="https://www.anthropic.com/engineering/building-c-compiler">Anthropic</a> · <a href="https://www.danshapiro.com/blog/2026/01/the-five-levels-from-spicy-autocomplete-to-the-software-factory/">Shapiro</a> · <a href="https://code.claude.com/docs/en/memory">Claude Code memory docs</a> · <a href="https://www.anthropic.com/engineering/harness-design-long-running-apps">Anthropic harness design</a> · <a href="https://law.stanford.edu/2026/02/08/built-by-agents-tested-by-agents-trusted-by-whom/">Kahana</a>.</p>
+  </article>
+  <script src="../assets/course-data.js"></script>
+  <script src="../assets/progress.js"></script>
+</body>
+</html>

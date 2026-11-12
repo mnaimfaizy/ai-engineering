@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>0020 — The prompt is not the wall</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:ital,wght@0,450;0,650;1,450&family=Source+Serif+4:ital,wght@0,450;0,600;1,450&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/lesson.css">
+  <link rel="stylesheet" href="../assets/diagram.css">
+</head>
+<body>
+  <header class="mast">
+    <a href="../index.html">← All lessons</a>
+    <span>Lesson 0020</span>
+  </header>
+  <article>
+    <p class="kicker">Agent security</p>
+    <h1>The prompt is not the wall</h1>
+    <p class="lede">Lesson 0007 put <em>allow</em> in the harness. Lesson 0015 made it a Guard. Lesson 0017 said the crate holds names, not keys. Tonight is why those three are security, not style. <strong>The model cannot be the boundary.</strong> Untrusted text shares the same token window as your Guide. Cap what the loop is <em>able</em> to run. Keep secrets out of that window.</p>
+
+    <div class="callout scope">
+      <p><strong>What this is.</strong> Agent security as architecture: least-privilege tools (OWASP LLM01 / LLM06), treat ticket/RAG/tool-output as data, secrets in the host not the crate. Anthropic: model-layer defenses are never 100%; cap blast radius in the environment. Simon Willison: assume untrusted text can subvert instructions — limit what those instructions can trigger. <cite><a href="https://www.anthropic.com/engineering/how-we-contain-claude">How we contain Claude</a> · <a href="https://owasp.org/www-project-top-10-for-large-language-model-applications/">OWASP Top 10 for LLM Apps</a></cite></p>
+      <p><strong>What this is not.</strong> A jailbreak catalogue. Attack recipes. Re-teaching evals, traces, or plugins. Dual-LLM, full VM design, the rest of the OWASP ten — parked. Not a ChatGPT menu named “Security.”</p>
+    </div>
+
+    <ol class="remember">
+      <li><strong>1 · Allow</strong><span>Tools the loop may run. Guard the rest.</span></li>
+      <li><strong>2 · Distrust</strong><span>Ticket, RAG, tool output: same tokens.</span></li>
+      <li><strong>3 · Keep</strong><span>Secrets in env. Never in the crate.</span></li>
+    </ol>
+    <p class="caption">0005 still holds: the model writes a slip. Security is whether <em>you</em> run it, and whether a key was ever in RAM.</p>
+
+    <figure class="art">
+      <img class="lesson-art" src="../assets/sec-prompt-is-not-a-wall.webp" alt="Torn paper wall labeled system prompt, marked not a boundary. Teal harness box with allowlist, sandbox, and env secrets around the agent loop.">
+      <p class="caption">Architecture first. Claude Code: instructions in the prompt do not expand what the harness allows. They also do not reliably shrink it.</p>
+    </figure>
+
+    <h2>Two layers, only one is a wall</h2>
+    <p>Anthropic splits the risk: what the agent <em>tends</em> to do (prompts, classifiers — probabilistic, never 100%) vs what it is <em>able</em> to do (allowlists, sandboxes, egress, credentials that never enter the box). Human-in-the-loop click-to-approve fatigues; their telemetry was ~93% approve. Containment is the floor. <cite>How we contain Claude</cite></p>
+    <p>OWASP LLM01 names the reason the prompt fails as a wall: the model sees one sequence of tokens. Your Guide and a Zendesk body are not two rooms. <em>Indirect</em> injection is the same idea when the text arrives through a retrieved page or a tool result, not through the user field. RAG does not fix this. <cite><a href="https://owasp.org/www-project-top-10-for-large-language-model-applications/2_0_vulns/LLM01_PromptInjection.html">LLM01: Prompt Injection</a></cite></p>
+
+    <ul class="shapes">
+      <li><strong>Allow</strong> <span>Ship <code>search_docs</code> and <code>get_invoice</code>. Do not put <code>stripe.refunds.create</code> on the list until policy is a <em>code</em> gate (0015). Read-only Stripe is a smaller blast radius than write.</span></li>
+      <li><strong>Distrust</strong> <span>HTTP body, RAG chunk, tool paste, webpage: data. Simon: if untrusted text can reach a model with tools, assume it can subvert the Guide. Limit the tools.</span></li>
+      <li><strong>Keep</strong> <span>Stripe key in host env / dashboard. Name only in the crate (0017). If the credential never enters the window, it cannot leave the window. <cite>OWASP LLM02</cite></span></li>
+    </ul>
+
+    <figure class="art">
+      <img class="lesson-art" src="../assets/sec-same-window.webp" alt="One context window mixing trusted system tokens with untrusted ticket, RAG, tool result, and webpage tokens.">
+      <p class="caption">Lesson 0002’s RAM. Delimiters are still tokens. The Guard is not.</p>
+    </figure>
+
+    <figure class="worked">
+      <p class="worked-head">POST /assistant · the wall that holds</p>
+      <div class="worked-body">
+<pre class="pseudo"># NOT A BOUNDARY
+system: "never refund annual plans"
+# model still proposes stripe.refunds.create
+# you ran it last night (0014 FAIL was the world; this is why)
+
+# 1 ALLOW — 0007 / 0015
+tools = [search_docs, get_invoice]     # no refunds.create
+# or hook: deny unless policy_ok == true
+allow(slip) == false
+messages.append("denied")
+# Factor 8: own the gap between selection and invocation
+
+# 2 DISTRUST — same window (0002)
+untrusted: request.text | RAG pages | tool results
+# do not treat them as Guide. Do not teach the model
+# a magic phrase. Cap the tools instead.
+# Anthropic: audited connector ≠ audited data
+
+# 3 KEEP — 0017
+# BAD:  SKILL.md or AGENTS.md contains sk_live_…
+# GOOD: env STRIPE_KEY; plugin variable is the name
+#       tool runner reads env; transcript never does
+# Anthropic: credentials that never enter the sandbox
+#            cannot be exfiltrated from it
+
+# LEAST PRIVILEGE
+stripe.Balance.retrieve   # maybe
+stripe.refunds.create     # only behind policy + allow</pre>
+      </div>
+      <p class="worked-note"><strong>What this shows.</strong> Same billing assistant as 0014–0019. Security is not a fourth grader. It is which slips can run and which bytes were never in RAM. 0018’s trace still shows the denied tool span. 0019’s regression suite should include “untrusted ticket cannot mint a refund.”</p>
+    </figure>
+
+    <figure class="art">
+      <img class="lesson-art" src="../assets/sec-secrets-stay-out.webp" alt="Plugin crate with a live key crossed out. Host env lockbox holds STRIPE_KEY by name; the model never sees the value.">
+      <p class="caption">Kitchen optional and unused. The crate is distribution. The secret store is the host.</p>
+    </figure>
+
+    <h2>Skill: name the wall that held</h2>
+    <p><strong>Prompt</strong> is paper. <strong>Allow</strong> is the list. <strong>Untrusted</strong> is still data. <strong>Secret</strong> never enters RAM.</p>
+
+    <div class="lab" data-sec-lab>
+      <h3>Same refund, four looks</h3>
+      <div class="btn-row">
+        <button type="button" data-scene="prompt">Prompt</button>
+        <button type="button" data-scene="allow">Allow</button>
+        <button type="button" data-scene="untrusted">Untrusted</button>
+        <button type="button" data-scene="secret">Secret</button>
+      </div>
+      <p class="kind" data-kind></p>
+      <figure class="pipeline" data-path aria-label="Tonight’s path."></figure>
+      <div class="chat ticket-q" data-sec-chat></div>
+      <p class="cost-line" data-cost></p>
+      <p class="hint" data-sec-note></p>
+    </div>
+
+    <h2>Who owns the wall</h2>
+    <div class="compare three">
+      <div class="compare-card">
+        <h3>Developer</h3>
+        <p>Allowlist the tools. Guard mutations in code. Put keys in env. Do not paste a live key into a prompt “so the agent can test.”</p>
+      </div>
+      <div class="compare-card">
+        <h3>Team lead</h3>
+        <p>Deny <code>Read(.env)</code> in the repo harness. Marketplace crate ≠ audited data inside it. Approval dialogs are not a substitute for a small allowlist.</p>
+      </div>
+      <div class="compare-card">
+        <h3>Next</h3>
+        <p>The named advanced path ends here. Ask for a work problem to design, or a measured add (RAG, multi-agent) that still has to pass 0014 and tonight’s wall.</p>
+      </div>
+    </div>
+
+    <p class="sidenote">Parked: dual-LLM quarantine, VM/gVisor internals, the other eight OWASP items as a course, red-team catalogues, jailbreak strings. This lesson does not include attack recipes. If a channel is untrusted, assume it can steer the model — then look at the allowlist.</p>
+
+    <h2>Check</h2>
+    <form class="quiz" data-quiz data-answers="baaba"
+          data-success="A prompt is not a security boundary. Untrusted ticket text sits in the same token window. Mutations go through the harness allow gate. Secrets belong in the host environment. Least privilege is the fewest tools that can write."
+          data-retry="Read allow · distrust · keep at the top, then the billing grey box.">
+      <fieldset>
+        <legend>1. A prompt is</legend>
+        <label><input type="radio" name="q1" value="a"> a security boundary wall</label>
+        <label><input type="radio" name="q1" value="b"> not a security boundary</label>
+        <label><input type="radio" name="q1" value="c"> a vendor dashboard SKU</label>
+      </fieldset>
+      <fieldset>
+        <legend>2. Untrusted Zendesk text sits</legend>
+        <label><input type="radio" name="q2" value="a"> in the same token window</label>
+        <label><input type="radio" name="q2" value="b"> in a second token window</label>
+        <label><input type="radio" name="q2" value="c"> in a plugin crate folder</label>
+      </fieldset>
+      <fieldset>
+        <legend>3. Grade a Stripe mutation with</legend>
+        <label><input type="radio" name="q3" value="a"> the harness allow gate</label>
+        <label><input type="radio" name="q3" value="b"> the system prompt gate</label>
+        <label><input type="radio" name="q3" value="c"> the kitchen metaphor gate</label>
+      </fieldset>
+      <fieldset>
+        <legend>4. A Stripe secret belongs</legend>
+        <label><input type="radio" name="q4" value="a"> in the skill markdown</label>
+        <label><input type="radio" name="q4" value="b"> in the host environment</label>
+        <label><input type="radio" name="q4" value="c"> in the system prompt</label>
+      </fieldset>
+      <fieldset>
+        <legend>5. Least privilege means</legend>
+        <label><input type="radio" name="q5" value="a"> fewest tools that can write</label>
+        <label><input type="radio" name="q5" value="b"> fewest tokens in the window</label>
+        <label><input type="radio" name="q5" value="c"> fewest plugins in the crate</label>
+      </fieldset>
+      <button type="submit">Check</button>
+      <p class="feedback" data-feedback></p>
+    </form>
+
+    <div class="callout">
+      <p><strong>Primary source.</strong> <a href="https://www.anthropic.com/engineering/how-we-contain-claude">How we contain Claude</a> (model layer never 100%; cap what the agent can reach; credentials out of the sandbox). Threat name: <a href="https://owasp.org/www-project-top-10-for-large-language-model-applications/2_0_vulns/LLM01_PromptInjection.html">OWASP LLM01</a>. Blast radius: <a href="https://simonwillison.net/2023/Dec/20/mitigate-prompt-injection/">Simon Willison</a>. Product form: <a href="https://code.claude.com/docs/en/permissions">Claude Code permissions</a> (prompt ≠ allow list). Crate: <a href="https://cursor.com/docs/plugins">Cursor Plugins</a> (variable names, not values).</p>
+      <p>Card: <a href="../reference/agent-security.html">agent security</a>. Allow job: <a href="../reference/harnesses.html">harness</a>. Guard: <a href="../reference/team-floor.html">team floor</a>. Crate: <a href="../reference/plugins.html">plugins</a>.</p>
+    </div>
+
+    <footer class="lesson-foot">
+      <p>If “why can’t I just write never-refund in the system prompt?” is still fuzzy, replay the lab above and reread the <a href="../reference/agent-security.html">agent security cheat sheet</a>. Next: <a href="0021-write-the-loop.html">write the loop</a> — the first build track, in TypeScript.</p>
+    </footer>
+  </article>
+  <script src="../assets/sec-lab.js"></script>
+  <script src="../assets/quiz.js"></script>
+  <script src="../assets/course-data.js"></script>
+  <script src="../assets/progress.js"></script>
+</body>
+</html>

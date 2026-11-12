@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>0019 — The suite has two jobs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:ital,wght@0,450;0,650;1,450&family=Source+Serif+4:ital,wght@0,450;0,600;1,450&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/lesson.css">
+  <link rel="stylesheet" href="../assets/diagram.css">
+</head>
+<body>
+  <header class="mast">
+    <a href="../index.html">← All lessons</a>
+    <span>Lesson 0019</span>
+  </header>
+  <article>
+    <p class="kicker">Production evals</p>
+    <h1>The suite has two jobs</h1>
+    <p class="lede">Lesson 0014 gave you a task, a trace, and a gate. Lesson 0018 gave you one <code>trace_id</code> on a live <code>POST /assistant</code>. Tonight is how that becomes an operating system. <strong>Split the tickets: a hill to climb, and a floor that must not drop.</strong> Sample production trees onto the hill. Graduate the ones that stay green. Grade Stripe with code; an LLM-as-judge only after it agrees with a human.</p>
+
+    <div class="callout scope">
+      <p><strong>What this is.</strong> An evaluation <em>suite</em>: a collection of tasks that share a goal. Anthropic’s split: capability (“what can it do?” — start low) vs regression (“does it still?” — near 100%). A high-pass capability task <em>graduates</em> into the regression suite. Graders: code first, model-based only where the world has no row, humans to calibrate. <cite><a href="https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents">Demystifying evals</a> · <a href="https://hamel.dev/blog/posts/llm-judge/">Hamel · LLM-as-a-judge</a></cite></p>
+      <p><strong>What this is not.</strong> Re-teaching vibe vs eval, or who mints a trace id. A vendor eval SKU. pass@k, A/B, Harbor, LangSmith-as-religion — parked. Not a ChatGPT menu named “Suite.”</p>
+    </div>
+
+    <ol class="remember">
+      <li><strong>1 · Split</strong><span>Hill starts low. Floor stays full.</span></li>
+      <li><strong>2 · Graduate</strong><span>A green hard task moves to CI.</span></li>
+      <li><strong>3 · Calibrate</strong><span>Code on Stripe. Judge after labels.</span></li>
+    </ol>
+    <p class="caption">0018’s id is how you find the tree. 0014’s gate is still: keep the node that moved a number — now, <em>which</em> board.</p>
+
+    <figure class="art">
+      <img class="lesson-art" src="../assets/suite-two-boards.webp" alt="Two boards sharing one POST /assistant trace id: capability hill at 1/4, regression floor at 4/4.">
+      <p class="caption">Architecture first. One request, two questions. A mixed 4/8 cannot tell a fire on last year’s refunds from a tax case you never claimed.</p>
+    </figure>
+
+    <h2>Two questions, not one score</h2>
+    <p>Anthropic: capability (quality) evals ask what the agent can do well. They should start at a <em>low</em> pass rate so you have a hill. Regression evals ask whether it still handles what it used to, and should sit near 100% — a drop means something broke. After launch, capability tasks that stay green graduate into a regression suite you run continuously. <cite>Same essay · Capability vs. regression</cite></p>
+
+    <ul class="shapes">
+      <li><strong>Capability</strong> <span>New failures from Zendesk / the pager. 0/4 is the point. Nightly is enough.</span></li>
+      <li><strong>Regression</strong> <span>Last month’s solved refunds and docs. CI on every PR. A 3/4 is a fire.</span></li>
+      <li><strong>Sample</strong> <span>Open a 0018 tree. Write an unambiguous pass rule. Put it on the hill. <cite><a href="https://developers.openai.com/api/docs/guides/evaluation-best-practices">OpenAI · log then mine</a></cite></span></li>
+      <li><strong>Saturate</strong> <span>100% on the hill is no signal. Graduate, then add harder tasks. Anthropic: do not take a saturated score at face value.</span></li>
+    </ul>
+
+    <figure class="art">
+      <img class="lesson-art" src="../assets/suite-graduate.webp" alt="A production OpenTelemetry tree is sampled into capability; INV-882 passes and graduates into the regression CI board.">
+      <p class="caption">Yesterday’s hill is today’s floor. The sample arrow is the 0018 id. The graduate arrow is a product decision, not a model upgrade.</p>
+    </figure>
+
+    <figure class="worked">
+      <p class="worked-head">Billing assistant · two boards</p>
+      <div class="worked-body">
+<pre class="pseudo"># REGRESSION — CI, every PR. Near 100%.
+POST /assistant  tenant=acme
+INV-441   policy.check BEFORE stripe          PASS
+annual    refuse (no full refund)             PASS
+SSO docs  retrieve then one answer            PASS
+duplicate no second stripe.refunds.create     PASS
+score: 4/4   ← a drop is a fire
+
+# CAPABILITY — nightly hill. Start low.
+INV-882   remaining months + tax, not full    FAIL
+INV-901   chargeback already open             FAIL
+INV-910   EUR invoice, amount in cents        FAIL
+tone      after deny: no false workaround     FAIL
+score: 0/4   ← a hill, not a pager
+
+# SAMPLE from production (0018)
+trace 7c21…  chat: “credited remaining months”
+             stripe.amount = full refund
+             → new capability task INV-882
+# pass iff refunds.amount == prorate(months)+tax
+
+# GRADUATE (three weeks green)
+INV-882 → regression  5/5
+capability            0/3   still a hill
+
+# NOT A SUITE
+one spreadsheet scored 4/8
+“the bot feels smarter this week”</pre>
+      </div>
+      <p class="worked-note"><strong>What this shows.</strong> Same <code>POST /assistant</code>, Postgres, Stripe as 0014. The new rent is <em>which board</em>. Hamel: when production monitoring finds a failure, add the representative case to CI. Anthropic: eval-driven development — write the hill before the agent can climb it.</p>
+    </figure>
+
+    <h2>Code grades the row; a judge is a classifier</h2>
+    <p>Anthropic’s three graders: <em>code-based</em> (fast, cheap, objective — string checks, outcome verification, tool-call checks), <em>model-based</em> (flexible, needs calibration with humans), <em>human</em> (gold standard, used to calibrate the model grader). Prefer deterministic graders where the world has a row. Grade what the agent <em>produced</em>, not a brittle sequence of tool names. <cite>Types of graders for agents</cite></p>
+    <p>Hamel: an LLM-as-judge is a classifier. Binary pass/fail. Label real traces with a domain expert. Measure true-positive and true-negative rates on a <em>held-out</em> set — accuracy lies when failures are rare. CI datasets should favor assertions; production sampling, where you lack a gold answer, is where a calibrated judge earns rent. An uncalibrated judge is 0014’s vibe check with a dashboard. <cite><a href="https://hamel.dev/blog/posts/evals-faq/">Evals FAQ</a> · CI vs production</cite></p>
+
+    <figure class="art">
+      <img class="lesson-art" src="../assets/suite-code-then-judge.webp" alt="Three columns: a code grader checking Postgres and Stripe; an uncalibrated LLM judge stamping PASS with no refund id; a calibrated judge fed ~50 human-labeled traces with TPR/TNR.">
+      <p class="caption">INV-441 and INV-882 have a Stripe amount. Tone-after-deny does not — that is the only reason you pay for a judge, and only after labels.</p>
+    </figure>
+
+    <h2>Skill: run two boards</h2>
+    <p><strong>Mixed</strong> hides the fire. <strong>Split</strong> is hill vs floor. <strong>Sample</strong> mints a task from a trace. <strong>Graduate</strong> moves a green hard case to CI. <strong>Judge</strong> is code first, then a calibrated model.</p>
+
+    <div class="lab" data-suite-lab>
+      <h3>Same assistant, five looks</h3>
+      <div class="btn-row">
+        <button type="button" data-scene="mixed">Mixed</button>
+        <button type="button" data-scene="split">Split</button>
+        <button type="button" data-scene="sample">Sample</button>
+        <button type="button" data-scene="graduate">Graduate</button>
+        <button type="button" data-scene="judge">Judge</button>
+      </div>
+      <p class="kind" data-kind></p>
+      <figure class="pipeline" data-path aria-label="Tonight’s path."></figure>
+      <div class="board" data-board aria-label="One mixed board."></div>
+      <div class="board-pair" data-pair hidden>
+        <div class="board-lane" data-lane="cap">
+          <h4>Capability · hill</h4>
+          <div class="board" data-cap-board></div>
+          <p class="board-score" data-cap-score></p>
+        </div>
+        <div class="board-lane" data-lane="reg">
+          <h4>Regression · floor</h4>
+          <div class="board" data-reg-board></div>
+          <p class="board-score" data-reg-score></p>
+        </div>
+      </div>
+      <div class="chat ticket-q" data-suite-chat></div>
+      <p class="cost-line" data-cost></p>
+      <p class="hint" data-suite-note></p>
+    </div>
+
+    <h2>Who owns which board</h2>
+    <div class="compare three">
+      <div class="compare-card">
+        <h3>Developer</h3>
+        <p>Code grader on every mutation (<code>refunds.amount</code>, Stripe status). Pass Context from 0018 so sampled trees join. Do not ask the model to invent the pass rule.</p>
+      </div>
+      <div class="compare-card">
+        <h3>Team lead</h3>
+        <p>Regression in CI; capability nightly. Product owns the hill (Anthropic: PMs can add a task as a PR). A 100% hill is saturation — add harder work or you are only watching the floor.</p>
+      </div>
+      <div class="compare-card">
+        <h3>Next</h3>
+        <p>Agent security is <a href="0020-the-prompt-is-not-the-wall.html">lesson 0020</a>: the prompt is not the wall. Tonight you only need two boards you can defend in a design review.</p>
+      </div>
+    </div>
+
+    <p class="sidenote">Parked: pass@k / pass^k, A/B, Harbor, Braintrust, LangSmith. Anthropic’s conversational-agent YAML (empathy rubrics, max turns) waits until a code grader cannot see the outcome. Isolation of the eval environment (clean state per trial) is real — not tonight’s skill.</p>
+
+    <h2>Check</h2>
+    <form class="quiz" data-quiz data-answers="babab"
+          data-success="A capability suite starts low so you have a hill. A regression suite stays near full so a drop is a fire. A green hard task becomes a regression check. Stripe gets a code grader. Trust an LLM judge only after human labels on a held-out set."
+          data-retry="Read split · graduate · calibrate at the top, then the billing grey box.">
+      <fieldset>
+        <legend>1. A capability suite should</legend>
+        <label><input type="radio" name="q1" value="a"> start with a high score</label>
+        <label><input type="radio" name="q1" value="b"> start with a low score</label>
+        <label><input type="radio" name="q1" value="c"> start with a vibe score</label>
+      </fieldset>
+      <fieldset>
+        <legend>2. A regression suite should</legend>
+        <label><input type="radio" name="q2" value="a"> stay near a full pass</label>
+        <label><input type="radio" name="q2" value="b"> stay near a low pass</label>
+        <label><input type="radio" name="q2" value="c"> stay near a vibe pass</label>
+      </fieldset>
+      <fieldset>
+        <legend>3. A saturated hard task should</legend>
+        <label><input type="radio" name="q3" value="a"> remain a capability hill</label>
+        <label><input type="radio" name="q3" value="b"> become a regression check</label>
+        <label><input type="radio" name="q3" value="c"> become a kitchen check</label>
+      </fieldset>
+      <fieldset>
+        <legend>4. Grade the Stripe row with</legend>
+        <label><input type="radio" name="q4" value="a"> a code based checker</label>
+        <label><input type="radio" name="q4" value="b"> a vibe based checker</label>
+        <label><input type="radio" name="q4" value="c"> a crate based checker</label>
+      </fieldset>
+      <fieldset>
+        <legend>5. Trust an LLM judge after</legend>
+        <label><input type="radio" name="q5" value="a"> vendor dashboards on a test set</label>
+        <label><input type="radio" name="q5" value="b"> human labels on a test set</label>
+        <label><input type="radio" name="q5" value="c"> plugin crates on a test set</label>
+      </fieldset>
+      <button type="submit">Check</button>
+      <p class="feedback" data-feedback></p>
+    </form>
+
+    <div class="callout">
+      <p><strong>Primary source.</strong> <a href="https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents">Demystifying evals for AI agents</a> (suite; capability vs regression; graduate; code then model then human; calibrate LLM graders; saturation). Judge craft: <a href="https://hamel.dev/blog/posts/llm-judge/">Using LLM-as-a-Judge</a>. CI vs live sampling: <a href="https://hamel.dev/blog/posts/evals-faq/">LLM Evals FAQ</a>. Mine logs: <a href="https://developers.openai.com/api/docs/guides/evaluation-best-practices">OpenAI evaluation best practices</a>.</p>
+      <p>Card: <a href="../reference/eval-suites.html">eval suites</a>. Floor: <a href="../reference/evals.html">evals</a>. Trees: <a href="../reference/production-traces.html">production traces</a>.</p>
+    </div>
+
+    <footer class="lesson-foot">
+      <p>If “why isn’t 4/8 a suite?” is still fuzzy, replay the lab above and reread the <a href="../reference/eval-suites.html">eval suites cheat sheet</a>. Next: <a href="0020-the-prompt-is-not-the-wall.html">the prompt is not the wall</a> — allowlist, untrusted text, secrets out of the crate.</p>
+    </footer>
+  </article>
+  <script src="../assets/suite-lab.js"></script>
+  <script src="../assets/quiz.js"></script>
+  <script src="../assets/course-data.js"></script>
+  <script src="../assets/progress.js"></script>
+</body>
+</html>

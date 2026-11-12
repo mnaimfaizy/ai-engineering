@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 500" font-family="'Source Sans 3','Segoe UI',system-ui,sans-serif">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z" fill="#1c1917"/>
+    </marker>
+    <marker id="r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z" fill="#9a3412"/>
+    </marker>
+  </defs>
+  <rect width="960" height="500" fill="#f7f1e5"/>
+  <text x="48" y="52" font-size="15" letter-spacing="2.4" fill="#9a3412" font-weight="650">WHAT THE AGENT CAN SEE</text>
+  <text x="48" y="80" font-size="15" fill="#44403c">The repository is its whole world. A short map points at the records. One rule is checked by code.</text>
+
+  <!-- outside -->
+  <text x="48" y="140" font-size="13" letter-spacing="1.4" fill="#78716c" font-weight="650">OUTSIDE · INVISIBLE</text>
+  <g font-size="14" fill="#78716c">
+    <rect x="48" y="160" width="232" height="56" rx="4" fill="none" stroke="#a8a29e" stroke-width="1.4" stroke-dasharray="5 5"/>
+    <text x="64" y="183">Chat thread</text>
+    <text x="64" y="203" font-size="13">“monthly plans don’t refund”</text>
+    <rect x="48" y="232" width="232" height="56" rx="4" fill="none" stroke="#a8a29e" stroke-width="1.4" stroke-dasharray="5 5"/>
+    <text x="64" y="255">Shared document</text>
+    <text x="64" y="275" font-size="13">architecture, version 3</text>
+    <rect x="48" y="304" width="232" height="56" rx="4" fill="none" stroke="#a8a29e" stroke-width="1.4" stroke-dasharray="5 5"/>
+    <text x="64" y="327">A teammate’s head</text>
+    <text x="64" y="347" font-size="13">“repo never calls service”</text>
+  </g>
+  <path d="M286 260 H356" stroke="#9a3412" stroke-width="2.4" fill="none" marker-end="url(#r)"/>
+  <text x="48" y="392" font-size="13" fill="#9a3412" font-weight="650">Move it in, or it does not exist.</text>
+
+  <!-- repository -->
+  <rect x="368" y="112" width="544" height="330" rx="8" fill="none" stroke="#1d4e4a" stroke-width="2.2"/>
+  <text x="388" y="140" font-size="13" letter-spacing="1.4" fill="#1d4e4a" font-weight="650">THE REPOSITORY</text>
+
+  <!-- map -->
+  <rect x="392" y="160" width="178" height="258" rx="4" fill="#1d4e4a"/>
+  <text x="408" y="188" font-size="12" letter-spacing="1.4" fill="#e7c9a9" font-weight="650">MAP</text>
+  <text x="408" y="214" font-size="15" fill="#f7f1e5" font-family="'IBM Plex Mono','Cascadia Mono',monospace">AGENTS.md</text>
+  <g font-size="13" fill="#f7f1e5">
+    <text x="408" y="246">how to run it</text>
+    <text x="408" y="268">where things are</text>
+    <text x="408" y="290">what to read next</text>
+    <text x="408" y="312">what always holds</text>
+  </g>
+  <text x="408" y="394" font-size="13" fill="#e7c9a9">about 100 lines,</text>
+  <text x="408" y="410" font-size="13" fill="#e7c9a9">loaded every session</text>
+
+  <!-- records -->
+  <text x="664" y="152" font-size="12" letter-spacing="1.4" fill="#44403c" font-weight="650">RECORDS · READ WHEN NEEDED</text>
+  <g font-family="'IBM Plex Mono','Cascadia Mono',monospace" font-size="14" fill="#1c1917">
+    <rect x="664" y="160" width="226" height="40" rx="4" fill="#efe6d4" stroke="#d6cbb6"/>
+    <text x="678" y="185">docs/architecture.md</text>
+    <rect x="664" y="210" width="226" height="40" rx="4" fill="#efe6d4" stroke="#d6cbb6"/>
+    <text x="678" y="235">docs/refunds.md</text>
+    <rect x="664" y="260" width="226" height="40" rx="4" fill="#efe6d4" stroke="#d6cbb6"/>
+    <text x="678" y="285">docs/plans/active/</text>
+  </g>
+
+  <!-- rule -->
+  <text x="664" y="340" font-size="12" letter-spacing="1.4" fill="#9a3412" font-weight="650">RULE · CHECKED EVERY RUN</text>
+  <rect x="664" y="348" width="226" height="40" rx="4" fill="#efe6d4" stroke="#9a3412" stroke-width="1.6"/>
+  <text x="678" y="373" font-size="14" fill="#1c1917" font-family="'IBM Plex Mono','Cascadia Mono',monospace">lint.ts + CI</text>
+  <text x="664" y="410" font-size="13" fill="#44403c">Its error message is the fix.</text>
+
+  <!-- pointers -->
+  <g stroke="#1c1917" stroke-width="1.6" fill="none">
+    <path d="M570 180 H656" marker-end="url(#a)"/>
+    <path d="M570 230 H656" marker-end="url(#a)"/>
+    <path d="M570 280 H656" marker-end="url(#a)"/>
+    <path d="M570 368 H656" marker-end="url(#a)"/>
+  </g>
+  <text x="586" y="172" font-size="12" fill="#44403c">points</text>
+
+  <text x="48" y="474" font-size="13" fill="#44403c">Same shape as 0008 and 0010: a small catalog in the window, the chapters on disk, a path to each.</text>
+</svg>

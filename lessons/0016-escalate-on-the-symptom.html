@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>0016 — Escalate on the symptom</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:ital,wght@0,450;0,650;1,450&family=Source+Serif+4:ital,wght@0,450;0,600;1,450&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/lesson.css">
+  <link rel="stylesheet" href="../assets/diagram.css">
+</head>
+<body>
+  <header class="mast">
+    <a href="../index.html">← All lessons</a>
+    <span>Lesson 0016</span>
+  </header>
+  <article>
+    <p class="kicker">Connecting the stack</p>
+    <h1>Escalate on the symptom</h1>
+    <p class="lede">You have the machines. Tonight is the design review. <strong>Name the failure, then climb one rung.</strong> A stuffed window is not a graph problem. A missing heartbeat is not a LangGraph install. Classify-before-Stripe is. Harness and the team floor wrap every rung. Evals decide if you keep the climb.</p>
+
+    <div class="callout scope">
+      <p><strong>What this is.</strong> A decision procedure for a developer and a team lead: when context engineering is enough, when to add loop engineering, when to draw a graph (usually hybrid), and when to stay put. Anthropic: simplest solution; add complexity only when it demonstrably improves outcomes. <cite><a href="https://www.anthropic.com/engineering/building-effective-agents">Building effective agents</a></cite></p>
+      <p><strong>What this is not.</strong> Re-teaching tokens, skills, hooks, or isolate·brief·return. A vendor ladder you must climb. “Prompt engineering” as a fourth religion — packing the call (0003) and the Guide (0015) <em>are</em> that layer. Plugins still wait.</p>
+    </div>
+
+    <ol class="remember">
+      <li><strong>1 · Context</strong><span>Window is the failure. Catalog, JIT, compact, notes.</span></li>
+      <li><strong>2 · Loop</strong><span>Heartbeat is the failure. Verify, stop, schedule.</span></li>
+      <li><strong>3 · Graph</strong><span>A path must always hold. Hybrid: holes for agents.</span></li>
+    </ol>
+    <p class="caption">Harness (0007) and team floor (0015) are not rungs. They wrap all three. Measure before you keep a rung (0014).</p>
+
+    <figure class="art">
+      <img class="lesson-art" src="../assets/stack-escalate-on-symptom.webp" alt="Three rungs — context, loop, graph — inside a dashed harness box, sitting on a team-floor slab, with an evals arrow on the right.">
+      <p class="caption">Architecture first. Climb on a named symptom. The box and the floor are always on.</p>
+    </figure>
+
+    <h2>Name the failure first</h2>
+    <p>Context engineering is the attention budget: smallest high-signal set, not a second model. Loop engineering is who prompts next so you are not Enter. Graph engineering is encoding paths you already know — a loop is already a tiny cyclic graph; you draw more edges when hope skipped a step. <cite><a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents">Effective context engineering</a> · <a href="https://www.langchain.com/blog/3-years-of-graph-engineering-with-langgraph">3 Years of Graph Engineering</a></cite></p>
+
+    <figure class="art">
+      <img class="lesson-art" src="../assets/stack-name-the-failure.webp" alt="Three columns: stuffed window, human typing every turn, refund skipping classify. Title: name the failure first.">
+      <p class="caption">Wrong jump: stuffing the prompt, then installing a graph. Right jump: the column that matches the bug.</p>
+    </figure>
+
+    <ul class="shapes">
+      <li><strong>Developer</strong> <span>For this ticket or feature: which rung encodes the constraint? Leave the rest alone.</span></li>
+      <li><strong>Team lead</strong> <span>For the repo: which Guide / Guard / Job files make that rung the team’s, not a private prompt.</span></li>
+    </ul>
+
+    <h2>One billing graph · the whole stack</h2>
+    <p>Same SaaS as 0014–0015: React, API, Postgres, Stripe, <code>POST /assistant</code>. You can name classify-before-Stripe. Docs need a search hole. Competitor research cannot be pinned. That mix is a <em>hybrid graph</em>, not a loop hoping, not a DAG of fake research stages.</p>
+
+    <figure class="art">
+      <img class="lesson-art" src="../assets/stack-billing-graph.webp" alt="State machine: classify code node, then docs with explore sub-agent, refund with policy then Stripe and a hook, research left as a harness loop. Side files AGENTS.md and hooks.json.">
+      <p class="caption">Load-bearing picture. Nodes you drew. Holes you left. Files the team shares. Hook on the till.</p>
+    </figure>
+
+    <figure class="worked">
+      <p class="worked-head">Files + graph · one refund ticket</p>
+      <div class="worked-body">
+<pre class="pseudo"># GUIDE — AGENTS.md (prompt layer the team owns)
+- policy.check before any Stripe tool
+- docs: dispatch explore, synthesize in the lead
+- research: do not force stages; harness loop
+- never push main; @reviewer on graph/PRs
+
+# GRAPH — ops (POST /assistant)
+START → classify(code)
+  docs     → Agent(explore) → llm(synthesize) → END
+  refund   → policy(code) → [ok] stripe(tool) → END
+                      └[no] explain → END
+  research → END  # not a node; outer harness loop
+
+# JOB — .cursor/agents/explore.md  (docs hole only)
+# JOB — .cursor/agents/reviewer.md (dev PRs)
+
+# GUARD — .cursor/hooks.json + CI
+on stripe.refunds.create:
+  deny unless state.policy_ok == true
+on git push origin main: deny
+
+# HARNESS still: allow · run · stop · show
+# EVAL: 20 Zendesk tickets; keep graph iff pass rate moves</pre>
+      </div>
+      <p class="worked-note"><strong>What this shows.</strong> Context work is already in the Guide and the explore job (thin lead window). Loop work is the harness heartbeat and the research branch. Graph work is the edges you would bet a refund on. The hook is the Guard when the model still writes the slip. Hybrid means you did not graph the research cloud.</p>
+    </figure>
+
+    <h2>Skill: pick the rung</h2>
+    <p><strong>Context</strong> when RAM is the bug. <strong>Loop</strong> when you are still the heartbeat. <strong>Graph</strong> when a path must hold. <strong>Full</strong> is one refund through every file.</p>
+
+    <div class="lab" data-stack-lab>
+      <h3>Same assistant, four looks</h3>
+      <div class="btn-row">
+        <button type="button" data-scene="context">Context</button>
+        <button type="button" data-scene="loop">Loop</button>
+        <button type="button" data-scene="graph">Graph</button>
+        <button type="button" data-scene="full">Full</button>
+      </div>
+      <p class="kind" data-kind></p>
+      <figure class="pipeline" data-path aria-label="Tonight’s rung."></figure>
+      <div class="chat ticket-q" data-stack-chat></div>
+      <p class="cost-line" data-cost></p>
+      <p class="hint" data-stack-note></p>
+    </div>
+
+    <h2>Always on, not rungs</h2>
+    <div class="compare three">
+      <div class="compare-card">
+        <h3>Prompt / Guide</h3>
+        <p>Pack the transcript. Put the brief in git. Skills load chapters. This is enough until the window or a path fails.</p>
+      </div>
+      <div class="compare-card">
+        <h3>Harness</h3>
+        <p>Allow, run, stop, show — around a one-call, a loop, or a graph. Cursor is this box. <a href="../reference/harnesses.html">Card</a>.</p>
+      </div>
+      <div class="compare-card">
+        <h3>Evals + floor</h3>
+        <p>Keep a rung only if a number moves. Humans still stamp merge. <a href="../reference/evals.html">Evals</a> · <a href="../reference/team-floor.html">Team floor</a>.</p>
+      </div>
+    </div>
+
+    <p class="sidenote">Parked: plugins, LangGraph APIs, pass@k. “Always hybrid” is not a slogan — it is what 0013 already said: mix node types when you have both fixed edges and open holes. If you cannot name the path, do not draw it.</p>
+
+    <h2>Check</h2>
+    <form class="quiz" data-quiz data-answers="bbaba"
+          data-success="Add a layer when a named symptom shows. A stuffed window needs context first. Classify-before-refund needs graph edges. A hybrid mixes code and agents. Keep the extra layer after the score moves."
+          data-retry="Read the three rungs at the top, then the billing grey box.">
+      <fieldset>
+        <legend>1. Add a layer when</legend>
+        <label><input type="radio" name="q1" value="a"> a vendor names graphs</label>
+        <label><input type="radio" name="q1" value="b"> a named symptom shows</label>
+        <label><input type="radio" name="q1" value="c"> a metaphor feels nicer</label>
+      </fieldset>
+      <fieldset>
+        <legend>2. A stuffed window needs</legend>
+        <label><input type="radio" name="q2" value="a"> graph edges drawn now</label>
+        <label><input type="radio" name="q2" value="b"> context work applied first</label>
+        <label><input type="radio" name="q2" value="c"> cron jobs scheduled now</label>
+      </fieldset>
+      <fieldset>
+        <legend>3. Classify-before-refund needs</legend>
+        <label><input type="radio" name="q3" value="a"> graph edges drawn now</label>
+        <label><input type="radio" name="q3" value="b"> compact notes written now</label>
+        <label><input type="radio" name="q3" value="c"> bigger models bought now</label>
+      </fieldset>
+      <fieldset>
+        <legend>4. A hybrid graph</legend>
+        <label><input type="radio" name="q4" value="a"> forbids any agent node</label>
+        <label><input type="radio" name="q4" value="b"> mixes code and agents</label>
+        <label><input type="radio" name="q4" value="c"> replaces the team floor</label>
+      </fieldset>
+      <fieldset>
+        <legend>5. Keep the extra layer</legend>
+        <label><input type="radio" name="q5" value="a"> after the score moves</label>
+        <label><input type="radio" name="q5" value="b"> after the blog posts</label>
+        <label><input type="radio" name="q5" value="c"> after the standup vote</label>
+      </fieldset>
+      <button type="submit">Check</button>
+      <p class="feedback" data-feedback></p>
+    </form>
+
+    <div class="callout">
+      <p><strong>Primary source.</strong> <a href="https://www.anthropic.com/engineering/building-effective-agents">Building effective agents</a> (simplest first; add complexity when it demonstrably improves outcomes). Context: <a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents">Effective context engineering</a>. When not to graph: <a href="https://www.langchain.com/blog/3-years-of-graph-engineering-with-langgraph">3 Years of Graph Engineering</a>. Layers: <a href="https://www.langchain.com/blog/deep-agents-vs-langchain-vs-langgraph">Deep Agents vs LangChain vs LangGraph</a>.</p>
+      <p>Card: <a href="../reference/stack-choice.html">stack choice</a>. Machines: <a href="../reference/workflows.html">workflow vs agent</a> · <a href="../reference/context-engineering.html">context</a> · <a href="../reference/loop-engineering.html">loop</a> · <a href="../reference/graph-engineering.html">graph</a> · <a href="../reference/harnesses.html">harness</a> · <a href="../reference/team-floor.html">team floor</a> · <a href="../reference/evals.html">evals</a>.</p>
+    </div>
+
+    <footer class="lesson-foot">
+      <p>If “is my stuffed prompt a graph problem?” is still fuzzy, replay the lab above and reread the <a href="../reference/stack-choice.html">stack choice cheat sheet</a>. Next: <a href="0017-the-crate-is-not-a-model.html">plugins</a> — how the floor arrives. Still not training a foundation model.</p>
+    </footer>
+  </article>
+  <script src="../assets/stack-lab.js"></script>
+  <script src="../assets/quiz.js"></script>
+  <script src="../assets/course-data.js"></script>
+  <script src="../assets/progress.js"></script>
+</body>
+</html>

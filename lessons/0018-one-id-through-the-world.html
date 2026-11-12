@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>0018 — One id through the world</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:ital,wght@0,450;0,650;1,450&family=Source+Serif+4:ital,wght@0,450;0,600;1,450&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/lesson.css">
+  <link rel="stylesheet" href="../assets/diagram.css">
+</head>
+<body>
+  <header class="mast">
+    <a href="../index.html">← All lessons</a>
+    <span>Lesson 0018</span>
+  </header>
+  <article>
+    <p class="kicker">Production traces</p>
+    <h1>One id through the world</h1>
+    <p class="lede">Lesson 0014’s trace was a trial you ran on purpose. Production is the same object when a real user hits <code>POST /assistant</code>. <strong>Stamp one id on the HTTP request, the agent, the tools, and Stripe.</strong> Three log files with three ids are not a path. OpenTelemetry’s word for the path is a <em>trace</em>.</p>
+
+    <div class="callout scope">
+      <p><strong>What this is.</strong> Distributed tracing applied to an agent: a root span for the request, child spans for the loop and each tool, the same <code>trace_id</code> on the refund row. Anthropic: read transcripts; outcome is environment state. Hamel: error analysis is looking at traces. <cite><a href="https://opentelemetry.io/docs/concepts/signals/traces/">OpenTelemetry · Traces</a> · <a href="https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents">Demystifying evals</a></cite></p>
+      <p><strong>What this is not.</strong> A vendor APM product. LangSmith as a religion. Re-teaching task · gate. Production eval <em>suites</em> (capability vs regression, LLM-as-judge) — next. Collector YAML, GenAI attribute churn — parked. Not a ChatGPT menu named “Trace.”</p>
+    </div>
+
+    <ol class="remember">
+      <li><strong>1 · Correlate</strong><span>One id on HTTP, agent, tools, and the DB.</span></li>
+      <li><strong>2 · Span</strong><span>A unit of work with a parent. Nest the loop.</span></li>
+      <li><strong>3 · Read</strong><span>Open the tree. Grade the world, not the chat.</span></li>
+    </ol>
+      <p class="caption">The plugin crate (0017) does not give you this. You instrument the app. The model does not mint the id.</p>
+
+    <figure class="art">
+      <img class="lesson-art" src="../assets/trace-one-id-through.webp" alt="A rust thread labeled REQ-441 stitching HTTP POST /assistant, an invoke_agent span, a Stripe tool span, and a Postgres row.">
+      <p class="caption">Architecture first. OpenTelemetry: traces are the path of a request through the application — including the model.</p>
+    </figure>
+
+    <h2>Who decides the id — not the agent</h2>
+    <p>The language model does not pick a trace id. The <em>first process</em> that handles the request without an incoming W3C <code>traceparent</code> header does: usually your API’s OpenTelemetry HTTP instrumentation. It generates a random 128-bit id and a root span. If the load balancer already sent <code>traceparent</code>, your server <em>extracts</em> that id instead of minting a second one. OpenTelemetry’s name for the in-memory bag is <strong>Context</strong>; moving it across hops is <strong>propagation</strong> (inject on the way out, extract on the way in). <cite><a href="https://opentelemetry.io/docs/concepts/context-propagation/">OTel · Context propagation</a> · <a href="https://www.w3.org/TR/trace-context/">W3C Trace Context</a></cite></p>
+
+    <ul class="shapes">
+      <li><strong>Who mints</strong> <span>The SDK at the first hop with no header — or the gateway if it sent one. Never the LLM.</span></li>
+      <li><strong>Who tracks</strong> <span>The SDK holds Context for the live request. Your tool runner must keep that bag (async/queues drop it unless you pass it).</span></li>
+      <li><strong>Where stored</strong> <span>RAM during the call. After: span store (Jaeger, Grafana, vendor). Stripe/Postgres only if <em>you</em> copy the id onto the mutation.</span></li>
+      <li><strong>How agents “know”</strong> <span>They don’t, magically. Child spans inherit Context if the call is in-process. HTTP tools inherit if instrumented. The model seeing the id in a prompt is optional and usually the wrong place for PII.</span></li>
+    </ul>
+
+    <figure class="art">
+      <img class="lesson-art" src="../assets/trace-who-mints.webp" alt="Browser with no id, API box where the SDK mints a trace id, a context bag in RAM, tool code stamping Stripe. Caption: the model does not invent this.">
+      <p class="caption">Birth of the id. Your harness reads the bag. The agent loop is just more child spans inside it.</p>
+    </figure>
+
+    <figure class="art">
+      <img class="lesson-art" src="../assets/trace-where-it-lives.webp" alt="Top: context bag in memory during the request. Bottom: spans exported to a backend, plus Stripe metadata and a refunds.request_id column.">
+      <p class="caption">Two stores: the exporter’s tree (for on-call) and the columns you stamp (for grading the world).</p>
+    </figure>
+
+    <h2>Logs are not a path</h2>
+    <p>A span is a unit of work with start, end, and a parent. Spans that share a <code>trace_id</code> are one trace. That is how you join an API 200, a chat completion, and a Stripe call that ran in another process. Unjoined lines make on-call into a vibe check. <cite>OTel · Traces</cite></p>
+
+    <figure class="art">
+      <img class="lesson-art" src="../assets/trace-spans-nest.webp" alt="Nested spans: HTTP root, invoke_agent, chat and execute_tool children, SQL sibling, all with the same trace id. A dangling log with a different id is crossed out.">
+      <p class="caption">GenAI span names (invoke_agent, chat, execute_tool) are still evolving. The rent is the tree, not the latest attribute prefix.</p>
+    </figure>
+
+    <figure class="worked">
+      <p class="worked-head">INV-441 · one production trial</p>
+      <div class="worked-body">
+<pre class="pseudo"># 1 MINT (first hop, no incoming traceparent)
+OTel HTTP middleware:
+  trace_id = random_128_bit()          # SDK, not the LLM
+  Context.set(trace_id)
+  root_span = "POST /assistant"
+
+# 2 CARRY (same process)
+invoke_agent()  # child span — inherits Context automatically
+chat()          # child of the agent span
+# async/queue: YOU must pass Context or you mint a new (wrong) id
+
+# 3 STAMP (vendors that do not speak OTel)
+stripe.refunds.create({ metadata: { request_id: Context.trace_id } })
+INSERT refunds (request_id, …) VALUES (Context.trace_id, …)
+
+# 4 STORE
+export spans → your backend (Jaeger / Grafana / …)
+# the id is not “in the model.” It is in Context, then in the exporter, then in your columns.
+
+# SPANS (parent → child)
+HTTP POST /assistant
+  invoke_agent  billing
+    chat                 finish=tool_calls
+    execute_tool         stripe.refunds.create
+                         status=ERROR  # hook: policy_ok=false
+
+# READ — then grade (0014)
+assistant: "Refund issued. You’re all set."
+outcome:   no new Stripe id; policy_ok=false
+GRADE: FAIL
+
+# NOT A TRACE
+api.log request=a1
+llm.log session=z9
+stripe: re_1   # unjoined</pre>
+      </div>
+      <p class="worked-note"><strong>What this shows.</strong> Mint → carry → stamp → store. The Guard from 0015 is visible as a denied tool span. The claim still lied. Full prompt bodies in production are opt-in debug — PII lives there.</p>
+    </figure>
+
+    <figure class="art">
+      <img class="lesson-art" src="../assets/trace-ticket-stamp.webp" alt="Every kitchen station slip stamped TICKET 441. An unstamped slip in the trash labeled vibe.">
+      <p class="caption">Kitchen optional. The ticket number is the trace id. Unstamped slips are last night’s vibe check.</p>
+    </figure>
+
+    <h2>Skill: open one path</h2>
+    <p><strong>Logs</strong> do not join. <strong>Origin</strong> is who mints. <strong>Correlate</strong> stamps vendors. <strong>Spans</strong> nest the work. <strong>Read</strong> grades the world.</p>
+
+    <div class="lab" data-trace-lab>
+      <h3>Same refund, five looks</h3>
+      <div class="btn-row">
+        <button type="button" data-scene="logs">Logs</button>
+        <button type="button" data-scene="origin">Origin</button>
+        <button type="button" data-scene="correlate">Correlate</button>
+        <button type="button" data-scene="spans">Spans</button>
+        <button type="button" data-scene="read">Read</button>
+      </div>
+      <p class="kind" data-kind></p>
+      <figure class="pipeline" data-path aria-label="Tonight’s path."></figure>
+      <div class="chat ticket-q" data-trace-chat></div>
+      <p class="cost-line" data-cost></p>
+      <p class="hint" data-trace-note></p>
+    </div>
+
+    <h2>Who owns which stamp</h2>
+    <div class="compare three">
+      <div class="compare-card">
+        <h3>Developer</h3>
+        <p>Turn on HTTP auto-instrumentation. Pass Context into tool runners. Copy <code>trace_id</code> onto every mutation. Do not ask the model to invent an id.</p>
+      </div>
+      <div class="compare-card">
+        <h3>Team lead</h3>
+        <p>On-call runbook: open the id. Sampling in prod (not 100% of prompt bodies). The crate (0017) does not replace instrumentation.</p>
+      </div>
+      <div class="compare-card">
+        <h3>Next</h3>
+        <p>A production eval suite is a sampler over these trees plus a grader. Tonight you only need trees you can open.</p>
+      </div>
+    </div>
+
+    <p class="sidenote">Parked: OpenTelemetry Collector, GenAI semantic-convention instability (Development status), LangSmith, LLM-as-judge, red-team injection. You can export to whatever backend your platform already uses. The id is the architecture.</p>
+
+    <h2>Check</h2>
+    <form class="quiz" data-quiz data-answers="bbbab"
+          data-success="A production trace is one request path joined. Spans share a single trace identifier. Grade still uses the world after the trial. Unjoined logs mean you cannot see cause. Full prompts are opt-in debug, not default prod logs."
+          data-retry="Read who mints (SDK, not the model), then the mint → carry → stamp grey box.">
+      <fieldset>
+        <legend>1. A production trace is</legend>
+        <label><input type="radio" name="q1" value="a"> a bigger language model</label>
+        <label><input type="radio" name="q1" value="b"> one request path joined</label>
+        <label><input type="radio" name="q1" value="c"> a vendor dashboard SKU</label>
+      </fieldset>
+      <fieldset>
+        <legend>2. Spans share a</legend>
+        <label><input type="radio" name="q2" value="a"> the monthly token bill</label>
+        <label><input type="radio" name="q2" value="b"> a single trace identifier</label>
+        <label><input type="radio" name="q2" value="c"> a kitchen metaphor name</label>
+      </fieldset>
+      <fieldset>
+        <legend>3. Grade still uses</legend>
+        <label><input type="radio" name="q3" value="a"> the last chat sentence</label>
+        <label><input type="radio" name="q3" value="b"> the world after trial</label>
+        <label><input type="radio" name="q3" value="c"> the count of tokens</label>
+      </fieldset>
+      <fieldset>
+        <legend>4. Unjoined logs mean</legend>
+        <label><input type="radio" name="q4" value="a"> you cannot see cause</label>
+        <label><input type="radio" name="q4" value="b"> you already have evals</label>
+        <label><input type="radio" name="q4" value="c"> you already have graphs</label>
+      </fieldset>
+      <fieldset>
+        <legend>5. Capture full prompts</legend>
+        <label><input type="radio" name="q5" value="a"> as default production logs</label>
+        <label><input type="radio" name="q5" value="b"> as opt-in debug only</label>
+        <label><input type="radio" name="q5" value="c"> as a second language</label>
+      </fieldset>
+      <button type="submit">Check</button>
+      <p class="feedback" data-feedback></p>
+    </form>
+
+    <div class="callout">
+      <p><strong>Primary source.</strong> <a href="https://opentelemetry.io/docs/concepts/signals/traces/">OpenTelemetry · Traces</a> (path of a request; spans share a trace id). Who carries the id: <a href="https://opentelemetry.io/docs/concepts/context-propagation/">Context propagation</a> (W3C <code>traceparent</code>). Spec: <a href="https://www.w3.org/TR/trace-context/">W3C Trace Context</a>. Agent trial record: <a href="https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents">Demystifying evals</a>. Craft: <a href="https://hamel.dev/blog/posts/evals/">Your AI Product Needs Evals</a>.</p>
+      <p>Card: <a href="../reference/production-traces.html">production traces</a>. Trial: <a href="../reference/evals.html">evals</a>. Guard: <a href="../reference/team-floor.html">team floor</a>.</p>
+    </div>
+
+    <footer class="lesson-foot">
+      <p>If “does the model invent the id?” is still fuzzy, replay the lab above and reread the <a href="../reference/production-traces.html">production traces cheat sheet</a>. Next: <a href="0019-the-suite-has-two-jobs.html">the suite has two jobs</a> — capability vs regression over these trees. Then agent security.</p>
+    </footer>
+  </article>
+  <script src="../assets/trace-lab.js"></script>
+  <script src="../assets/quiz.js"></script>
+  <script src="../assets/course-data.js"></script>
+  <script src="../assets/progress.js"></script>
+</body>
+</html>

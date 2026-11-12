@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>0023 — A check the builder cannot see</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:ital,wght@0,450;0,650;1,450&family=Source+Serif+4:ital,wght@0,450;0,600;1,450&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/lesson.css">
+  <link rel="stylesheet" href="../assets/diagram.css">
+</head>
+<body>
+  <header class="mast">
+    <a href="../index.html">← All lessons</a>
+    <span>Lesson 0023 · Software factory 2 of 4</span>
+  </header>
+  <article>
+    <p class="kicker">Software factory</p>
+    <h1>A check the builder cannot see</h1>
+    <p class="lede"><a href="0022-the-lights-go-out-last.html">Lesson 0022</a> left you with a question: what replaced your eyes? Tonight you build the answer, about thirty lines of it. Three builds of the same refund feature are waiting. The builder’s own test passes all three. Two of them are wrong. <strong>Your check has to tell them apart without opening a single source file.</strong></p>
+
+    <div class="callout scope">
+      <p><strong>What this is.</strong> The validation half of a factory, at the size one developer can own: scenarios kept where the builder cannot reach them, a twin of one outside service, and a score. StrongDM’s words for the three: scenarios stored “outside the codebase,” like “a ‘holdout’ set in model training”; “behavioral clones of the third-party services our software depends on”; and a move from “the test suite is green” to a fraction that satisfies. <cite><a href="https://factory.strongdm.ai/">StrongDM · Software Factory</a></cite></p>
+      <p><strong>What this is not.</strong> A real agent building real code; the three builds are fixed files, so the exercise needs no API key. Not a full clone of Stripe. Not an LLM judge: the judge tonight is code, which <a href="0019-the-suite-has-two-jobs.html">0019</a> said to reach for first.</p>
+    </div>
+
+    <ol class="remember">
+      <li><strong>1 · Hold out</strong><span>The exam sits behind a wall.</span></li>
+      <li><strong>2 · Twin</strong><span>A fake service that keeps a ledger.</span></li>
+      <li><strong>3 · Score</strong><span>A fraction, read against a floor.</span></li>
+    </ol>
+    <p class="caption">The builder gets a number back. It never gets the exam.</p>
+
+    <figure class="art">
+      <img class="lesson-art" src="../assets/factory-two-rooms.svg" alt="Two rooms separated by a thick wall. Builder's room on the left holds the spec, db.ts, the builds and the builder's own visible test. Exam room on the right, yours, holds holdout scenarios, a Stripe twin with a ledger, a judge and a score. A build crosses to the right; only a score crosses back.">
+      <p class="caption">Architecture first. Everything on the right is yours. The builder’s own tests stay on the left, where they are worth what a student’s self-marking is worth.</p>
+    </figure>
+
+    <h2>Why the builder’s test is not enough</h2>
+    <p>An agent grading itself is generous. Anthropic’s harness team: agents “respond by confidently praising the work — even when, to a human observer, the quality is obviously mediocre.” Their fix was a separate evaluator that uses the running app “the way a user would.” <cite><a href="https://www.anthropic.com/engineering/harness-design-long-running-apps">Harness design for long-running apps</a></cite></p>
+    <p>And an agent left alone will solve exactly the problem the checker poses, no more. Nicholas Carlini, after sixteen agents built a compiler: “Claude will work autonomously to solve whatever problem I give it. So it’s important that the task verifier is nearly perfect.” <cite><a href="https://www.anthropic.com/engineering/building-c-compiler">Building a C compiler</a></cite></p>
+
+    <ul class="shapes">
+      <li><strong>Hold out</strong> <span>A scenario is an end-to-end user story with the outcome it must produce. Keep the set where the builder can neither read it nor edit it. If it can read it, it can memorise it. If it can edit it, it can pass it.</span></li>
+      <li><strong>Twin</strong> <span>A stand-in for an outside service that accepts the same calls and records them. StrongDM build theirs “from API contracts and observed edge cases, then validate them against the live dependency until we stop finding behavioral differences.” Yours needs only the calls your feature makes. <cite><a href="https://factory.strongdm.ai/techniques/dtu">Digital Twin Universe</a></cite></span></li>
+      <li><strong>Score</strong> <span>The fraction of scenarios whose outcome held. Read it against a floor: tonight a build that does nothing at all still scores 2 of 6.</span></li>
+    </ul>
+
+    <figure class="art">
+      <img class="lesson-art" src="../assets/factory-claim-vs-ledger.svg" alt="A build produces two things: a reply to the customer saying Refund of 60 dollars issued, labelled a claim, and a row in the Stripe twin's ledger, labelled the outcome. The judge reads the ledger. A dashed grey line from the reply to the judge is marked not read.">
+      <p class="caption">The twin is what makes the outcome readable. With real Stripe you would be checking by moving real money.</p>
+    </figure>
+
+    <figure class="worked">
+      <p class="worked-head">Same three builds · two checks</p>
+      <div class="worked-body">
+<pre class="pseudo"># THE BUILDER'S OWN TEST: one example from the spec, judged on the reply
+$ node builds/visible.test.ts
+  PASS  honest
+  PASS  talker
+  PASS  overfit
+
+# YOUR CHECK: six held-out scenarios, judged on the twin's ledger
+$ node board.ts
+
+  scenario                     honest   talker   overfit
+  annual, half the year left   pass     FAIL     pass
+  annual, a quarter left       pass     FAIL     FAIL
+  annual, bought today         pass     FAIL     pass
+  annual, five months left     pass     FAIL     FAIL
+  annual, year already used    pass     pass     FAIL
+  monthly plan                 pass     pass     FAIL
+
+  SCORE                        6 of 6   2 of 6   2 of 6</pre>
+      </div>
+      <p class="worked-note"><strong>What this shows.</strong> Three green ticks from the builder’s test, and two of those builds are broken. <code>talker</code> writes “Refund of $60 issued” and never calls Stripe; it survives any check that reads the reply. <code>overfit</code> learned the one example in the spec, INV-441, and refunds the full price for everything else, including a monthly plan that should get nothing. Both score 2 of 6 for different reasons, which is why you read the board and not only the total. The two scenarios <code>talker</code> passes are the two that expect no refund: doing nothing is right a third of the time here, so 2 of 6 is the floor, not partial credit.</p>
+    </figure>
+
+    <h2>Skill: build the check, then watch it catch them</h2>
+    <p>Predict first. Before you write the judge, decide what the reply is worth as evidence, and say why.</p>
+
+    <div class="lab">
+      <h3>Five checks on your check</h3>
+      <p>The grader does not grade a feature tonight. It grades your <em>harness</em>: a harness is good when it gives the honest build 6 of 6 and catches the other two.</p>
+<pre>cd code/0023-a-check-the-builder-cannot-see
+node builds/visible.test.ts
+node check.ts</pre>
+      <p>Three passes from the first command, five failures from the second. Open <a href="../code/0023-a-check-the-builder-cannot-see/harness.ts"><code>harness.ts</code></a> and write the three TODOs: the twin, the judge, the score. You may read <code>types.ts</code> and <code>holdout/scenarios.ts</code>. Do not open <code>builds/</code> to work out what is wrong with them; your check has to find that out by itself. Then:</p>
+<pre>node check.ts
+node board.ts</pre>
+      <p class="hint">If the honest build scores below 6 of 6, look at where your twin is created. If <code>talker</code> scores too well, look at what your judge trusts. Paste the FAIL line to me if it does not make sense. The answer is in <code>solution/harness.ts</code> for afterwards.</p>
+    </div>
+
+    <h2>Making the wall real</h2>
+    <p>In the exercise the wall is only a folder name. In a factory it has to hold against an agent that is trying to make a number go up. Three strengths, weakest first:</p>
+    <ul>
+      <li><strong>A deny rule.</strong> In Claude Code, rules are evaluated “deny, then ask, then allow.” <code>Read(./holdout/**)</code> and <code>Edit(./holdout/**)</code> in <code>permissions.deny</code> stop the file tools. The docs are plain about the limit: a rule on a shell command matches the text of the command and “isn’t a security boundary around the program.” <cite><a href="https://code.claude.com/docs/en/permissions">Claude Code · Permissions</a></cite></li>
+      <li><strong>A sandbox.</strong> Enforcement at the filesystem, which does not depend on what the command looks like. The same docs point here for anything that must hold.</li>
+      <li><strong>Somewhere else entirely.</strong> A separate repository and a CI job the builder has no credentials for. This is what “stored outside the codebase” means, and it is the 0020 rule applied to an exam: what never enters the room cannot be read in it.</li>
+    </ul>
+    <p>One leak is easy to miss, and this part is my reasoning from how holdout sets work, not a quoted source. The feedback arrow carries information. If you hand the builder the full text of every failed scenario, a few rounds later it has seen the whole exam. Send back what was observed (“a refund of 120 was made on a plan with a quarter left”), keep adding scenarios from real failures as <a href="0019-the-suite-has-two-jobs.html">0019</a> taught, and treat a score that climbs to perfect suspiciously fast as a reason to look.</p>
+
+    <div class="compare three">
+      <div class="compare-card">
+        <h3>Solo developer</h3>
+        <p>One feature. Six to ten scenarios you write before the agent starts. A twin of one service, covering only the calls you make. A deny rule and a CI job. An afternoon.</p>
+      </div>
+      <div class="compare-card">
+        <h3>Team</h3>
+        <p>Scenarios owned by whoever owns the behaviour, in their own repository. Twins checked against the vendor’s sandbox on a schedule, because a twin that drifts gives a false green.</p>
+      </div>
+      <div class="compare-card">
+        <h3>Next</h3>
+        <p>0024: the other room. What a repository needs so an agent can work in it for hours without you: a map, a record, and rules that are checked by code.</p>
+      </div>
+    </div>
+
+    <p class="sidenote">Parked: running each scenario several times because a real agent’s output varies, which is what makes StrongDM’s “satisfaction” a probability; LLM judges for outcomes code cannot grade, and calibrating them (0019); twins with state, rate limits and failure injection; Carlini’s advice to write the check’s output for the agent, a few lines and a fast sample, which belongs to 0024.</p>
+
+    <h2>Check</h2>
+    <p>From memory, after the grader is green.</p>
+    <form class="quiz" data-quiz data-answers="bbcac"
+          data-success="The holdout is unreadable by the builder. A twin is a clone of an outside service. The judge decides from the ledger. Doing nothing scored two because two scenarios expect no refund. Sending back full scenario text leaks the exam."
+          data-retry="Not yet. Look at the board in the grey box and the two-rooms picture, then try again.">
+      <fieldset>
+        <legend>1. The holdout scenarios must be</legend>
+        <label><input type="radio" name="q1" value="a"> written by the building agent</label>
+        <label><input type="radio" name="q1" value="b"> unreadable by the building agent</label>
+        <label><input type="radio" name="q1" value="c"> stored beside the unit tests</label>
+      </fieldset>
+      <fieldset>
+        <legend>2. A twin is</legend>
+        <label><input type="radio" name="q2" value="a"> a copy of the builder agent</label>
+        <label><input type="radio" name="q2" value="b"> a clone of an outside service</label>
+        <label><input type="radio" name="q2" value="c"> a second run of the tests</label>
+      </fieldset>
+      <fieldset>
+        <legend>3. The judge decides from</legend>
+        <label><input type="radio" name="q3" value="a"> the reply</label>
+        <label><input type="radio" name="q3" value="b"> the diff</label>
+        <label><input type="radio" name="q3" value="c"> the ledger</label>
+      </fieldset>
+      <fieldset>
+        <legend>4. A build that never calls Stripe scored 2 of 6 because</legend>
+        <label><input type="radio" name="q4" value="a"> two scenarios expect no refund</label>
+        <label><input type="radio" name="q4" value="b"> two replies sounded correct enough</label>
+        <label><input type="radio" name="q4" value="c"> two tests were written badly</label>
+      </fieldset>
+      <fieldset>
+        <legend>5. Sending the builder the full text of failed scenarios</legend>
+        <label><input type="radio" name="q5" value="a"> raises the score without any risk</label>
+        <label><input type="radio" name="q5" value="b"> makes the twin behave more accurately</label>
+        <label><input type="radio" name="q5" value="c"> leaks the exam to the builder</label>
+      </fieldset>
+      <button type="submit">Check</button>
+      <p class="feedback" data-feedback></p>
+    </form>
+
+    <div class="callout">
+      <p><strong>Primary source.</strong> <a href="https://www.anthropic.com/engineering/building-c-compiler">Building a C compiler with a team of parallel Claudes</a>, by Nicholas Carlini. Read the section on writing extremely high-quality tests. It is the clearest first-hand account of what happens when the verifier is the only thing steering the work, and it ends with the author’s own doubts. Then StrongDM’s short page on the <a href="https://factory.strongdm.ai/techniques/dtu">Digital Twin Universe</a>.</p>
+      <p>Card: <a href="../reference/software-factory.html">software factory</a> (now with the check). Suite: <a href="../reference/eval-suites.html">eval suites</a>. Outcome, not claim: <a href="../reference/evals.html">evals</a>. Wall: <a href="../reference/agent-security.html">agent security</a>.</p>
+    </div>
+
+    <footer class="lesson-foot">
+      <p>If “why not let the judge read the reply as well?” is fuzzy, or you want to sketch the scenarios and the twin for a feature at your work, pick the feature and the one outside service it touches, and write the first three scenarios before you build the twin. Next: <a href="0024-a-repo-agents-can-read.html">a repo agents can read</a>.</p>
+    </footer>
+  </article>
+  <script src="../assets/quiz.js"></script>
+  <script src="../assets/course-data.js"></script>
+  <script src="../assets/progress.js"></script>
+</body>
+</html>

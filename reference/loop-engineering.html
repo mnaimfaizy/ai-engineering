@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Loop engineering — cheat sheet</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:ital,wght@0,450;0,650;1,450&family=Source+Serif+4:ital,wght@0,450;0,600;1,450&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/lesson.css">
+  <link rel="stylesheet" href="../assets/diagram.css">
+</head>
+<body>
+  <header class="mast">
+    <a href="../index.html">← All lessons</a>
+    <span>Reference</span>
+  </header>
+  <article>
+    <p class="kicker">Cheat sheet</p>
+    <h1>Loop engineering</h1>
+    <p class="lede">From <a href="../lessons/0012-you-design-the-heartbeat.html">lesson 0012</a>. You design who prompts next. You are not Enter.</p>
+
+    <ol class="remember">
+      <li><strong>Verify</strong><span>Evidence in the transcript. Claims are not proof.</span></li>
+      <li><strong>Stop</strong><span>A condition, graded by a checker — not the maker.</span></li>
+      <li><strong>Schedule</strong><span>Clock, hook, or “not yet.” Starts the next turn.</span></li>
+    </ol>
+
+    <h2>Not</h2>
+    <ul>
+      <li>Not the inner while-loop (model picks tools). <a href="workflows.html">Workflow vs agent</a>.</li>
+      <li>Not harness MAX (a count / timeout). <a href="harnesses.html">Harness card</a>.</li>
+      <li><code>/goal</code> = condition after each turn. <code>/loop</code> = interval. Stop hook = your script.</li>
+      <li>Plugins and worktrees wait. You still confirm what shipped.</li>
+    </ul>
+    <p>Anthropic: don’t let the maker declare victory. Claude Code / Cursor both ship the three heartbeats. When this rung is the failure: <a href="stack-choice.html">stack choice</a>.</p>
+  </article>
+  <script src="../assets/course-data.js"></script>
+  <script src="../assets/progress.js"></script>
+</body>
+</html>

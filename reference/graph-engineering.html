@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Graph engineering — cheat sheet</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:ital,wght@0,450;0,650;1,450&family=Source+Serif+4:ital,wght@0,450;0,600;1,450&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/lesson.css">
+  <link rel="stylesheet" href="../assets/diagram.css">
+</head>
+<body>
+  <header class="mast">
+    <a href="../index.html">← All lessons</a>
+    <span>Reference</span>
+  </header>
+  <article>
+    <p class="kicker">Cheat sheet</p>
+    <h1>Graph engineering</h1>
+    <p class="lede">From <a href="../lessons/0013-you-draw-the-edges.html">lesson 0013</a>. Encode the valid paths. Leave holes where an agent may wander.</p>
+
+    <ol class="remember">
+      <li><strong>Node</strong><span>Does work. Code, one LLM call, or a full agent.</span></li>
+      <li><strong>Edge</strong><span>What happens next. Fixed or conditional.</span></li>
+      <li><strong>State</strong><span>The ticket. A graph is a state machine.</span></li>
+    </ol>
+
+    <h2>Not</h2>
+    <ul>
+      <li>Not the opposite of a loop — a loop is a tiny cyclic graph. <a href="loop-engineering.html">Loop card</a>.</li>
+      <li>Not “always LangGraph.” Open research stays a harness. <a href="harnesses.html">Harness card</a>.</li>
+      <li>Not a DAG religion. Production agents retry, ask, loop.</li>
+      <li>Workflow vs agent is still the first split. <a href="workflows.html">That card</a>.</li>
+    </ul>
+    <p>Runkle & Chase: mix deterministic and agentic nodes. LangGraph is the runtime; Deep Agents is a harness on top. Whether the mix earned the floor is an eval. <a href="evals.html">Evals card</a>. When to climb to a graph at all: <a href="stack-choice.html">stack choice</a>.</p>
+  </article>
+  <script src="../assets/course-data.js"></script>
+  <script src="../assets/progress.js"></script>
+</body>
+</html>

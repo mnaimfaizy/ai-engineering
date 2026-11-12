@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 460" font-family="'Source Sans 3','Segoe UI',system-ui,sans-serif">
+  <defs>
+    <marker id="j" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z" fill="#1c1917"/>
+    </marker>
+    <marker id="g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z" fill="#a8a29e"/>
+    </marker>
+  </defs>
+  <rect width="960" height="460" fill="#f7f1e5"/>
+  <text x="48" y="52" font-size="15" letter-spacing="2.4" fill="#9a3412" font-weight="650">THE TWIN · CLAIM VS OUTCOME</text>
+  <text x="48" y="80" font-size="15" fill="#44403c">A build produces two things. Only one of them is evidence.</text>
+
+  <!-- build -->
+  <rect x="48" y="210" width="190" height="90" rx="45" fill="#1d4e4a"/>
+  <text x="143" y="250" text-anchor="middle" font-size="19" font-weight="650" fill="#f7f1e5">The build</text>
+  <text x="143" y="275" text-anchor="middle" font-size="14" fill="#d6cbb6">POST /refund</text>
+
+  <!-- reply -->
+  <rect x="330" y="120" width="300" height="80" rx="6" fill="#efe6d4" stroke="#d6cbb6"/>
+  <text x="346" y="146" font-size="12" letter-spacing="1.4" fill="#a8a29e" font-weight="650">REPLY · A CLAIM</text>
+  <text x="346" y="178" font-size="15" fill="#44403c" font-family="'IBM Plex Mono',monospace">"Refund of $60 issued."</text>
+
+  <!-- twin -->
+  <rect x="330" y="270" width="300" height="130" rx="6" fill="#efe6d4" stroke="#9a3412" stroke-width="1.8"/>
+  <text x="346" y="296" font-size="12" letter-spacing="1.4" fill="#9a3412" font-weight="650">STRIPE TWIN · THE OUTCOME</text>
+  <text x="346" y="326" font-size="13" fill="#44403c" font-family="'IBM Plex Mono',monospace">ledger</text>
+  <line x1="346" y1="336" x2="614" y2="336" stroke="#d6cbb6"/>
+  <text x="346" y="362" font-size="15" fill="#1c1917" font-family="'IBM Plex Mono',monospace">re_1  INV-441  60</text>
+  <text x="346" y="386" font-size="12" fill="#44403c">Same calls as Stripe. No money moves.</text>
+
+  <!-- judge -->
+  <rect x="730" y="290" width="182" height="90" rx="6" fill="#efe6d4" stroke="#1c1917" stroke-width="1.6"/>
+  <text x="821" y="330" text-anchor="middle" font-size="19" font-weight="650" fill="#1c1917">Judge</text>
+  <text x="821" y="355" text-anchor="middle" font-size="14" fill="#44403c">pass or fail</text>
+
+  <!-- arrows -->
+  <path d="M238 240 Q290 200 322 172" stroke="#1c1917" stroke-width="1.8" fill="none" marker-end="url(#j)"/>
+  <path d="M238 270 Q290 300 322 322" stroke="#1c1917" stroke-width="1.8" fill="none" marker-end="url(#j)"/>
+  <path d="M630 335 H722" stroke="#1c1917" stroke-width="2" fill="none" marker-end="url(#j)"/>
+  <path d="M630 160 Q780 160 812 280" stroke="#a8a29e" stroke-width="1.8" stroke-dasharray="5 6" fill="none" marker-end="url(#g)"/>
+  <text x="716" y="150" font-size="13" fill="#a8a29e" font-weight="650">not read</text>
+  <text x="640" y="322" font-size="13" fill="#1c1917" font-weight="650">read</text>
+
+  <text x="48" y="436" font-size="13" fill="#44403c">Lesson 0014 again: grade the state of the world, not the last sentence.</text>
+</svg>

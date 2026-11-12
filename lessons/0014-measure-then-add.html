@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>0014 — Measure, then add</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:ital,wght@0,450;0,650;1,450&family=Source+Serif+4:ital,wght@0,450;0,600;1,450&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/lesson.css">
+  <link rel="stylesheet" href="../assets/diagram.css">
+</head>
+<body>
+  <header class="mast">
+    <a href="../index.html">← All lessons</a>
+    <span>Lesson 0014</span>
+  </header>
+  <article>
+    <p class="kicker">Evals and production judgment</p>
+    <h1>Measure, then add</h1>
+    <p class="lede">Lessons 0006–0013 gave you shapes: a path, a loop, a harness, a graph. Tonight is the gate. <strong>Do not add a node because it is trendy.</strong> Write a few real tasks, read the traces, keep the change only if a number you care about moves.</p>
+
+    <div class="callout scope">
+      <p><strong>What this is.</strong> An eval is a task (input + success criteria) plus a grader. A trial leaves a transcript. The outcome is the world after the trial — not the agent’s last sentence. Anthropic: 20–50 simple tasks from real failures is enough to start. <cite><a href="https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents">Demystifying evals for AI agents</a></cite></p>
+      <p><strong>What this is not.</strong> A vendor platform. Hundreds of synthetic tickets first. “The graph feels better.” LLM-as-judge calibration, pass@k, A/B, LangSmith — parked. Not a ChatGPT menu item named “Evals.”</p>
+    </div>
+
+    <ol class="remember">
+      <li><strong>1 · Task</strong><span>Input + what “pass” means. Start with ~20 real failures.</span></li>
+      <li><strong>2 · Trace</strong><span>The full trial record. Read it. Outcome ≠ the claim.</span></li>
+      <li><strong>3 · Gate</strong><span>Change one thing. Keep it only if the score moves.</span></li>
+    </ol>
+    <p class="caption">You already know how to draw edges. Tonight you decide whether they earned the floor.</p>
+
+    <figure class="art">
+      <img class="lesson-art" src="../assets/eval-measure-then-add.webp" alt="A cycle of four boxes: tasks, trace, score, gate. A side door labeled vibe check is crossed out. Title: measure, then add a node.">
+      <p class="caption">Architecture first. Baseline → one change → measure → keep or revert. Anthropic: add complexity only when it demonstrably improves outcomes.</p>
+    </figure>
+
+    <h2>Vibe is not an eval</h2>
+    <p>Hamel Husain’s point: teams stall on <em>vibe checks</em> — tasting the air after a prompt change. That plateau is why evals sit at the center of shipping. Start with error analysis: open traces, name the failure, then write a tiny assertion. Infrastructure can wait. <cite><a href="https://hamel.dev/blog/posts/evals/">Your AI Product Needs Evals</a></cite></p>
+
+    <figure class="art">
+      <img class="lesson-art" src="../assets/eval-vibe-vs-trace.webp" alt="Two columns. Left: a cook tasting the air, no numbers. Right: the same cook reading a ticket log and a database row. Caption: the agent said booked; the database did not.">
+      <p class="caption">Anthropic’s flight-booking example: the transcript may say “booked.” The outcome is whether a reservation exists in SQL.</p>
+    </figure>
+
+    <figure class="worked">
+      <p class="worked-head">One kitchen · eight tickets</p>
+      <div class="worked-body">
+<pre class="pseudo"># TASK — not “make it nicer”
+ticket 441: allergy + walnut crumb
+pass iff classify_before_till AND policy_holds
+
+# TRACE — last sentence lied
+assistant: "Refunded. You’re all set."
+tools:     refund(441)          # never classify
+outcome:   { refunded: true, classified: false }  → FAIL
+
+# GATE — change one thing
+open loop      3/8
++ classify     7/8   ← keep the edges
++ extra helper 7/8   ← revert (4× tokens)
+
+# NOT AN EVAL
+"The graph feels calmer."</pre>
+      </div>
+      <p class="worked-note"><strong>What this shows.</strong> Ticket 448 (open research) still fails after the graph — that is lesson 0013, not a missing node. The extra helper did not move the board. Production judgment is the gate, not the fashion.</p>
+    </figure>
+
+    <figure class="art">
+      <img class="lesson-art" src="../assets/eval-pass-board.webp" alt="A chalkboard of eight kitchen tickets with pass and fail stamps. After adding a classify node the board goes from three pass to seven. A discarded extra station is labeled sub-agent, 4x tokens, same score.">
+      <p class="caption">Kitchen only to make the board concrete. Capability evals start low on purpose — a hill to climb. Keep the node that moved the stamps.</p>
+    </figure>
+
+    <h2 id="fullstack">Same gate in a full-stack app</h2>
+    <p>The kitchen was a picture. The load-bearing object is an app you already know how to ship: React UI, an API, Postgres, Stripe. You add <code>POST /assistant</code> that can search docs, fetch an invoice, and issue a refund. That assistant is the loop. Evals are how you decide whether the next graph, RAG index, or sub-agent earned a place in it — the same way you already decide whether a cache earned a merge: not because it felt faster, because p95 moved.</p>
+
+    <ul class="shapes">
+      <li><strong>Ticket</strong> <span><code>POST /assistant</code> plus tenant, user, and the text. Last month’s Zendesk + Sentry failures are the suite — Anthropic’s 20–50, not a made-up sandbox.</span></li>
+      <li><strong>Classify / till</strong> <span>A <em>policy</em> code node before Stripe. Docs questions are retrieve-then-answer. “What are competitors charging?” is open research: do not graph it.</span></li>
+      <li><strong>Trace</strong> <span>One request id: model messages, tool calls, SQL, Stripe. The chat bubble is not the grade.</span></li>
+      <li><strong>Outcome</strong> <span>A row in <code>refunds</code> and a Stripe refund id — or not. Anthropic’s flight-booking SQL is this table.</span></li>
+    </ul>
+
+    <figure class="art">
+      <img class="lesson-art" src="../assets/eval-kitchen-to-app.webp" alt="Two rows. Top: kitchen ticket, classify, till. Bottom: HTTP request plus tenant, policy node, Stripe plus refunds table. Title: same gate.">
+      <p class="caption">Translate, do not replace. If you can name the HTTP request, the side-effect API, and the row that must exist, you can write a task.</p>
+    </figure>
+
+    <figure class="art">
+      <img class="lesson-art" src="../assets/eval-fullstack-trace.webp" alt="Browser POST /assistant flows through an API and an agent loop with search_docs, get_invoice, and stripe_refund, then Postgres and Stripe. A chat bubble says refunded; Stripe is marked as having no refund id.">
+      <p class="caption">Vibe is you clicking around staging. Trace is this picture for one request. Grade the cylinders, not the bubble.</p>
+    </figure>
+
+    <figure class="worked">
+      <p class="worked-head">One request · the same three rents</p>
+      <div class="worked-body">
+<pre class="pseudo"># TASK — a real failure, not “make the bot nicer”
+POST /assistant
+  tenant=acme  user=12
+  text="Refund INV-441. Annual plan."
+pass iff policy.check BEFORE stripe
+     AND refunds.policy_ok = true
+     AND stripe.refunds.retrieve(id).status = succeeded
+
+# TRACE — last sentence lied (open loop)
+assistant: "Refund issued. You’re all set."
+tools:     stripe.refunds.create({ invoice: "INV-441" })
+           # never policy.check(plan, window)
+outcome:   stripe re_1 succeeded
+           refunds.policy_ok = false     → FAIL
+
+# GATE — change one thing, as you would a cache
+open loop           3/8
++ policy-before-stripe  7/8   ← keep the graph
++ web-research helper   7/8   ← revert (4× tokens)
+
+# NOT AN EVAL
+"LangGraph feels more production."</pre>
+      </div>
+      <p class="worked-note"><strong>What this shows.</strong> Docs/SSO tickets are the “recipe” path — retrieve, then one answer. Refund tickets are the “till”: a mutation with a policy edge. Competitor research still fails after the graph; that is not a missing node. You already run this judgment on pull requests. The eval is the test suite for the assistant.</p>
+    </figure>
+
+    <h2>Skill: run the gate</h2>
+    <p><strong>Vibe</strong> is staging. <strong>Trace</strong> is one request id. <strong>Score</strong> is a small suite from production failures. <strong>Gate</strong> keeps only the change that moved the count. <strong>App</strong> is the same eight tickets on your stack.</p>
+
+    <div class="lab" data-eval-lab>
+      <h3>Kitchen first, then the app</h3>
+      <div class="btn-row">
+        <button type="button" data-scene="vibe">Vibe</button>
+        <button type="button" data-scene="trace">Trace</button>
+        <button type="button" data-scene="score">Score</button>
+        <button type="button" data-scene="gate">Gate</button>
+        <button type="button" data-scene="stack">App</button>
+      </div>
+      <p class="kind" data-kind></p>
+      <figure class="pipeline" data-path aria-label="Tonight’s look."></figure>
+      <div class="lab-meta">
+        <span>Pass rate <strong data-meter-label></strong></span>
+        <span>Tokens <strong data-tokens></strong></span>
+      </div>
+      <div class="meter" aria-hidden="true"><div class="meter-fill" data-fill></div></div>
+      <div class="board" data-board aria-label="Eight tickets."></div>
+      <div class="chat ticket-q" data-eval-chat></div>
+      <p class="cost-line" data-cost></p>
+      <p class="hint" data-eval-note></p>
+    </div>
+
+    <h2>Three names, one job</h2>
+    <div class="compare three">
+      <div class="compare-card">
+        <h3>Task</h3>
+        <p>One test: inputs and success criteria. Anthropic: 20–50 from real failures beats hundreds of toys, and beats waiting for a platform.</p>
+      </div>
+      <div class="compare-card">
+        <h3>Trace</h3>
+        <p>The transcript of a trial. Read it or you will grade the claim. Outcome is environment state after the run.</p>
+      </div>
+      <div class="compare-card">
+        <h3>Gate</h3>
+        <p>Simplest thing that works; add a graph, helper, or skill only when the suite moves. Latency and tokens are part of the score.</p>
+      </div>
+    </div>
+
+    <p class="sidenote">Parked here: pass@k, A/B, LangSmith. Capability vs regression and LLM-as-judge calibration are <a href="0019-the-suite-has-two-jobs.html">lesson 0019</a>. You do not need a vendor to start: a spreadsheet of 20 tickets and a human reading traces is an eval harness.</p>
+
+    <h2>Check</h2>
+    <form class="quiz" data-quiz data-answers="bbbab"
+          data-success="An eval is a task plus a grader. A trace is the full trial. Keep a node only when the number you track moves. Start with about twenty real failures. Outcome is the world after the trial, not the last sentence."
+          data-retry="Read the three rents at the top, then either grey box: kitchen or POST /assistant.">
+      <fieldset>
+        <legend>1. An eval starts as</legend>
+        <label><input type="radio" name="q1" value="a"> a bigger language model</label>
+        <label><input type="radio" name="q1" value="b"> a task plus grader</label>
+        <label><input type="radio" name="q1" value="c"> a vendor dashboard SKU</label>
+      </fieldset>
+      <fieldset>
+        <legend>2. A trace is</legend>
+        <label><input type="radio" name="q2" value="a"> the last chat sentence</label>
+        <label><input type="radio" name="q2" value="b"> the full trial record</label>
+        <label><input type="radio" name="q2" value="c"> the monthly token bill</label>
+      </fieldset>
+      <fieldset>
+        <legend>3. Keep a new node when</legend>
+        <label><input type="radio" name="q3" value="a"> the vendor names a graph</label>
+        <label><input type="radio" name="q3" value="b"> the number you track moves</label>
+        <label><input type="radio" name="q3" value="c"> the kitchen feels nicer now</label>
+      </fieldset>
+      <fieldset>
+        <legend>4. A first eval set is</legend>
+        <label><input type="radio" name="q4" value="a"> twenty real failure tasks</label>
+        <label><input type="radio" name="q4" value="b"> hundreds of fake tickets</label>
+        <label><input type="radio" name="q4" value="c"> a full platform install</label>
+      </fieldset>
+      <fieldset>
+        <legend>5. Outcome means</legend>
+        <label><input type="radio" name="q5" value="a"> the last agent sentence</label>
+        <label><input type="radio" name="q5" value="b"> the state after trial</label>
+        <label><input type="radio" name="q5" value="c"> the token count used</label>
+      </fieldset>
+      <button type="submit">Check</button>
+      <p class="feedback" data-feedback></p>
+    </form>
+
+    <div class="callout">
+      <p><strong>Primary source.</strong> <a href="https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents">Demystifying evals for AI agents</a> (task, trial, grader, transcript, outcome; 20–50 tasks; read the transcripts). Doctrine: <a href="https://www.anthropic.com/engineering/building-effective-agents">Building effective agents</a> — simplest solution; add complexity only when it <em>demonstrably</em> improves outcomes. Craft: <a href="https://hamel.dev/blog/posts/evals/">Your AI Product Needs Evals</a> (vibe-check plateau; error analysis before infrastructure).</p>
+      <p>Card: <a href="../reference/evals.html">evals</a>. Last shape: <a href="../reference/graph-engineering.html">graph engineering</a>. First split: <a href="../reference/workflows.html">workflow vs agent</a>.</p>
+    </div>
+
+    <footer class="lesson-foot">
+      <p>If the Stripe row vs the chat bubble is still fuzzy, replay the lab above and reread the <a href="../reference/evals.html">evals cheat sheet</a>. Next: <a href="0015-write-the-floor-once.html">the development floor</a> — guidelines, guardrails, and jobs in the repo for humans and agents. Plugins still wait.</p>
+    </footer>
+  </article>
+  <script src="../assets/eval-lab.js"></script>
+  <script src="../assets/quiz.js"></script>
+  <script src="../assets/course-data.js"></script>
+  <script src="../assets/progress.js"></script>
+</body>
+</html>

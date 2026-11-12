@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" font-family="'Source Sans 3','Segoe UI',system-ui,sans-serif">
+  <defs>
+    <marker id="n" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z" fill="#9a3412"/>
+    </marker>
+  </defs>
+  <rect width="960" height="540" fill="#f7f1e5"/>
+  <text x="48" y="52" font-size="15" letter-spacing="2.4" fill="#9a3412" font-weight="650">THE RAMP</text>
+  <text x="48" y="80" font-size="15" fill="#44403c">Four landings. You keep reading every diff on the first three. Only the fourth changes who looks.</text>
+
+  <!-- 1 -->
+  <rect x="48" y="300" width="204" height="100" rx="6" fill="#efe6d4" stroke="#d6cbb6"/>
+  <text x="64" y="328" font-size="13" letter-spacing="1.4" fill="#44403c" font-weight="650">1 · MAP + RECORDS</text>
+  <text x="64" y="354" font-size="13" fill="#1c1917">The repo explains itself.</text>
+  <text x="64" y="374" font-size="13" fill="#44403c">Lesson 0024 · an evening</text>
+
+  <!-- 2 -->
+  <rect x="268" y="250" width="204" height="150" rx="6" fill="#efe6d4" stroke="#d6cbb6"/>
+  <text x="284" y="278" font-size="13" letter-spacing="1.4" fill="#44403c" font-weight="650">2 · ONE CHECK</text>
+  <text x="284" y="304" font-size="13" fill="#1c1917">One feature. Scenarios,</text>
+  <text x="284" y="322" font-size="13" fill="#1c1917">a twin, a score.</text>
+  <text x="284" y="350" font-size="13" fill="#44403c">Lesson 0023 · an afternoon</text>
+
+  <!-- 3 -->
+  <rect x="488" y="200" width="204" height="200" rx="6" fill="#efe6d4" stroke="#1d4e4a" stroke-width="1.8"/>
+  <text x="504" y="228" font-size="13" letter-spacing="1.4" fill="#1d4e4a" font-weight="650">3 · SHADOW</text>
+  <text x="504" y="254" font-size="13" fill="#1c1917">The check runs beside</text>
+  <text x="504" y="272" font-size="13" fill="#1c1917">your own review.</text>
+  <text x="504" y="300" font-size="13" fill="#1c1917">Write your verdict first.</text>
+  <text x="504" y="318" font-size="13" fill="#1c1917">Log every disagreement.</text>
+  <text x="504" y="346" font-size="13" fill="#44403c">Each miss becomes</text>
+  <text x="504" y="364" font-size="13" fill="#44403c">a new scenario.</text>
+
+  <!-- 4 -->
+  <rect x="708" y="150" width="204" height="250" rx="6" fill="#1d4e4a"/>
+  <text x="724" y="178" font-size="13" letter-spacing="1.4" fill="#e7c9a9" font-weight="650">4 · RELEASE</text>
+  <text x="724" y="204" font-size="13" fill="#f7f1e5">One class of change</text>
+  <text x="724" y="222" font-size="13" fill="#f7f1e5">merges on the check.</text>
+  <text x="724" y="250" font-size="13" fill="#f7f1e5">You read a sample.</text>
+  <text x="724" y="278" font-size="13" fill="#e7c9a9">Only that class.</text>
+  <text x="724" y="296" font-size="13" fill="#e7c9a9">Only while the check</text>
+  <text x="724" y="314" font-size="13" fill="#e7c9a9">keeps agreeing with you.</text>
+
+  <!-- you still read -->
+  <path d="M48 418 H692" stroke="#44403c" stroke-width="1.4" fill="none"/>
+  <path d="M48 412 V424 M692 412 V424" stroke="#44403c" stroke-width="1.4"/>
+  <text x="48" y="442" font-size="13" fill="#44403c">You still read every diff.</text>
+
+  <!-- loop back -->
+  <path d="M810 404 C810 474 370 474 370 408" stroke="#9a3412" stroke-width="2.2" fill="none" marker-end="url(#n)" stroke-dasharray="1 0"/>
+  <text x="604" y="474" font-size="13" fill="#9a3412" font-weight="650">then the next class, from landing 2</text>
+
+  <rect x="48" y="492" width="864" height="30" rx="4" fill="none" stroke="#9a3412" stroke-width="1.4"/>
+  <text x="64" y="512" font-size="13" fill="#1c1917">A human stays on every landing for: the spec · the exam · anything that cannot be undone.</text>
+</svg>

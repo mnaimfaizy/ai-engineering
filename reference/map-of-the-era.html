@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Map of the era — AI Engineering</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:ital,wght@0,450;0,650;1,450&family=Source+Serif+4:ital,wght@0,450;0,600;1,450&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/lesson.css">
+</head>
+<body>
+  <header class="mast">
+    <a href="../index.html">← All lessons</a>
+    <span>AI Engineering</span>
+  </header>
+  <article>
+    <p class="kicker">Reference</p>
+    <h1>Map of the era</h1>
+    <p class="lede">One path from what the model sees to the names people use in 2026. Walk it in order. Later layers are ways of spending a token budget on purpose — not magic.</p>
+
+    <p>Anthropic’s working definition of an agent is an LLM using tools in a loop. LangChain’s point is that a loop is already a tiny graph, and a harness is the software wrapped around that loop. The “era” is those layers stacking, not a new kind of intelligence each month.</p>
+
+    <ol class="map-list now">
+      <li data-lesson="0001-the-model-sees-tokens">
+        <span class="n">01</span>
+        <div>
+          <strong><a href="../lessons/0001-the-model-sees-tokens.html">Tokens and next-token prediction</a></strong>
+          <div data-status></div>
+          The model does not read English. It reads a sequence of token IDs and emits the next one.
+        </div>
+      </li>
+      <li data-lesson="0002-the-window-is-ram">
+        <span class="n">02</span>
+        <div>
+          <strong><a href="../lessons/0002-the-window-is-ram.html">The context window is RAM</a></strong>
+          <div data-status></div>
+          One finite slot for system, history, tools, and output. Overflow vs rot vs the U-curve.
+        </div>
+      </li>
+      <li data-lesson="0003-the-call-is-a-transcript">
+        <span class="n">03</span>
+        <div>
+          <strong><a href="../lessons/0003-the-call-is-a-transcript.html">The API call and sampling</a></strong>
+          <div data-status></div>
+          Messages as a play script. Pack · read · pick. Temperature = safe vs spicy.
+        </div>
+      </li>
+      <li data-lesson="0004-look-it-up-then-ask">
+        <span class="n">04</span>
+        <div>
+          <strong><a href="../lessons/0004-look-it-up-then-ask.html">Look it up, then ask (RAG)</a></strong>
+          <div data-status></div>
+          Find a few pages, paste them into the script, then pick. Skip the shelf when you already have it.
+        </div>
+      </li>
+      <li data-lesson="0005-the-model-writes-a-slip">
+        <span class="n">05</span>
+        <div>
+          <strong><a href="../lessons/0005-the-model-writes-a-slip.html">The model writes a slip (tools + MCP)</a></strong>
+          <div data-status></div>
+          Propose · run · paste · pick. The model has a pen, not a thermometer. MCP is USB-C for kitchens.
+        </div>
+      </li>
+      <li data-lesson="0006-you-draw-the-path">
+        <span class="n">06</span>
+        <div>
+          <strong><a href="../lessons/0006-you-draw-the-path.html">Two architectures (workflow vs agent)</a></strong>
+          <div data-status></div>
+          You write the program. Workflow = your path. Agent = your loop; the model picks the next tool.
+        </div>
+      </li>
+      <li data-lesson="0007-the-harness-wraps-the-loop">
+        <span class="n">07</span>
+        <div>
+          <strong><a href="../lessons/0007-the-harness-wraps-the-loop.html">Harnesses</a></strong>
+          <div data-status></div>
+          The box around the loop: allow, run, stop, show. Cursor is an agent inside a harness.
+        </div>
+      </li>
+      <li data-lesson="0008-load-the-chapter">
+        <span class="n">08</span>
+        <div>
+          <strong><a href="../lessons/0008-load-the-chapter.html">Skills (progressive disclosure)</a></strong>
+          <div data-status></div>
+          A folder, not a second model. Catalog in RAM; load the chapter only when this task needs it.
+        </div>
+      </li>
+      <li data-lesson="0009-evict-compact-note">
+        <span class="n">09</span>
+        <div>
+          <strong><a href="../lessons/0009-evict-compact-note.html">Context engineering (evict · compact · note)</a></strong>
+          <div data-status></div>
+          Curate the attention budget. Evict dumps, compact into a summary, write a note to disk.
+        </div>
+      </li>
+      <li data-lesson="0010-keep-the-path">
+        <span class="n">10</span>
+        <div>
+          <strong><a href="../lessons/0010-keep-the-path.html">Just-in-time files</a></strong>
+          <div data-status></div>
+          Keep a path, not a page. Glob / grep / read this turn. The corpus stays on disk.
+        </div>
+      </li>
+      <li data-lesson="0011-the-helper-gets-a-clean-window">
+        <span class="n">11</span>
+        <div>
+          <strong><a href="../lessons/0011-the-helper-gets-a-clean-window.html">Sub-agents</a></strong>
+          <div data-status></div>
+          Give a helper a clean window; take back a short summary, not the search dump.
+        </div>
+      </li>
+      <li data-lesson="0012-you-design-the-heartbeat">
+        <span class="n">12</span>
+        <div>
+          <strong><a href="../lessons/0012-you-design-the-heartbeat.html">Loop engineering</a></strong>
+          <div data-status></div>
+          Design the cycle that prompts the agent: verify, stop, schedule — don’t type every turn.
+        </div>
+      </li>
+      <li data-lesson="0013-you-draw-the-edges">
+        <span class="n">13</span>
+        <div>
+          <strong><a href="../lessons/0013-you-draw-the-edges.html">Graph engineering</a></strong>
+          <div data-status></div>
+          Encode your knowledge as nodes and edges when a single loop is the wrong shape.
+        </div>
+      </li>
+      <li data-lesson="0014-measure-then-add">
+        <span class="n">14</span>
+        <div>
+          <strong><a href="../lessons/0014-measure-then-add.html">Evals and production judgment</a></strong>
+          <div data-status></div>
+          Measure, then add complexity only when it moves a number you care about.
+        </div>
+      </li>
+      <li data-lesson="0015-write-the-floor-once">
+        <span class="n">15</span>
+        <div>
+          <strong><a href="../lessons/0015-write-the-floor-once.html">Development flow (team floor)</a></strong>
+          <div data-status></div>
+          Write guidelines, guardrails, and named jobs in the repo so humans and agents share one floor.
+        </div>
+      </li>
+      <li data-lesson="0016-escalate-on-the-symptom">
+        <span class="n">16</span>
+        <div>
+          <strong><a href="../lessons/0016-escalate-on-the-symptom.html">Connecting the stack</a></strong>
+          <div data-status></div>
+          Name the failure, then climb: context, loop, or graph. Harness and floor wrap every rung.
+        </div>
+      </li>
+      <li data-lesson="0017-the-crate-is-not-a-model">
+        <span class="n">17</span>
+        <div>
+          <strong><a href="../lessons/0017-the-crate-is-not-a-model.html">Plugins</a></strong>
+          <div data-status></div>
+          A plugin is how Guide, Guard, Job, and MCP arrive — not a new model.
+        </div>
+      </li>
+    </ol>
+
+    <h2>Advanced path</h2>
+    <ol class="map-list now">
+      <li data-lesson="0018-one-id-through-the-world">
+        <span class="n">18</span>
+        <div>
+          <strong><a href="../lessons/0018-one-id-through-the-world.html">Production traces</a></strong>
+          <div data-status></div>
+          One request id across HTTP, agent spans, tools, and the world.
+        </div>
+      </li>
+      <li data-lesson="0019-the-suite-has-two-jobs">
+        <span class="n">19</span>
+        <div>
+          <strong><a href="../lessons/0019-the-suite-has-two-jobs.html">Production evals</a></strong>
+          <div data-status></div>
+          Capability vs regression; graduate the hill; calibrate the judge.
+        </div>
+      </li>
+      <li data-lesson="0020-the-prompt-is-not-the-wall">
+        <span class="n">20</span>
+        <div>
+          <strong><a href="../lessons/0020-the-prompt-is-not-the-wall.html">Agent security</a></strong>
+          <div data-status></div>
+          The prompt is not the wall: allowlist, untrusted text, secrets out.
+        </div>
+      </li>
+      <li data-lesson="0021-write-the-loop">
+        <span class="n">21</span>
+        <div>
+          <strong><a href="../lessons/0021-write-the-loop.html">Build track 1 · Write the loop</a></strong>
+          <div data-status></div>
+          The tool loop in TypeScript against a scripted model. No API key.
+        </div>
+      </li>
+      <li data-lesson="0022-the-lights-go-out-last">
+        <span class="n">22</span>
+        <div>
+          <strong><a href="../lessons/0022-the-lights-go-out-last.html">Software factory 1 · The lights go out last</a></strong>
+          <div data-status></div>
+          Seed · validate · feed back. Name what replaced the human reading the diff.
+        </div>
+      </li>
+      <li data-lesson="0023-a-check-the-builder-cannot-see">
+        <span class="n">23</span>
+        <div>
+          <strong><a href="../lessons/0023-a-check-the-builder-cannot-see.html">Software factory 2 · A check the builder cannot see</a></strong>
+          <div data-status></div>
+          Hold out · twin · score. Build the check in TypeScript and catch two bad builds.
+        </div>
+      </li>
+      <li data-lesson="0024-a-repo-agents-can-read">
+        <span class="n">24</span>
+        <div>
+          <strong><a href="../lessons/0024-a-repo-agents-can-read.html">Software factory 3 · A repo agents can read</a></strong>
+          <div data-status></div>
+          Record · map · rule. Put each fix in the right place; write a lint whose message is the fix.
+        </div>
+      </li>
+      <li data-lesson="0025-the-ramp">
+        <span class="n">25</span>
+        <div>
+          <strong><a href="../lessons/0025-the-ramp.html">Software factory 4 · The ramp</a></strong>
+          <div data-status></div>
+          Shadow · release · keep. Stop reading one class of change at a time; cap the bill; know where a human stays.
+        </div>
+      </li>
+    </ol>
+
+    <p class="sidenote">
+      Sources for the stack of names:
+      <a href="https://www.anthropic.com/engineering/building-effective-agents">Building effective agents</a>;
+      <a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents">Effective context engineering</a>;
+      <a href="https://www.langchain.com/blog/deep-agents-vs-langchain-vs-langgraph">Deep Agents vs LangChain vs LangGraph</a>;
+      <a href="https://www.langchain.com/blog/3-years-of-graph-engineering-with-langgraph">3 Years of Graph Engineering</a>;
+      <a href="https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents">Demystifying evals for AI agents</a>;
+      <a href="https://code.claude.com/docs/en/claude-md">CLAUDE.md</a>;
+      <a href="https://opentelemetry.io/docs/concepts/signals/traces/">OpenTelemetry traces</a>.
+      Full list in <a href="../RESOURCES.md">RESOURCES.md</a>.
+    </p>
+  </article>
+  <script src="../assets/course-data.js"></script>
+  <script src="../assets/progress.js"></script>
+</body>
+</html>

@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>0012 — You design the heartbeat</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:ital,wght@0,450;0,650;1,450&family=Source+Serif+4:ital,wght@0,450;0,600;1,450&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/lesson.css">
+  <link rel="stylesheet" href="../assets/diagram.css">
+</head>
+<body>
+  <header class="mast">
+    <a href="../index.html">← All lessons</a>
+    <span>Lesson 0012</span>
+  </header>
+  <article>
+    <p class="kicker">Loop engineering</p>
+    <h1>You design the heartbeat</h1>
+    <p class="lede">Lesson 0006 is the inner while: the model picks the next tool. Lesson 0007 is the box around one session. <strong>Loop engineering</strong> is who starts the next turn when you are not typing — and who is allowed to say “done.”</p>
+
+    <div class="callout scope">
+      <p><strong>What this is.</strong> Replacing yourself as the person who prompts. Cherny: write loops that prompt Claude. Claude Code’s <code>/goal</code> keeps working until a condition holds; a <em>separate</em> small model grades the transcript after each turn. <cite><a href="https://code.claude.com/docs/en/goal">Keep Claude working toward a goal</a> · <a href="https://addyosmani.com/blog/loop-engineering/">Osmani, Loop Engineering</a> (craft name, 2026)</cite></p>
+      <p><strong>What this is not.</strong> A new kind of model. The inner agent loop. The harness jobs (allow · run · stop · show). Plugins, worktrees, or a whole factory. Not a ChatGPT menu item named “Loop.”</p>
+    </div>
+
+    <ol class="remember">
+      <li><strong>1 · Verify</strong><span>A check that leaves evidence in the transcript. Claims are not proof.</span></li>
+      <li><strong>2 · Stop</strong><span>A condition, graded by a checker — not the maker, not a MAX count.</span></li>
+      <li><strong>3 · Schedule</strong><span>The next turn starts on a clock, a hook, or “not yet.” You are not Enter.</span></li>
+    </ol>
+    <p class="caption">Verify · stop · schedule. The inner loop from 0006 does not change. You stopped being its metronome.</p>
+
+    <figure class="art">
+      <img class="lesson-art" src="../assets/loop-heartbeat-cycle.webp" alt="A cycle of Act, Verify, Stop?, Schedule. A person sits outside the cycle labeled you design this. Caption: harness MAX is a count; a goal is a condition.">
+      <p class="caption">You sit outside the cycle. That is the design choice tonight — same as 0006’s “you draw the path,” one floor up.</p>
+    </figure>
+
+    <h2>Three loops, three jobs</h2>
+    <p>Inner loop: the model writes slips until it answers (0006). Harness: your code around that session — stamp, retry, MAX, show the plan (0007). Loop engineering: after that session (or that turn) <em>something else</em> decides whether to kick again. Auto mode still only approves tools inside one turn. <code>/goal</code> starts the next turn without you. <cite>Same /goal page · “Compare ways to keep a session running”</cite></p>
+
+    <figure class="pipeline" data-pipeline aria-label="Verify, stop, schedule.">
+      <div class="pipeline-step"><strong>Act</strong><span>one agent turn</span></div>
+      <div class="pipeline-arrow"><i class="token-dot" aria-hidden="true"></i></div>
+      <div class="pipeline-step"><strong>Verify</strong><span>evidence</span></div>
+      <div class="pipeline-arrow"><i class="token-dot" aria-hidden="true"></i></div>
+      <div class="pipeline-step"><strong>Stop?</strong><span>checker grades</span></div>
+      <div class="pipeline-arrow"><i class="token-dot" aria-hidden="true"></i></div>
+      <div class="pipeline-step"><strong>Kick</strong><span>clock or continue</span></div>
+    </figure>
+    <p class="caption"><code>/goal</code> = after each turn. <code>/loop</code> = a time interval. A Stop hook = your script. Cursor has the same three shapes (hooks, <code>/loop</code>, Automations).</p>
+
+    <figure class="art">
+      <img class="lesson-art" src="../assets/loop-maker-vs-checker.webp" alt="Left: a cook claiming done while the oven is still 188. Right: a second cook with a probe stamps NOT YET. Caption: the one who cooked does not grade.">
+      <p class="caption">Load-bearing split. Anthropic’s long-running agents: the model declares victory too early unless a feature list and tests exist. <cite><a href="https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents">Effective harnesses for long-running agents</a></cite></p>
+    </figure>
+
+    <figure class="worked">
+      <p class="worked-head">One goal · walnut crumb</p>
+      <div class="worked-body">
+<pre class="pseudo"># YOU ARE THE LOOP
+you: "is the stone ready?"
+you: "probe it"
+you: "plate when it hits 240"
+
+# A CONDITION, A CHECKER
+/goal stone is 240°C AND walnut crumb is plated
+       (proof: probe_stone exits 240; plate() ran)
+
+after each turn:
+  small model reads the transcript
+  "not yet" → another turn, reason becomes the next hint
+  "met"     → goal clears. You did not press Enter.
+
+# A CLOCK (no session open)
+06:00 cron → read NOTES.md → same goal if leftover</pre>
+      </div>
+      <p class="worked-note"><strong>What this shows.</strong> Write a condition the transcript can demonstrate — the evaluator does not run the probe itself. “I think we’re done” fails. <code>probe_stone() → 240</code> works. Include a bound if you need one (“or stop after 20 turns”). Maker and checker stay split: that is <code>/goal</code> under the hood, a prompt-based Stop hook.</p>
+    </figure>
+
+    <figure class="art">
+      <img class="lesson-art" src="../assets/loop-you-vs-wheel.webp" alt="Left: a diner shouting the next ticket each time. Right: a ticket wheel turns itself, a pass stamp verifies, a board lists the goal.">
+      <p class="caption">Kitchen only to make the heartbeat concrete. The load-bearing picture is the cycle.</p>
+    </figure>
+
+    <h2>Skill: name who kicked</h2>
+    <p><strong>Manual</strong> is you. <strong>Verify</strong> leaves a probe in the log. <strong>Stop</strong> is a checker verdict. <strong>Schedule</strong> is the clock — you are not in the room.</p>
+
+    <div class="lab" data-loop-lab>
+      <h3>Same ticket, four heartbeats</h3>
+      <div class="btn-row">
+        <button type="button" data-scene="manual">You type</button>
+        <button type="button" data-scene="verify">Verify</button>
+        <button type="button" data-scene="goal">Checker stop</button>
+        <button type="button" data-scene="sched">Schedule</button>
+      </div>
+      <p class="kind" data-kind></p>
+      <figure class="pipeline" aria-label="Three loop jobs.">
+        <div class="pipeline-step"><strong>Verify</strong><span>evidence</span></div>
+        <div class="pipeline-arrow"><i class="token-dot" aria-hidden="true"></i></div>
+        <div class="pipeline-step"><strong>Stop</strong><span>checker</span></div>
+        <div class="pipeline-arrow"><i class="token-dot" aria-hidden="true"></i></div>
+        <div class="pipeline-step"><strong>Schedule</strong><span>clock or kick</span></div>
+      </figure>
+      <div class="chat ticket-q" data-loop-chat></div>
+      <p class="cost-line" data-cost></p>
+      <p class="hint" data-loop-note></p>
+    </div>
+
+    <h2>Harness stop vs goal stop</h2>
+    <div class="compare three">
+      <div class="compare-card">
+        <h3>Harness MAX (0007)</h3>
+        <p>A count, a timeout, or a human pause. Protects the till. Does not know if the stone is 240.</p>
+      </div>
+      <div class="compare-card">
+        <h3>Maker says done</h3>
+        <p>The agent that cooked grades itself. Anthropic watched this declare the whole app finished too early.</p>
+      </div>
+      <div class="compare-card">
+        <h3>Checker stop</h3>
+        <p>A fresh model (or a script) reads evidence. <code>/goal</code>, a Stop hook, or a verify sub-agent (0011).</p>
+      </div>
+    </div>
+
+    <p class="sidenote">Parked: plugins (how a bundle arrives), git worktrees (parallel checkouts), the full “factory” Osmani lists. You already have skills, notes on disk, and helpers. Tonight is only the heartbeat. Token cost of an unattended loop can run wild — bound it. You still read what shipped; the loop does not retire the engineer.</p>
+
+    <h2>Check</h2>
+    <form class="quiz" data-quiz data-answers="bbbab"
+          data-success="Loop engineering is designing who prompts next. Verify with evidence. Stop when a checker — not the maker — says the condition holds. A schedule is a clock. Harness MAX is still just a count."
+          data-retry="Read the three rents at the top, then the walnut /goal in the grey box.">
+      <fieldset>
+        <legend>1. Loop engineering is</legend>
+        <label><input type="radio" name="q1" value="a"> typing every next turn</label>
+        <label><input type="radio" name="q1" value="b"> designing who prompts next</label>
+        <label><input type="radio" name="q1" value="c"> training a bigger model</label>
+      </fieldset>
+      <fieldset>
+        <legend>2. The checker should be</legend>
+        <label><input type="radio" name="q2" value="a"> the same maker agent</label>
+        <label><input type="radio" name="q2" value="b"> a fresh other judge</label>
+        <label><input type="radio" name="q2" value="c"> a larger token window</label>
+      </fieldset>
+      <fieldset>
+        <legend>3. A good stop condition is</legend>
+        <label><input type="radio" name="q3" value="a"> the model feeling done</label>
+        <label><input type="radio" name="q3" value="b"> tests passing with proof</label>
+        <label><input type="radio" name="q3" value="c"> twenty random extra turns</label>
+      </fieldset>
+      <fieldset>
+        <legend>4. A harness MAX stop is</legend>
+        <label><input type="radio" name="q4" value="a"> a count or a timeout</label>
+        <label><input type="radio" name="q4" value="b"> a judged goal condition</label>
+        <label><input type="radio" name="q4" value="c"> a morning cron schedule</label>
+      </fieldset>
+      <fieldset>
+        <legend>5. A schedule starts work</legend>
+        <label><input type="radio" name="q5" value="a"> when you type enter</label>
+        <label><input type="radio" name="q5" value="b"> when a clock fires</label>
+        <label><input type="radio" name="q5" value="c"> when the model trains</label>
+      </fieldset>
+      <button type="submit">Check</button>
+      <p class="feedback" data-feedback></p>
+    </form>
+
+    <div class="callout">
+      <p><strong>Primary source.</strong> The product form: <a href="https://code.claude.com/docs/en/goal">/goal</a> (condition, fresh evaluator, vs <code>/loop</code> vs Stop hooks). The failure it exists to fix: <a href="https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents">Effective harnesses for long-running agents</a> (declares victory too early; tests as a human would). The craft name and Cherny line: <a href="https://addyosmani.com/blog/loop-engineering/">Loop Engineering</a>. You already have hooks in this editor: <a href="https://cursor.com/docs/hooks">Cursor hooks</a> · <a href="https://cursor.com/docs/cloud-agent/automations">Automations</a>.</p>
+      <p>Card: <a href="../reference/loop-engineering.html">loop engineering</a>. Last box: <a href="../reference/harnesses.html">the harness</a>. Last helper: <a href="../reference/sub-agents.html">sub-agents</a>.</p>
+    </div>
+
+    <footer class="lesson-foot">
+      <p>If “is /goal a harness Stop or a checker?” is still fuzzy, replay the lab above and reread the <a href="../reference/loop-engineering.html">loop engineering cheat sheet</a>. Next: <a href="0013-you-draw-the-edges.html">you draw the edges</a> — nodes, edges, and state when a single loop would only hope.</p>
+    </footer>
+  </article>
+  <script src="../assets/pipeline.js"></script>
+  <script src="../assets/loop-lab.js"></script>
+  <script src="../assets/quiz.js"></script>
+  <script src="../assets/course-data.js"></script>
+  <script src="../assets/progress.js"></script>
+</body>
+</html>
